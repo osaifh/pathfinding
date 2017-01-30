@@ -1,21 +1,26 @@
 package pathfinding;
 import java.util.*;
-
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 public class Pathfinding {
     
-    public static void main(String[] args){
+    public static void main(String[] args) throws InterruptedException{
         //variable declarations and inicializations
-        boolean running = true, repeat = false;
+        boolean running = true;
         //dec is the variable we use to let the user choose what option he wants to do
         int dec = 0;
         Scanner user_input = new Scanner(System.in);
         Table t = new Table();
-        Player p = new Player(0,0);
-        Camera cam = new Camera();
-        cam.set_pos_xy(0,0);
-        cam.update(t);
         Objecte_list object_list = new Objecte_list();
-        //shows to the user all the possible options
+        Camera cam = new Camera(t);
+        cam.set_pos_xy(49,49);
+        cam.setFocusable(true);
+        long lastLoopTime = System.nanoTime();
+        int fps = 0;
+        double lastFpsTime = 0;
+        final int TARGET_FPS = 60;
+        final long OPTIMAL_TIME = 1000000000 / TARGET_FPS;
+        /*
         System.out.print("0 = stop \n"
                         +"1 = reset\n"
                         +"2 = generate n walls\n"
@@ -26,17 +31,55 @@ public class Pathfinding {
                         +"7 = shows the current path\n"
                         +"8 = prints the list of objects\n"
                         +"9 = run n iterations\n"
-                        +"10 = manual input mode\n"
                         +"11 = search ID in range x\n"
                         +"12 = generate n objectes with id x\n"
                         +"13 = simulate n iterations\n"
                         +"14 = fill the list with players\n"
                         +"15 = generate n boxes\n"
                         +"16 = generate a spawner\n");
+        */
+        t.generate_walls(200);
+        t.generate_object(200, 4);
+        Player p = new Player(49,49);
+                        t.add(49,49,p);
+                        object_list.add(p);
+                        p.set_index(object_list.get_index());
+        
+        
+        cam.set_active_player(p,object_list);
         while (running){
             //gets the user input
-            dec = user_input.nextInt();
+            //dec = user_input.nextInt();
+            
             //goes to the user choice
+            
+            //GAME LOOP
+            long now = System.nanoTime();
+            long updateLength = now - lastLoopTime;
+            lastLoopTime = now;
+            double delta = updateLength / ((double)OPTIMAL_TIME);
+
+            // update the frame counter
+            lastFpsTime += updateLength;
+            fps++;
+            
+            if (lastFpsTime >= 1000000000)
+            {
+               System.out.println("(FPS: "+fps+")");
+               lastFpsTime = 0;
+               fps = 0;
+            }
+
+            t.dark();
+            p.look_around(t,p.get_sight_range());
+            //object_list.simulate(t,object_list,delta);
+            cam.update();
+            try {
+                Thread.sleep( Math.abs(lastLoopTime-System.nanoTime() + OPTIMAL_TIME)/1000000 );
+                } catch(InterruptedException ex){
+                    Thread.currentThread().interrupt();
+                }   
+      /*
             switch (dec) {
                 case 0:
                     running = false;
@@ -57,9 +100,7 @@ public class Pathfinding {
                         System.out.println("Input the position to generate the object [x][y]");
                         int x = user_input.nextInt();
                         int y = user_input.nextInt();
-                        Objecte dot = new Objecte(4,x,y);
-                        t.add(4,x,y);
-                        object_list.add(dot);
+                        t.add(x, y, new Objecte(4,x,y));
                         break;
                     }
                 case 4:
@@ -97,38 +138,11 @@ public class Pathfinding {
                     {
                         System.out.println("Introdueix el numero de iteracions");
                         int n = user_input.nextInt();
-                        repeat = true;
-                        for (int i = 0; i < n - 1; ++i){
+                        for (int i = 0; i < n; ++i){
                             p.run(t,object_list);
-                            cam.set_pos(p.get_node());
-                            cam.update(t);
-                            try {
-                                Thread.sleep(500);
-                            } catch(InterruptedException ex){
-                                Thread.currentThread().interrupt();
-                            }
-                        }       p.run(t,object_list);
-                        cam.set_pos(p.get_node());
+                        }     
                         break;
                     }
-                case 10:
-                    System.out.println("Input manual activat, introdueix 5 per parar");
-                    boolean manual = true;
-                    int entrada;
-                    repeat = true;
-                    while (manual){
-                        entrada = user_input.nextInt();
-                        if (entrada != 5 & entrada > 0 & entrada < 10){
-                            p.i_move(t,entrada,object_list);
-                        } else manual = false;
-                        cam.set_pos(p.get_node());
-                        cam.update(t);
-                        try {
-                            Thread.sleep(500);
-                        } catch(InterruptedException ex){
-                            Thread.currentThread().interrupt();
-                        }
-                    }   break;
                 case 11:
                     {
                         System.out.println("Input the ID to search and the maximum search range:");
@@ -149,18 +163,9 @@ public class Pathfinding {
                     {
                         System.out.println("Input the number of iterations:");
                         int n = user_input.nextInt();
-                        repeat = true;
                         for (int i = 0; i < n - 1; ++i){
                             object_list.simulate(t,object_list);
-                            cam.set_pos(p.get_node());
-                            cam.update(t);
-                            try {
-                                Thread.sleep(400);
-                            } catch(InterruptedException ex){
-                                Thread.currentThread().interrupt();
-                            }
                         }
-                        cam.set_pos(p.get_node());
                         break;
                     }
                 case 14:
@@ -191,8 +196,7 @@ public class Pathfinding {
                     System.out.println("invalid input");
                     break;
             }
-            if (!repeat) cam.update(t);
-            else repeat = false;
+                */
         }
     }
 }

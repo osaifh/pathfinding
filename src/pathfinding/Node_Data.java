@@ -24,6 +24,7 @@ public class Node_Data extends Node_Par{
         toTarget = n.getFirst().distance(n.getFirst(), target);
         total = fromSource + toTarget;
     }
+    
     public Node get_Node(){
         return this.getFirst();
     }

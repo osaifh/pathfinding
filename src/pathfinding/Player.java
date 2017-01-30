@@ -6,20 +6,25 @@ import java.util.Random;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 public class Player extends Objecte {
-    private boolean move, alive;
+    private boolean move, alive, asleep;
     private Node[] runpath;
-    private int runindex, p_index, current_action, health;
+    private int runindex, p_index, current_action, hunger, stamina;
     private Memory mem, long_term;
+    private Random randint = new Random();
+    private LinkedList object_memory;
+    private final int sight_range = 10;
+    private final double tick_max = 30;
+    private double tick_counter = 0;
 
     public Player(int x, int y){
         set_id(2);
         set_xy(x,y);
-        move = false;
+        move = asleep = false;
         runpath = null;
         runindex = current_action = 0;
         mem = new Memory();
         long_term = new Memory();
-        health = 100;
+        hunger = stamina = 100;
         alive = true;
     }        
     
@@ -27,8 +32,16 @@ public class Player extends Objecte {
         return p_index;
     }
     
+    public int get_sight_range(){
+        return sight_range;
+    }
+    
     public boolean is_alive(){
         return alive;
+    }
+    
+    public boolean is_asleep(){
+        return asleep;
     }
 
     public void set_index(int x){
@@ -87,15 +100,6 @@ public class Player extends Objecte {
                             Node_Data new_data = new Node_Data(new_par,source,target);
                             qpath.add(new_data);
                             visitats.add(new_par);
-                            //DELETE THIS
-                            tab.set(temp,3);
-                            cam.set_pos(temp);
-                            cam.update(tab);
-                            try {
-                            Thread.sleep(150);
-                            } catch(InterruptedException ex){
-                                Thread.currentThread().interrupt();
-                            }
                         }
                     }
                 }
@@ -170,7 +174,7 @@ public class Player extends Objecte {
     }
 
     public void i_move(Table tab, int i, Objecte_list llista){
-        tab.set(get_node(),0);
+        tab.get_tile(get_node()).clear_objecte();
         switch (i) {
             case 0:
                 moveNW(tab);
@@ -199,7 +203,7 @@ public class Player extends Objecte {
             default:
                 break;
         }
-        tab.set(get_node(),2);
+        tab.get_tile(get_node()).set_objecte(this);
         llista.set_i(get_objecte(),p_index);
     }
 
@@ -209,11 +213,12 @@ public class Player extends Objecte {
                 tab.get_tile(get_node()).clear_objecte();
                 //eating
                 if (tab.get_tile(runpath[runindex]).get_ID()==4){
-                    health += 5;
+                    hunger += 10;
                     tab.get_tile(runpath[runindex]).clear_objecte();
                 }
                 set_node(runpath[runindex]);
                 tab.get_tile(get_node()).set_objecte(this);
+                llista.set_i(get_objecte(),p_index);
                 if (runindex == runpath.length-1) move = false;
                 else ++runindex;
             } else {
@@ -225,7 +230,6 @@ public class Player extends Objecte {
     private Node[] run_away(Table tab){
         move = true;
         runindex = 0;
-        Random randint = new Random();
         int length = 5 + randint.nextInt(6);
         Node[] newpath = new Node[length];
         for (int i = 0; i < length; ++i){
@@ -261,30 +265,129 @@ public class Player extends Objecte {
         return newpath;
     }
     
-    @Override
-    public void simulate(Table tab,Objecte_list llista){
-        --health;
-        if (health <= 1) alive = false;
-        if(!move) current_action = 0;
-        if (current_action == 0){
-            long_term.add(get_node());
-            find_ID(4,tab,6);
-            if (move & runpath != null){
-                current_action = 2;
-            } else {
-                runpath = run_away(tab);
-                if (runpath != null){
-                    current_action = 1;
+    public void idle(Table tab, Objecte_list llista){
+        int decision = randint.nextInt(2);
+        if (decision == 0){
+            Node next_step = new Node();
+            do {
+                decision = randint.nextInt(8);
+                next_step = get_node().direction(decision,1);
+            } while (!tab.check(next_step) || !tab.get_tile(next_step).is_passable());
+            tab.get_tile(get_node()).clear_objecte();
+            set_node(next_step);
+            tab.get_tile(get_node()).set_objecte(this);
+        }
+    }
+    
+    public void sleep(){
+        System.out.println("Sleeping");
+        stamina += 10;
+    }
+    
+    public void look_around(Table tab, int range){
+            tab.get_tile(get_node()).lit = true;
+            for (int i = -1; i < 2; ++i){
+                for (int j = -1; j < 2; ++j){
+                    if (i!=0 && j !=0){
+                        look_direction(tab,1,1.0f,0.0f, 0,i,j,0,range);
+                        look_direction(tab,1,1.0f,0.0f, i,0,0,j,range);
+                    }
                 }
             }
-            run(tab,llista);
+    }
+    
+    private void look_direction(Table tab, int row, float start, float end, int xx, int xy, int yx, int yy, int range){
+        float newStart = 0.0f;
+        if (start < end){
+            return;
         }
-        //aixo s´ha de canviar, es redundant
-        else if (current_action == 1){
+        boolean blocked = false;
+        for (int distance = row; distance <= range && !blocked; distance++){
+            int deltaY = -distance;
+            for (int deltaX = -distance; deltaX <= 0; deltaX++){
+                int currentX = get_node().get_x() + deltaX * xx + deltaY * xy;
+                int currentY = get_node().get_y() + deltaX * yx + deltaY * yy;
+                float leftSlope = (deltaX - 0.5f) / (deltaY + 0.5f);
+                float rightSlope = (deltaX + 0.5f) / (deltaY - 0.5f);
+                if (!(tab.valid(currentX,currentY)) || start < rightSlope){
+                    continue;
+                } else if (end > leftSlope){
+                    break;
+                }
+                Node delta = new Node(currentX,currentY);
+                if (delta.distance(get_node(),delta) <= range){
+                    tab.get_tile(delta).set_lit(true);
+                }
+                
+                if (blocked){
+                    if (!tab.check_passable(currentX,currentY)){
+                        newStart = rightSlope;
+                        continue;
+                    } else {
+                        blocked = false;
+                        start = newStart;
+                    }
+                } else {
+                    if (!tab.check_passable(currentX,currentY) && delta.distance(get_node(),delta) <= 10){
+                        blocked = true;
+                        look_direction(tab,distance + 1,start, leftSlope, xx, xy, yx, yy, range);
+                        newStart = rightSlope;
+                    }
+                }
+            }
+        }
+    }
+    
+    @Override
+    public void simulate(Table tab,Objecte_list llista, double delta){
+        tick_counter += delta;
+        if (tick_counter >= tick_max){
+        tick_counter = 0;
+        --hunger;
+        if (!asleep) --stamina;
+        
+        if (current_action == 0){
+            long_term.add(get_node());
+            if (stamina<25){
+                current_action = 3;
+                asleep = true;
+            }
+            else if (hunger<75){
+                find_ID(4,tab,6);
+                if (move & runpath != null){
+                    current_action = 1;
+                } else {
+                    runpath = run_away(tab);
+                    if (runpath != null){
+                        current_action = 1;
+                    }
+                }
+            }
+            else {
+                current_action = 2;
+            }
+        }
+        
+        if (current_action == 1){
             run(tab,llista);
+            if(!move) current_action = 0;
         }
         else if (current_action == 2){
-            run(tab,llista);
+            idle(tab,llista);
+            if (hunger < 75 || stamina < 25) current_action = 0;
+        }
+        else if (current_action == 3){
+            sleep();
+            if (stamina >= 75){
+                asleep = false;
+                current_action = 0;
+            }
+        }
+        
+        if (hunger <= 0 || stamina <= 0){
+            tab.get_tile(get_node()).clear_objecte();
+            alive = false;
+        }
         }
     }
     
@@ -293,6 +396,6 @@ public class Player extends Objecte {
             System.out.println("object ID: " + get_id());
             System.out.println("position x = " + get_node().get_x() + " y = " + get_node().get_y());
             System.out.println("Player index is " + p_index);
-            System.out.println("Health: " + health);
+            System.out.println("Health: " + hunger + " Stamina: " + stamina);
     }
 }

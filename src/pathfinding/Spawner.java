@@ -12,7 +12,7 @@ public class Spawner extends Objecte {
     }
     
     @Override
-    public void simulate(Table tab, Objecte_list llista){
+    public void simulate(Table tab, Objecte_list llista, double delta){
         ++counter;
         if (counter == interval){
             System.out.println("Spawning a new item");

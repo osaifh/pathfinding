@@ -25,7 +25,7 @@ public class Objecte {
             System.out.println("posicio x = " + pos.get_x() + " y = " + pos.get_y());
         }
         
-        public void simulate(Table tab,Objecte_list llista){}
+        public void simulate(Table tab,Objecte_list llista, double delta){}
         
         public Objecte get_objecte(){
             return this;

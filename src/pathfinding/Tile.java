@@ -3,7 +3,7 @@ package pathfinding;
 import java.util.Random;
 public class Tile {
     int terrain_id;
-    boolean passable;
+    boolean passable, lit;
     Objecte content;
     Random gen = new Random();
     
@@ -11,6 +11,14 @@ public class Tile {
         if (gen.nextInt(2)==1) terrain_id = 0;
         else terrain_id = 5;
         passable = true;
+        content = null;
+        lit = false;
+    }
+    
+    public Tile(int terrain_id){
+        this.terrain_id = terrain_id;
+        if (terrain_id == 1) passable = false;
+        else passable = true;
         content = null;
     }
 
@@ -60,5 +68,9 @@ public class Tile {
     public void clear_objecte(){
         content = null;
         passable = true;
+    }
+    
+    public void set_lit(boolean b){
+        lit = b;
     }
 }

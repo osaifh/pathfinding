@@ -58,13 +58,12 @@ public class Objecte_list {
         for (int i = 0; i < index; i++) list[i].print();
     }
     
-    public void simulate(Table t, Objecte_list llista){
+    public void simulate(Table t, Objecte_list llista, double delta){
         for (int i = 0; i < index; i++){
             if (list[i].get_id() == 2){
                 if (!((Player)list[i]).is_alive()) llista.remove(list[i],t);
             }
-            list[i].simulate(t,llista);
-            list[i].print();
+            list[i].simulate(t,llista,delta);
         }
     }
 }

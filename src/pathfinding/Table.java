@@ -9,9 +9,13 @@ public class Table {
         
         public Table(){
             tab = new Tile[table_size][table_size];
+            int aux;
+            float[][] tab_gen = GeneratePerlinNoise(GenerateWhiteNoise(table_size,table_size),4);
             for (int i = 0; i < table_size; ++i){
                 for (int j = 0; j < table_size; ++j){
-                    tab[i][j] = new Tile();
+                    if (tab_gen[i][j]>0.5)aux=5;
+                    else aux = 0;
+                    tab[i][j] = new Tile(aux);
                 }
             }
         }
@@ -27,7 +31,7 @@ public class Table {
         }
         
         public boolean check(Node act){
-            if (Table.this.valid(act)){
+            if (valid(act)){
                 return (tab[act.get_x()][act.get_y()].is_passable());
             }
             else return false;
@@ -44,7 +48,7 @@ public class Table {
         }
         
         public boolean check_exc(Node act, int exc){
-            if (Table.this.valid(act)){
+            if (valid(act)){
                 return (tab[act.get_x()][act.get_y()].is_passable() || tab[act.get_x()][act.get_y()].get_ID()==exc);
             }
             else return false;
@@ -173,15 +177,6 @@ public class Table {
                     ++entropy;
                 }
                 
-                //DELETE THIS
-                act.set(begin.get_x()+i, begin.get_y());
-                cam.set_pos(act);
-                cam.update(this);
-                try {
-                            Thread.sleep(200);
-                        } catch(InterruptedException ex){
-                            Thread.currentThread().interrupt();
-                        }
                 
                 if (check_xy(begin.get_x()+i,begin.get_y()+height-1)){
                     roll = boxgenerator.nextInt(num_squares)-entropy;
@@ -200,15 +195,7 @@ public class Table {
                     ++entropy;
                 }
                 
-                //DELETE THIS
-                act.set(begin.get_x()+i, begin.get_y()+height-1);
-                cam.set_pos(act);
-                cam.update(this);
-                try {
-                            Thread.sleep(200);
-                        } catch(InterruptedException ex){
-                            Thread.currentThread().interrupt();
-                        }
+
                 
             }
             //generate vertical walls
@@ -230,16 +217,6 @@ public class Table {
                     ++entropy;
                 }
                 
-                //DELETE THIS
-                act.set(begin.get_x(), begin.get_y()+i);
-                cam.set_pos(act);
-                cam.update(this);
-                try {
-                            Thread.sleep(200);
-                        } catch(InterruptedException ex){
-                            Thread.currentThread().interrupt();
-                        }
-                
                 if (check_xy(begin.get_x()+width-1,begin.get_y()+i)){
                     roll = boxgenerator.nextInt(num_squares)-entropy;
                     if (roll > 0 || curr_doors == num_doors) tab[begin.get_x()+width-1][begin.get_y()+i].set_wall();
@@ -258,16 +235,6 @@ public class Table {
                     ++entropy;
                 }
                 
-                //DELETE THIS
-                act.set(begin.get_x()+width-1, begin.get_y()+i);
-                cam.set_pos(act);
-                cam.update(this);
-                try {
-                            Thread.sleep(200);
-                        } catch(InterruptedException ex){
-                            Thread.currentThread().interrupt();
-                        }
-                
             }
             System.out.println("Generated a box at position"); begin.print();
         }
@@ -276,19 +243,13 @@ public class Table {
             for (int i = 0; i <= n; ++i){
                 Node position = new Node();
                 position.generate(table_size);
-                boolean valid = false;
                 int attempt = 0;
-                while (!valid & attempt<max_attempts){
-                    if (tab[position.get_x()][position.get_y()].is_passable()){
-                        tab[position.get_x()][position.get_y()].set_objecte(new Objecte(position.get_x(),position.get_y(),id));
-                        valid = true;
-                    }
-                    if (!valid){
-                        position.generate(table_size);
-                        ++attempt;
-                    }
-                }
+                do{
+                    position.generate(table_size);
+                    ++attempt;
+                } while (!tab[position.get_x()][position.get_y()].is_passable() && attempt < max_attempts);
                 if (attempt == max_attempts) System.out.println("Ran out of attempts");
+                else tab[position.get_x()][position.get_y()].set_objecte(new Objecte(id,position.get_x(),position.get_y()));
             }
         }
         
@@ -333,4 +294,101 @@ public class Table {
         public void update_object(Objecte obj){
            tab[obj.get_node().get_x()][obj.get_node().get_x()].set_objecte(obj);
         }
+        
+        private float[][] GenerateWhiteNoise(int width, int height){
+            Random random = new Random();
+            float[][] noise = new float[width][height];
+            for (int i = 0; i < width; i++){
+                for (int j = 0; j < height; j++){
+                    noise[i][j] = (float)random.nextDouble() % 1;
+                }
+            }
+            return noise;
+        }
+        
+        private float[][] GeneratePerlinNoise(float[][] baseNoise, int octaveCount){
+            int width = baseNoise.length;
+            int height = baseNoise[0].length;
+            float[][][] smoothNoise = new float[octaveCount][][];
+            float persistance = 0.5f;
+            //generate smooth noise
+            for (int i = 0; i < octaveCount; i++){
+                smoothNoise[i] = GenerateSmoothNoise(baseNoise, i);
+            }
+            float[][] perlinNoise = new float[width][height];
+            float amplitude = 1.0f;
+            float totalAmplitude = 0.0f;
+            //blend noise together
+            for (int octave = octaveCount - 1; octave >= 0; octave--)
+             {
+                amplitude *= persistance;
+                totalAmplitude += amplitude;
+                for (int i = 0; i < width; i++){
+                   for (int j = 0; j < height; j++){
+                      perlinNoise[i][j] += smoothNoise[octave][i][j] * amplitude;
+                   }
+                }
+             }
+
+            //normalisation
+            for (int i = 0; i < width; i++){
+               for (int j = 0; j < height; j++){
+                  perlinNoise[i][j] /= totalAmplitude;
+               }
+            }
+
+           return perlinNoise;
+        }
+        
+        private float[][] GenerateSmoothNoise(float[][] baseNoise, int octave){
+            int width = baseNoise.length;
+            int height = baseNoise[0].length;
+
+            float[][] smoothNoise = new float [width][height];
+
+            int samplePeriod = 1 << octave; // calculates 2 ^ k
+            float sampleFrequency = 1.0f / samplePeriod;
+
+            for (int i = 0; i < width; i++)
+            {
+               //calculate the horizontal sampling indices
+               int sample_i0 = (i / samplePeriod) * samplePeriod;
+               int sample_i1 = (sample_i0 + samplePeriod) % width; //wrap around
+               float horizontal_blend = (i - sample_i0) * sampleFrequency;
+
+               for (int j = 0; j < height; j++)
+               {
+                  //calculate the vertical sampling indices
+                  int sample_j0 = (j / samplePeriod) * samplePeriod;
+                  int sample_j1 = (sample_j0 + samplePeriod) % height; //wrap around
+                  float vertical_blend = (j - sample_j0) * sampleFrequency;
+
+                  //blend the top two corners
+                  float top = Interpolate(baseNoise[sample_i0][sample_j0],
+                     baseNoise[sample_i1][sample_j0], horizontal_blend);
+
+                  //blend the bottom two corners
+                  float bottom = Interpolate(baseNoise[sample_i0][sample_j1],
+                     baseNoise[sample_i1][sample_j1], horizontal_blend);
+
+                  //final blend
+                  smoothNoise[i][j] = Interpolate(top, bottom, vertical_blend);
+               }
+            }
+
+            return smoothNoise;
     }
+        
+        private float Interpolate(float x0, float x1, float alpha){
+            return x0 * (1 - alpha) + alpha * x1;
+        }
+        
+        public void dark(){
+            for (int i = 0; i < table_size; ++i){
+                for (int j = 0; j < table_size; ++j){
+                    tab[i][j].set_lit(false);
+                }
+            }
+        }
+       
+}
