@@ -11,6 +11,7 @@ import java.awt.Rectangle;
 import javax.swing.JLayeredPane;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
 
 public class Camera extends JFrame{
     private final int camera_size = 11;
@@ -18,20 +19,24 @@ public class Camera extends JFrame{
     Player active_player;
     Objecte_list obj_list;
     private Node position = new Node();
+    private boolean camera_lock;
     JLayeredPane jpanel = getLayeredPane();
     JLabel[][] terrain_table = new JLabel[camera_size][camera_size];
     JLabel[][] object_table = new JLabel[camera_size][camera_size];
     JLabel[][] light_table = new JLabel[camera_size][camera_size];
     //JPanel jpanel = (JPanel) this.getContentPane(); 
-    ImageIcon black = new ImageIcon("D:\\pathfinding\\src\\resources\\Black.png");
-    ImageIcon red = new ImageIcon("D:\\pathfinding\\src\\resources\\Red.png");
-    ImageIcon grass = new ImageIcon("D:\\pathfinding\\src\\resources\\Grass.png");
-    ImageIcon brown = new ImageIcon("D:\\pathfinding\\src\\resources\\Brown.png");
-    ImageIcon player = new ImageIcon("D:\\pathfinding\\src\\resources\\Player.png");
-    ImageIcon wall = new ImageIcon("D:\\pathfinding\\src\\resources\\Wall.png");
-    ImageIcon food = new ImageIcon("D:\\pathfinding\\src\\resources\\Food.png");
+    //FIX THIS
+    String filePath = new File("").getAbsolutePath();
+    ImageIcon black = new ImageIcon(filePath+"\\src\\resources\\Black.png");
+    ImageIcon red = new ImageIcon(filePath+"\\src\\resources\\Red.png");
+    ImageIcon grass = new ImageIcon(filePath+"\\src\\resources\\Grass.png");
+    ImageIcon brown = new ImageIcon(filePath+"\\src\\resources\\Brown.png");
+    ImageIcon player = new ImageIcon(filePath+"\\src\\resources\\Player.png");
+    ImageIcon wall = new ImageIcon(filePath+"\\src\\resources\\Wall.png");
+    ImageIcon food = new ImageIcon(filePath+"\\src\\resources\\Food.png");
     
     public Camera(Table t){
+        camera_lock = false;
         jpanel.setLayout(null);
         jpanel.setBackground(Color.lightGray);
         jpanel.setPreferredSize(new Dimension(640,640));
@@ -62,20 +67,22 @@ public class Camera extends JFrame{
     KeyListener listener = new KeyListener(){
             @Override
             public void keyPressed(KeyEvent event){
-                if (event.getKeyCode() == KeyEvent.VK_LEFT){
-                    position.setNode(position.direction(3,1));
-                }
-                if (event.getKeyCode() == KeyEvent.VK_RIGHT){
-                   position.setNode(position.direction(4,1));
-                }
-                if (event.getKeyCode() == KeyEvent.VK_UP){
-                   position.setNode(position.direction(1,1));
-                }
-                if (event.getKeyCode() == KeyEvent.VK_DOWN){
-                   position.setNode(position.direction(6,1));
+                if (!camera_lock){
+                    if (event.getKeyCode() == KeyEvent.VK_LEFT){
+                        position.setNode(position.direction(3,1));
+                    }
+                    if (event.getKeyCode() == KeyEvent.VK_RIGHT){
+                       position.setNode(position.direction(4,1));
+                    }
+                    if (event.getKeyCode() == KeyEvent.VK_UP){
+                       position.setNode(position.direction(1,1));
+                    }
+                    if (event.getKeyCode() == KeyEvent.VK_DOWN){
+                       position.setNode(position.direction(6,1));
+                    }
                 }
                 if (event.getKeyCode() == KeyEvent.VK_SPACE){
-                   active_player.look_around(t,20);
+                   t.get_tile(position).clear();
                 }
                 if (event.getKeyCode() == KeyEvent.VK_A){
                    active_player.i_move(t,3,obj_list);
@@ -88,6 +95,28 @@ public class Camera extends JFrame{
                 }
                 if (event.getKeyCode() == KeyEvent.VK_D){
                    active_player.i_move(t,4,obj_list);
+                }
+                if (event.getKeyCode() == KeyEvent.VK_C){
+                   if (camera_lock){
+                       camera_lock = false;
+                       position = new Node(position.get_x(), position.get_y());
+                   }
+                   else {
+                       camera_lock = true;
+                       position = active_player.get_node();
+                   }
+                }
+                if (event.getKeyCode() == KeyEvent.VK_1){
+                   Player n = new Player(position.get_x(),position.get_y());
+                   obj_list.add(n,true);
+                   n.set_index(obj_list.get_index());
+                   t.add(position.get_x(),position.get_y(),n);
+                }
+                if (event.getKeyCode() == KeyEvent.VK_2){
+                   t.set(position,1);
+                }
+                if (event.getKeyCode() == KeyEvent.VK_3){
+                   t.get_tile(position).set_objecte(new Objecte(4,position.get_x(),position.get_y()));
                 }
                 t.get_tile(active_player.get_node()).lit = true;
             }

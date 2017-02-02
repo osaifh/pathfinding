@@ -70,6 +70,14 @@ public class Tile {
         passable = true;
     }
     
+    public void clear(){
+        if (terrain_id != 0 && terrain_id!= 5){
+            terrain_id = 5;
+        }
+        content = null;
+        passable = true;
+    }
+    
     public void set_lit(boolean b){
         lit = b;
     }

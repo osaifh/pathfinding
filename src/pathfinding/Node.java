@@ -30,6 +30,10 @@ public class Node {
     public int get_y() {
         return y;
     }
+    
+    public Node get_node_copy(){
+        return new Node(x,y);
+    }
 
     public void set(int x, int y) {
         this.x = x;

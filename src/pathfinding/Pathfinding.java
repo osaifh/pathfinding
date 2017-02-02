@@ -38,13 +38,13 @@ public class Pathfinding {
                         +"15 = generate n boxes\n"
                         +"16 = generate a spawner\n");
         */
+        
+        Player p = new Player(49,49);
+            t.add(49,49,p);
+            object_list.add(p, false);
+            p.set_index(object_list.get_index());
         t.generate_walls(200);
         t.generate_object(200, 4);
-        Player p = new Player(49,49);
-                        t.add(49,49,p);
-                        object_list.add(p);
-                        p.set_index(object_list.get_index());
-        
         
         cam.set_active_player(p,object_list);
         while (running){
@@ -66,13 +66,14 @@ public class Pathfinding {
             if (lastFpsTime >= 1000000000)
             {
                System.out.println("(FPS: "+fps+")");
+               object_list.print();
                lastFpsTime = 0;
                fps = 0;
             }
 
             t.dark();
             p.look_around(t,p.get_sight_range());
-            //object_list.simulate(t,object_list,delta);
+            object_list.simulate(t,object_list,delta);
             cam.update();
             try {
                 Thread.sleep( Math.abs(lastLoopTime-System.nanoTime() + OPTIMAL_TIME)/1000000 );

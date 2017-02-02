@@ -3,10 +3,12 @@ package pathfinding;
 public class Objecte_list {
     private final int max_size = 50;
     private Objecte[] list;
+    private boolean[] active_list;
     private int index;
     
     public Objecte_list(){
         list = new Objecte[max_size];
+        active_list = new boolean[max_size];
         index = 0;
     }
     
@@ -33,9 +35,10 @@ public class Objecte_list {
         if (i >= 0 & i < index) list[i]=a;
     }
     
-    public void add(Objecte a){
+    public void add(Objecte a, boolean active){
         if (index != (max_size-1)){
             list[index] = a;
+            active_list[index] = active;
             ++index;
         }
     }
@@ -55,15 +58,20 @@ public class Objecte_list {
     }
     
     public void print(){
-        for (int i = 0; i < index; i++) list[i].print();
+        for (int i = 0; i < index; i++){
+            list[i].print();
+            System.out.println(active_list[i]);
+        }
     }
     
     public void simulate(Table t, Objecte_list llista, double delta){
         for (int i = 0; i < index; i++){
-            if (list[i].get_id() == 2){
+            if (list[i]!=null && list[i].get_id() == 2 && active_list[i]){
                 if (!((Player)list[i]).is_alive()) llista.remove(list[i],t);
             }
-            list[i].simulate(t,llista,delta);
+            if (active_list[i]){
+                list[i].simulate(t,llista,delta);
+            }
         }
     }
 }

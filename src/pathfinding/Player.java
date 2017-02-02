@@ -204,7 +204,7 @@ public class Player extends Objecte {
                 break;
         }
         tab.get_tile(get_node()).set_objecte(this);
-        llista.set_i(get_objecte(),p_index);
+        //llista.set_i(get_objecte(),p_index);
     }
 
     public void run(Table tab, Objecte_list llista){
@@ -218,7 +218,7 @@ public class Player extends Objecte {
                 }
                 set_node(runpath[runindex]);
                 tab.get_tile(get_node()).set_objecte(this);
-                llista.set_i(get_objecte(),p_index);
+                //llista.set_i(get_objecte(),p_index);
                 if (runindex == runpath.length-1) move = false;
                 else ++runindex;
             } else {

@@ -256,6 +256,7 @@ public class Table {
         public void set(Node pos, int id){
             if (Table.this.valid(pos)){
                 tab[pos.get_x()][pos.get_y()].set_ID(id);
+                if (id == 1) tab[pos.get_x()][pos.get_y()].passable = false;
             }
         }
         
