@@ -1,42 +1,61 @@
 package pathfinding;
 
 import javax.swing.JLabel; 
-import javax.swing.JPanel;
 import javax.swing.JFrame; 
 import javax.swing.ImageIcon;
-import javax.swing.JTextField;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import javax.swing.JLayeredPane;
-import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 
-public class Camera extends JFrame{
+/**
+ * This class is used to render what the camera currently shows.
+ * @author Me
+ */
+public class Camera extends JFrame {
     private final int camera_size = 11;
     Table t;
-    Player active_player;
-    Objecte_list obj_list;
+    ObjecteList obj_list;
     private Node position = new Node();
     private boolean camera_lock;
     JLayeredPane jpanel = getLayeredPane();
     JLabel[][] terrain_table = new JLabel[camera_size][camera_size];
     JLabel[][] object_table = new JLabel[camera_size][camera_size];
+    JLabel[][] sight_table = new JLabel[camera_size][camera_size];
     JLabel[][] light_table = new JLabel[camera_size][camera_size];
-    //JPanel jpanel = (JPanel) this.getContentPane(); 
-    //FIX THIS
+    //Sprite paths:
     String filePath = new File("").getAbsolutePath();
     ImageIcon black = new ImageIcon(filePath+"\\src\\resources\\Black.png");
     ImageIcon red = new ImageIcon(filePath+"\\src\\resources\\Red.png");
     ImageIcon grass = new ImageIcon(filePath+"\\src\\resources\\Grass.png");
+    ImageIcon grass_NW = new ImageIcon(filePath+"\\src\\resources\\Grass_edge_NW.png");
+    ImageIcon grass_NE = new ImageIcon(filePath+"\\src\\resources\\Grass_edge_NE.png");
+    ImageIcon grass_SW = new ImageIcon(filePath+"\\src\\resources\\Grass_edge_SW.png");
+    ImageIcon grass_SE = new ImageIcon(filePath+"\\src\\resources\\Grass_edge_SE.png");
     ImageIcon brown = new ImageIcon(filePath+"\\src\\resources\\Brown.png");
     ImageIcon player = new ImageIcon(filePath+"\\src\\resources\\Player.png");
     ImageIcon wall = new ImageIcon(filePath+"\\src\\resources\\Wall.png");
     ImageIcon food = new ImageIcon(filePath+"\\src\\resources\\Food.png");
-    
-    public Camera(Table t){
-        camera_lock = false;
+    ImageIcon dark1 = new ImageIcon(filePath+"\\src\\resources\\dark\\dark1.png");
+    ImageIcon dark2 = new ImageIcon(filePath+"\\src\\resources\\dark\\dark2.png");
+    ImageIcon dark3 = new ImageIcon(filePath+"\\src\\resources\\dark\\dark3.png");
+    ImageIcon dark4 = new ImageIcon(filePath+"\\src\\resources\\dark\\dark4.png");
+    ImageIcon dark5 = new ImageIcon(filePath+"\\src\\resources\\dark\\dark5.png");
+    ImageIcon dark6 = new ImageIcon(filePath+"\\src\\resources\\dark\\dark6.png");
+    ImageIcon dark7 = new ImageIcon(filePath+"\\src\\resources\\dark\\dark7.png");
+    ImageIcon dark8 = new ImageIcon(filePath+"\\src\\resources\\dark\\dark8.png");
+    ImageIcon dark9 = new ImageIcon(filePath+"\\src\\resources\\dark\\dark9.png");
+    ImageIcon dark10 = new ImageIcon(filePath+"\\src\\resources\\dark\\dark10.png");
+       
+    /**
+     * Constructor class for camera
+     * @param t indicates the source table
+     * @param listener contains the listener used to handle controls
+     */
+    public Camera(Table t, KeyListener listener) {
+        camera_lock = true;
         jpanel.setLayout(null);
         jpanel.setBackground(Color.lightGray);
         jpanel.setPreferredSize(new Dimension(640,640));
@@ -54,128 +73,133 @@ public class Camera extends JFrame{
                     object_table[i][j] = new JLabel();
                     object_table[i][j].setBounds(new Rectangle(15, (i)*64,(j)*64, 64)); 
                     object_table[i][j].setHorizontalAlignment(JLabel.RIGHT);
+                    sight_table[i][j] = new JLabel();
+                    sight_table[i][j].setBounds(new Rectangle(15, (i)*64,(j)*64, 64)); 
+                    sight_table[i][j].setHorizontalAlignment(JLabel.RIGHT);
                     light_table[i][j] = new JLabel();
                     light_table[i][j].setBounds(new Rectangle(15, (i)*64,(j)*64, 64)); 
                     light_table[i][j].setHorizontalAlignment(JLabel.RIGHT);
                     jpanel.add(terrain_table[i][j], new Integer(0));
                     jpanel.add(object_table[i][j], new Integer(1));
-                    jpanel.add(light_table[i][j], new Integer(2));
+                    jpanel.add(sight_table[i][j], new Integer(2));
+                    jpanel.add(light_table[i][j], new Integer(3));
                 }
            }
     }
     
-    KeyListener listener = new KeyListener(){
-            @Override
-            public void keyPressed(KeyEvent event){
-                if (!camera_lock){
-                    if (event.getKeyCode() == KeyEvent.VK_LEFT){
-                        position.setNode(position.direction(3,1));
-                    }
-                    if (event.getKeyCode() == KeyEvent.VK_RIGHT){
-                       position.setNode(position.direction(4,1));
-                    }
-                    if (event.getKeyCode() == KeyEvent.VK_UP){
-                       position.setNode(position.direction(1,1));
-                    }
-                    if (event.getKeyCode() == KeyEvent.VK_DOWN){
-                       position.setNode(position.direction(6,1));
-                    }
-                }
-                if (event.getKeyCode() == KeyEvent.VK_SPACE){
-                   t.get_tile(position).clear();
-                }
-                if (event.getKeyCode() == KeyEvent.VK_A){
-                   active_player.i_move(t,3,obj_list);
-                }
-                if (event.getKeyCode() == KeyEvent.VK_W){
-                   active_player.i_move(t,1,obj_list);
-                }
-                if (event.getKeyCode() == KeyEvent.VK_S){
-                   active_player.i_move(t,6,obj_list);
-                }
-                if (event.getKeyCode() == KeyEvent.VK_D){
-                   active_player.i_move(t,4,obj_list);
-                }
-                if (event.getKeyCode() == KeyEvent.VK_C){
-                   if (camera_lock){
-                       camera_lock = false;
-                       position = new Node(position.get_x(), position.get_y());
-                   }
-                   else {
-                       camera_lock = true;
-                       position = active_player.get_node();
-                   }
-                }
-                if (event.getKeyCode() == KeyEvent.VK_1){
-                   Player n = new Player(position.get_x(),position.get_y());
-                   obj_list.add(n,true);
-                   n.set_index(obj_list.get_index());
-                   t.add(position.get_x(),position.get_y(),n);
-                }
-                if (event.getKeyCode() == KeyEvent.VK_2){
-                   t.set(position,1);
-                }
-                if (event.getKeyCode() == KeyEvent.VK_3){
-                   t.get_tile(position).set_objecte(new Objecte(4,position.get_x(),position.get_y()));
-                }
-                t.get_tile(active_player.get_node()).lit = true;
-            }
-            
-            @Override
-            public void keyReleased(KeyEvent event){
-            }
-            
-            @Override
-            public void keyTyped(KeyEvent event){
-            }
-            
-        };
-    
-    public int get_size(){
+    /**
+     * Gets the size of the camera
+     * @return Returns the size of the camera
+     */
+    public int getCameraSize() {
         return camera_size;
     }
     
-    public Node get_pos(){
+    /**
+     * Gets the current position in the table of the camera
+     * @return Returns the current position in the table of the camera
+     */
+    public Node getPos() {
         return position;
     }
     
-    public void set_pos(Node x){
-        position = x;
+    /**
+     * Returns whether the camera is locked to the player position
+     * @return Returns whether the camera is locked
+     */
+    public boolean isLocked() {
+        return camera_lock;
     }
     
-    public void set_pos_xy(int x, int y){
+    /**
+     * Locks or unlocks the camera to the player position
+     * @param b Whether to set the camera lock to true or false
+     */
+    public void setLocked(boolean b) {
+        camera_lock = b;
+    }
+    
+    /**
+     * Sets the position of the camera
+     * @param n
+     */
+    public void setPos(Node n) {
+        position = n;
+    }
+    
+    /**
+     * Overloaded function that sets the position of the camera using specific coordinates instead of a node
+     * @param x horizontal coordinate
+     * @param y vertical coordinate
+     */
+    public void setPos(int x, int y) {
         position.set(x, y);
     }
     
-    public void set_active_player(Player p, Objecte_list obj){
-        active_player = p;
-        obj_list = obj;
-    }
-    
-    public void update(){
+    /**
+     * Updates the icons that the camera currently displays
+     */
+    public void update() {
         int id, x, y;
-        for (int i = 0; i < camera_size; ++i){
-            for (int j = 0; j < camera_size; ++j){
-                x = i+(position.get_x()-(camera_size/2));
-                y = j+(position.get_y()-(camera_size/2));
-                if (t.check_xy(x,y)){
-                    if (t.get_tile(x, y).lit) light_table[i][j].setIcon(null);
-                    else light_table[i][j].setIcon(black);
-                    id = t.tab_id(x,y);
-                         if (id==0) terrain_table[i][j].setIcon(grass);
-                    else if (id==1) terrain_table[i][j].setIcon(wall);
-                    else if (id==3) terrain_table[i][j].setIcon(red);
-                    else if (id==5) terrain_table[i][j].setIcon(brown);
-                    if (t.get_object(x,y)!=null){
-                             if (t.get_object(x,y).get_id()==2) object_table[i][j].setIcon(player);
-                        else if (t.get_object(x,y).get_id()==4) object_table[i][j].setIcon(food);
+        for (int i = 0; i < camera_size; ++i) {
+            for (int j = 0; j < camera_size; ++j) {
+                x = i+(position.getX()-(camera_size/2));
+                y = j+(position.getY()-(camera_size/2));
+                if (t.valid(x,y)) {
+                    if (t.getTile(x,y).isLit()) sight_table[i][j].setIcon(null);
+                    else sight_table[i][j].setIcon(black);
+                    id = t.getID(x,y);
+                    switch (id) {
+                        case 0:
+                            terrain_table[i][j].setIcon(grass);
+                            break;
+                        case 1:
+                            terrain_table[i][j].setIcon(wall);
+                            break;
+                        case 3:
+                            terrain_table[i][j].setIcon(red);
+                            break;
+                        case 5:
+                            terrain_table[i][j].setIcon(brown);
+                            break;
+                        case 6:
+                            terrain_table[i][j].setIcon(grass_NW);
+                            break;
+                        case 7:
+                            terrain_table[i][j].setIcon(grass_NE);
+                            break;
+                        case 8:
+                            terrain_table[i][j].setIcon(grass_SW);
+                            break;
+                        case 9:
+                            terrain_table[i][j].setIcon(grass_SE);
+                            break;
+                        default:
+                            terrain_table[i][j].setIcon(null);
+                            break;
+                    }
+                    if (t.getObject(x,y)!=null) {
+                             if (t.getObject(x,y).getID()==2 || t.getObject(x,y).getID()==10) object_table[i][j].setIcon(player);
+                        else if (t.getObject(x,y).getID()==4) object_table[i][j].setIcon(food);
                     } else {
                         object_table[i][j].setIcon(null);
                     }
+                         if (t.getTile(x, y).getLight()>=100) light_table[i][j].setIcon(null);
+                    else if (t.getTile(x, y).getLight()>90) light_table[i][j].setIcon(dark1);
+                    else if (t.getTile(x, y).getLight()>80) light_table[i][j].setIcon(dark2);
+                    else if (t.getTile(x, y).getLight()>70) light_table[i][j].setIcon(dark3);
+                    else if (t.getTile(x, y).getLight()>60) light_table[i][j].setIcon(dark4);
+                    else if (t.getTile(x, y).getLight()>50) light_table[i][j].setIcon(dark5);
+                    else if (t.getTile(x, y).getLight()>40) light_table[i][j].setIcon(dark6);
+                    else if (t.getTile(x, y).getLight()>30) light_table[i][j].setIcon(dark7);
+                    else if (t.getTile(x, y).getLight()>20) light_table[i][j].setIcon(dark8);
+                    else if (t.getTile(x, y).getLight()>10) light_table[i][j].setIcon(dark9);
+                    else light_table[i][j].setIcon(dark10);
                 } else {
                     terrain_table[i][j].setIcon(black);
                     object_table[i][j].setIcon(null);
-                    light_table[i][j].setIcon(black);
+                    sight_table[i][j].setIcon(null);
+                    light_table[i][j].setIcon(null);
                 }
             }
         }

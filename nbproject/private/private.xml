@@ -5,7 +5,7 @@
             <url>src/pathfinding/Pathfinding.java</url>
             <bookmark id="1">
                 <name/>
-                <line>5</line>
+                <line>7</line>
                 <key/>
             </bookmark>
         </file>
@@ -22,16 +22,19 @@
         <group name="Java">
             <file>file:/D:/pathfinding/src/pathfinding/Player.java</file>
             <file>file:/D:/pathfinding/src/pathfinding/Table.java</file>
+            <file>file:/D:/pathfinding/src/pathfinding/controller.java</file>
             <file>file:/D:/pathfinding/src/pathfinding/Node.java</file>
+            <file>file:/D:/pathfinding/src/pathfinding/Camera.java</file>
             <file>file:/D:/pathfinding/src/pathfinding/Pathfinding.java</file>
+            <file>file:/D:/pathfinding/src/pathfinding/Tile.java</file>
         </group>
         <group>
-            <file>file:/D:/pathfinding/src/pathfinding/Player.java</file>
+            <file>file:/D:/pathfinding/src/pathfinding/Controller.java</file>
             <file>file:/D:/pathfinding/src/pathfinding/Node.java</file>
+            <file>file:/D:/pathfinding/src/pathfinding/Objecte.java</file>
             <file>file:/D:/pathfinding/src/pathfinding/Memory.java</file>
             <file>file:/D:/pathfinding/src/pathfinding/Camera.java</file>
             <file>file:/D:/pathfinding/src/pathfinding/Pathfinding.java</file>
-            <file>file:/D:/pathfinding/src/pathfinding/Par_List.java</file>
             <file>file:/D:/pathfinding/src/pathfinding/Tile.java</file>
         </group>
     </open-files>

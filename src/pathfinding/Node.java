@@ -2,17 +2,33 @@ package pathfinding;
 
 import java.util.Random;
 
+/**
+ *
+ * @author Alumne
+ */
 public class Node {
 
     private int x, y;
 
+    /**
+     *
+     */
     public Node(){}
     
+    /**
+     *
+     * @param x
+     * @param y
+     */
     public Node(int x, int y){
         this.x = x;
         this.y = y;
     }
     
+    /**
+     *
+     * @param size
+     */
     public void generate(int size) {
         Random randomGenerator = new Random();
         x = randomGenerator.nextInt(size);
@@ -23,32 +39,62 @@ public class Node {
         return (a.x == this.x & a.y == this.y);
     }
 
-    public int get_x() {
+    /**
+     *
+     * @return
+     */
+    public int getX() {
         return x;
     }
 
-    public int get_y() {
+    /**
+     *
+     * @return
+     */
+    public int getY() {
         return y;
     }
     
-    public Node get_node_copy(){
+    /**
+     *
+     * @return
+     */
+    public Node getNodeCopy(){
         return new Node(x,y);
     }
 
+    /**
+     *
+     * @param x
+     * @param y
+     */
     public void set(int x, int y) {
         this.x = x;
         this.y = y;
     }
     
+    /**
+     *
+     * @param n
+     */
     public void setNode(Node n){
         this.x = n.x;
         this.y = n.y;
     }
 
-    public double distance(Node one, Node two) {
+    /**
+     *
+     * @param one
+     * @param two
+     * @return
+     */
+    public static double distance(Node one, Node two) {
         return Math.sqrt(Math.pow(((double) one.x - (double) two.x), 2) + Math.pow(((double) one.y - (double) two.y), 2));
     }
     
+    /**
+     *
+     */
     public void print(){
         System.out.println("x es " + x + " y es " + y); 
     }
@@ -61,18 +107,26 @@ public class Node {
         5 6 7  SW S SE
     
     */
+
+    /**
+     *
+     * @param pos
+     * @param increment
+     * @return
+     */
+
     
     public Node direction(int pos, int increment){
         Node dir = new Node();
         dir.setNode(this);
-        if (pos == 0) dir.set(dir.get_x()-increment, dir.get_y()-increment);
-        if (pos == 1) dir.set(dir.get_x()-increment, dir.get_y());
-        if (pos == 2) dir.set(dir.get_x()-increment, dir.get_y()+increment);
-        if (pos == 3) dir.set(dir.get_x(), dir.get_y()-increment);
-        if (pos == 4) dir.set(dir.get_x(), dir.get_y()+increment);
-        if (pos == 5) dir.set(dir.get_x()+increment, dir.get_y()-increment);
-        if (pos == 6) dir.set(dir.get_x()+increment, dir.get_y());
-        if (pos == 7) dir.set(dir.get_x()+increment, dir.get_y()+increment);
+        if (pos == 0) dir.set(dir.getX()-increment, dir.getY()-increment);
+        if (pos == 1) dir.set(dir.getX()-increment, dir.getY());
+        if (pos == 2) dir.set(dir.getX()-increment, dir.getY()+increment);
+        if (pos == 3) dir.set(dir.getX(), dir.getY()-increment);
+        if (pos == 4) dir.set(dir.getX(), dir.getY()+increment);
+        if (pos == 5) dir.set(dir.getX()+increment, dir.getY()-increment);
+        if (pos == 6) dir.set(dir.getX()+increment, dir.getY());
+        if (pos == 7) dir.set(dir.getX()+increment, dir.getY()+increment);
         return dir;
     }
 }

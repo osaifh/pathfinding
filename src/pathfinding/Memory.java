@@ -1,15 +1,26 @@
 package pathfinding;
 
+/**
+ *
+ * @author Alumne
+ */
 public class Memory {
     private Node[] content;
     int index, size;
     final int max_size = 10;
     
+    /**
+     *
+     */
     public Memory(){
         content = new Node[max_size];
         index = size = 0;
     }
     
+    /**
+     *
+     * @param act
+     */
     public void add(Node act){
         if(act!=null){
             content[index]= act;
@@ -19,33 +30,53 @@ public class Memory {
         }
     }
     
-    public Node get_node(int i){
+    /**
+     *
+     * @param i
+     * @return
+     */
+    public Node getNode(int i){
         if (i < size){
             return content[i];
         }
         else return null;
     }
     
+    /**
+     *
+     * @param dest
+     * @return
+     */
     public int check(Node dest){
         int eval = 0;
         if (size > 0){
             int x = 0;
             for (int i = 0; i < size; ++i){
-                eval += dest.distance(dest,content[i]);
+                eval += Node.distance(dest,content[i]);
             }
         }
         return eval;
     }
     
+    /**
+     *
+     */
     public void wipe(){
         size = 0;
         index = 0;
     }
     
-    public int get_size(){
+    /**
+     *
+     * @return
+     */
+    public int getSize(){
         return size;
     }
     
+    /**
+     *
+     */
     public void print(){
         for (int i = 0; i < size; ++i){
             System.out.println("Position " + i + " contains ");
