@@ -4,7 +4,7 @@ package pathfinding;
  *
  * @author Alumne
  */
-public class NodeData extends NodePar{
+public class NodeData extends NodePair {
     final double fromSource;
     final double toTarget;
     final double total;
@@ -12,7 +12,7 @@ public class NodeData extends NodePar{
     /**
      *
      */
-    public NodeData(){
+    public NodeData() {
         fromSource=0;
         toTarget=0;
         total=0;
@@ -24,7 +24,7 @@ public class NodeData extends NodePar{
      * @param source
      * @param target
      */
-    public NodeData(Node n, Node source, Node target){
+    public NodeData(Node n, Node source, Node target) {
         super(n);
         fromSource = Node.distance(n,source);
         toTarget = Node.distance(n, target);
@@ -37,7 +37,7 @@ public class NodeData extends NodePar{
      * @param source
      * @param target
      */
-    public NodeData(NodePar n, Node source, Node target){
+    public NodeData(NodePair n, Node source, Node target) {
         super(n);
         fromSource = Node.distance(n.getFirst(),source);
         toTarget = Node.distance(n.getFirst(), target);
@@ -48,7 +48,7 @@ public class NodeData extends NodePar{
      *
      * @return
      */
-    public Node getNode(){
+    public Node getNode() {
         return this.getFirst();
     }
     
@@ -56,15 +56,15 @@ public class NodeData extends NodePar{
      *
      * @return
      */
-    public NodePar getNodePar(){
-        return (NodePar)this;
+    public NodePair getNodePar() {
+        return (NodePair)this;
     }
     
     /**
      *
      * @return
      */
-    public double getTotal(){
+    public double getTotal() {
         return total;
     }
 }

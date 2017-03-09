@@ -7,22 +7,23 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 
 /**
- *
+ * Generic creature/mob class which is also an object.
  * @author Me
  */
-public class Creature extends Objecte {
+public class Creature extends Subject {
     private boolean move, alive, asleep;
     private Node[] runpath;
     private int runindex, p_index, current_action, hunger, stamina;
     private Memory mem, long_term;
     private Random randint = new Random();
-    private LinkedList object_memory;
     private final int sight_range = 10;
     private final double tick_max = 30;
     private double tick_counter = 0;
+    //WIP
+    private int facing_direction;
 
     /**
-     * Generic creature/mob class which is also an object.
+     * Empty Constructor
      */
     public Creature(){}
     
@@ -32,8 +33,7 @@ public class Creature extends Objecte {
      * @param y vertical coordinate
      */
     public Creature(int x, int y){
-        setID(2);
-        setPos(x,y);
+        super(2,x,y);
         move = asleep = false;
         runpath = null;
         runindex = current_action = 0;
@@ -128,11 +128,12 @@ public class Creature extends Objecte {
     };
             
     private Node[] iBFS (Node act_pos, Node target, Table tab) {
+        if (!tab.getTile(target).isPassable()) return null; //early exit
         PriorityQueue qpath = new PriorityQueue(11,node_comparator);
-        ParList visitats = new ParList();
+        PairList visitats = new PairList();
         Node source = act_pos;
         Node current = act_pos;
-        NodePar current_par = new NodePar(current);
+        NodePair current_par = new NodePair(current);
         visitats.add(current_par);
         NodeData current_data = new NodeData(current_par,source,target);
         qpath.add(current_data);
@@ -152,7 +153,7 @@ public class Creature extends Objecte {
                         Node temp = new Node();
                         temp.set(current.getX() + i, current.getY() + j);
                         if (!visitats.findNode(temp)){
-                            NodePar new_par = new NodePar(temp);
+                            NodePair new_par = new NodePair(temp);
                             new_par.setSource(current_par);
                             NodeData new_data = new NodeData(new_par,source,target);
                             qpath.add(new_data);
@@ -172,10 +173,10 @@ public class Creature extends Objecte {
     }
 
     /**
-     *
-     * @param id
-     * @param tab
-     * @param distance
+     * Within a fixed radius, finds the nearest item with a determinate ID
+     * @param id the ID to search
+     * @param tab the table where we perform the search
+     * @param distance the maximum distance to scan
      */
     public void findID (int id, Table tab, int distance){
         Node[] path = iFindID(getNode(), id, tab, distance);
@@ -190,16 +191,16 @@ public class Creature extends Objecte {
 
     private Node[] iFindID(Node act_pos, int id, Table tab, int distance){
         Queue qpath = new LinkedList();
-        ParList visitats = new ParList();
+        PairList visitats = new PairList();
         Node current = act_pos;
-        NodePar current_par = new NodePar(current);
+        NodePair current_par = new NodePair(current);
         visitats.add(current_par);
         qpath.add(current_par);
         int limit = 10000;
         boolean first = true;
         while (!qpath.isEmpty() & limit > 0){
             if(!first){
-                current_par = (NodePar) qpath.poll();
+                current_par = (NodePair) qpath.poll();
                 current = current_par.getFirst();
             } else first = false;
             if (tab.getID(current) == id || ((int)Node.distance(act_pos,current) > distance)) break;
@@ -208,9 +209,9 @@ public class Creature extends Objecte {
                 for (int j = -1; j < 2; ++j){
                     Node temp = new Node();
                     temp.set(current.getX() + i, current.getY() + j);
-                    if (!(i==0 & j==0) && tab.checkException(temp, id)){
+                    if (!(i==0 & j==0) && tab.checkPassable(temp)){
                         if (!visitats.findNode(temp)){
-                            NodePar new_par = new NodePar(temp);
+                            NodePair new_par = new NodePair(temp);
                             new_par.setSource(current_par);
                             qpath.add(new_par);
                             visitats.add(new_par);
@@ -229,12 +230,11 @@ public class Creature extends Objecte {
     }
 
     /**
-     *
-     * @param tab
-     * @param i
-     * @param llista
+     * Moves a single tile in one direction
+     * @param tab the table where we move
+     * @param i the direction to move
      */
-    public void iMove(Table tab, int i, ObjecteList llista){
+    public void iMove(Table tab, int i){
         tab.getTile(getNode()).clearObjecte();
         switch (i) {
             case 0:
@@ -264,16 +264,16 @@ public class Creature extends Objecte {
             default:
                 break;
         }
+        setFacingDirection(i);
         tab.getTile(getNode()).setObjecte(this);
-        //llista.set_i(getObjecte(),p_index);
     }
 
     /**
-     *
-     * @param tab
+     * Performs a single step from the planned path
+     * @param tab the table where we're moving
      */
     public void run(Table tab){
-        if (move){
+        if (move && runpath.length > 0 && runindex < runpath.length){
             if (tab.getTile(runpath[runindex]).isPassable()){
                 tab.getTile(getNode()).clearObjecte();
                 //eating
@@ -283,7 +283,7 @@ public class Creature extends Objecte {
                 }
                 setPos(runpath[runindex]);
                 tab.getTile(getNode()).setObjecte(this);
-                //llista.set_i(getObjecte(),p_index);
+                //llista.set_i(getSubject(),p_index);
                 if (runindex == runpath.length-1) move = false;
                 else ++runindex;
             } else {
@@ -293,9 +293,9 @@ public class Creature extends Objecte {
     }
     
     /**
-     *
-     * @param tab
-     * @return
+     * Returns a path moving as far away as possible from the current position and the near past positions
+     * @param tab the table where we're moving
+     * @return a path of adjacent nodes
      */
     public Node[] runAway(Table tab){
         move = true;
@@ -336,8 +336,8 @@ public class Creature extends Objecte {
     }
     
     /**
-     *
-     * @param tab
+     * Performs a random idle movement
+     * @param tab the tab where we're moving
      */
     public void idle(Table tab){
         int decision = randint.nextInt(2);
@@ -354,30 +354,57 @@ public class Creature extends Objecte {
     }
     
     /**
-     *
+     * Sleeps during a single step, increasing the creature's stamina
      */
     public void sleep(){
         stamina += 10;
     }
     
     /**
-     *
-     * @param tab
-     * @param range
+     * Determinates the visibility for the active creature
+     * @param tab the table where we're looking
+     * @param range the sight range of the creature
+     * @param cam the camera used to determinate visibility
      */
-    public void lookAround(Table tab, int range){
-            tab.getTile(getNode()).setLit(true);
+    public void lookAround(Table tab, int range, Camera cam){
+            cam.setVisibilityTable(getNode(), true);
+            switch (facing_direction){
+                case 1:
+                    //facing direction = 1 (N)
+                    lookDirection(tab,1,1.0f,0.0f, 0,1,-1,0,range,cam);
+                    lookDirection(tab,1,1.0f,0.0f, 0,1,1,0,range,cam);
+                    break;
+                case 3:
+                    //facing direction = 3 (W)
+                    lookDirection(tab,1,1.0f,0.0f, -1,0,0,1,range,cam);
+                    lookDirection(tab,1,1.0f,0.0f, 1,0,0,1,range,cam);
+                    break;
+                case 4:
+                    //facing direction = 4 (E)
+                    lookDirection(tab,1,1.0f,0.0f, 1,0,0,-1,range,cam);
+                    lookDirection(tab,1,1.0f,0.0f, -1,0,0,-1,range,cam);
+                    break;
+                case 6:
+                    //facing direction = 6 (S)
+                    lookDirection(tab,1,1.0f,0.0f, 0,-1,1,0,range,cam);
+                    lookDirection(tab,1,1.0f,0.0f, 0,-1,-1,0,range,cam);
+                    break;
+                default:
+                    break;
+            }
+            /*
             for (int i = -1; i < 2; ++i){
                 for (int j = -1; j < 2; ++j){
                     if (i!=0 && j !=0){
-                        lookDirection(tab,1,1.0f,0.0f, 0,i,j,0,range);
-                        lookDirection(tab,1,1.0f,0.0f, i,0,0,j,range);
+                        lookDirection(tab,1,1.0f,0.0f, 0,i,j,0,range,cam);
+                        lookDirection(tab,1,1.0f,0.0f, i,0,0,j,range,cam);
                     }
                 }
             }
+            */
     }
     
-    private void lookDirection(Table tab, int row, float start, float end, int xx, int xy, int yx, int yy, int range){
+    private void lookDirection(Table tab, int row, float start, float end, int xx, int xy, int yx, int yy, int range, Camera cam){
         float newStart = 0.0f;
         if (start < end){
             return;
@@ -390,14 +417,16 @@ public class Creature extends Objecte {
                 int currentY = getNode().getY() + deltaX * yx + deltaY * yy;
                 float leftSlope = (deltaX - 0.5f) / (deltaY + 0.5f);
                 float rightSlope = (deltaX + 0.5f) / (deltaY - 0.5f);
+                
                 if (!(tab.valid(currentX,currentY)) || start < rightSlope){
                     continue;
                 } else if (end > leftSlope){
                     break;
                 }
+                
                 Node delta = new Node(currentX,currentY);
                 if (Node.distance(getNode(),delta) <= range){
-                    tab.getTile(delta).setLit(true);
+                    cam.setVisibilityTable(delta, true);
                 }
                 
                 if (blocked){
@@ -411,7 +440,7 @@ public class Creature extends Objecte {
                 } else {
                     if (!tab.checkPassable(delta) && Node.distance(getNode(),delta) <= 10){
                         blocked = true;
-                        lookDirection(tab,distance + 1,start, leftSlope, xx, xy, yx, yy, range);
+                        lookDirection(tab,distance + 1,start, leftSlope, xx, xy, yx, yy, range,cam);
                         newStart = rightSlope;
                     }
                 }
@@ -420,7 +449,7 @@ public class Creature extends Objecte {
     }
     
     /**
-     *
+     * simulates a single step for a creature
      * @param tab
      * @param delta
      */
@@ -478,7 +507,8 @@ public class Creature extends Objecte {
     }
     
     /**
-     *
+     * Prints some relevant information from the creature.
+     * Used only for testing.
      */
     @Override
     public void print(){
@@ -486,5 +516,16 @@ public class Creature extends Objecte {
             System.out.println("position x = " + getNode().getX() + " y = " + getNode().getY());
             System.out.println("Player index is " + p_index);
             System.out.println("Health: " + hunger + " Stamina: " + stamina);
+    }
+    
+    
+    //WIP
+    
+    public int getFacingDirection(){
+        return facing_direction;
+    }
+    
+    public void setFacingDirection(int d){
+        facing_direction = d;
     }
 }

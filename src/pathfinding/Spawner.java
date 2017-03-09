@@ -4,7 +4,7 @@ package pathfinding;
  *
  * @author Alumne
  */
-public class Spawner extends Objecte {
+public class Spawner extends Subject {
     private int spawn_ID, interval, number, counter;
     
     /**

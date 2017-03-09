@@ -79,17 +79,17 @@ public class Table {
     }
 
     /**
-     * 
+     * Returns true if the position
      * @param act
      * @param exc
      * @return 
-     */
+     
     public boolean checkException(Node act, int exc){
         if (valid(act)){
             return (tab[act.getX()][act.getY()].isPassable() || tab[act.getX()][act.getY()].getID()==exc);
         }
         else return false;
-    }
+    } */
 
     /**
      * 
@@ -134,7 +134,7 @@ public class Table {
      * @param y
      * @param obj
      */
-    public void add(int x, int y, Objecte obj){
+    public void add(int x, int y, Subject obj){
         if (valid(x,y)){
             tab[x][y].setObjecte(obj);
         }
@@ -144,7 +144,7 @@ public class Table {
      *
      * @param obj
      */
-    public void add(Objecte obj){
+    public void add(Subject obj){
         int x = obj.getNode().getX();
         int y = obj.getNode().getY();
         if (valid(x,y)){
@@ -322,14 +322,14 @@ public class Table {
                 ++attempt;
             } while (!tab[position.getX()][position.getY()].isPassable() && attempt < MAX_ATTEMPTS);
             if (attempt == MAX_ATTEMPTS) System.out.println("Ran out of attempts");
-            else tab[position.getX()][position.getY()].setObjecte(new Objecte(id,position.getX(),position.getY()));
+            else tab[position.getX()][position.getY()].setObjecte(new Subject(id,position.getX(),position.getY()));
         }
     }
 
     /**
-     *
-     * @param pos
-     * @param id
+     * Sets the terrain ID of a determinate position
+     * @param pos the position to change
+     * @param id the new terrain ID
      */
     public void set(Node pos, int id){
         if (Table.this.valid(pos)){
@@ -339,19 +339,19 @@ public class Table {
     }
 
     /**
-     *
-     * @param act
-     * @return
+     * Returns the ID of a determinate position
+     * @param act the position to check
+     * @return returns the ID of the position
      */
     public int getID(Node act){
         return tab[act.getX()][act.getY()].getID();
     }
 
     /**
-     *
-     * @param x
-     * @param y
-     * @return
+     * Returns the ID of a determinate position by it's coordinates
+     * @param x the horizontal position
+     * @param y the vertical position
+     * @return returns the ID of the position 
      */
     public int getID(int x, int y){
         if (valid(x,y)){
@@ -361,8 +361,8 @@ public class Table {
     }
 
     /**
-     *
-     * @return
+     * returns the size of the table
+     * @return returns the size of the table
      */
     public int getSize(){
         return TABLE_SIZE;
@@ -394,10 +394,10 @@ public class Table {
     }
 
     /**
-     *
-     * @param x
-     * @param y
-     * @return
+     * Returns the tile of a determinate position
+     * @param x the horizontal coordinate
+     * @param y the vertial coordinate
+     * @return the
      */
     public Tile getTile(int x, int y){
         if (valid(x,y)){
@@ -412,7 +412,7 @@ public class Table {
      * @param y
      * @return
      */
-    public Objecte getObject(int x, int y){
+    public Subject getObject(int x, int y){
         if (valid(x,y)){
             return tab[x][y].getObject();
         }
@@ -424,7 +424,7 @@ public class Table {
      * @param n
      * @return
      */
-    public Objecte getObject(Node n){
+    public Subject getObject(Node n){
         return getObject(n.getX(),n.getY());
     }
 
@@ -432,8 +432,10 @@ public class Table {
      *
      * @param obj
      */
-    public void updateObject(Objecte obj){
-       tab[obj.getNode().getX()][obj.getNode().getX()].setObjecte(obj);
+    public void updateObject(Subject obj){
+        if (obj!=null){
+            tab[obj.getNode().getX()][obj.getNode().getX()].setObjecte(obj);
+        }
     }
 
     private float[][] generateWhiteNoise(int width, int height){
@@ -525,11 +527,11 @@ public class Table {
     }
 
     /**
-     *
-     * @param xx
-     * @param xy
-     * @param yx
-     * @param yy
+     * updates the edges of the terrain in a square
+     * @param xx Top left corner
+     * @param xy Top right corner
+     * @param yx Bottom left corner
+     * @param yy Bottom right corner
      */
     public void updateEdges(int xx, int xy, int yx, int yy){
         for (int i = xx; i < yx; ++i){
@@ -596,10 +598,25 @@ public class Table {
         }
         for (int i = 0; i < TABLE_SIZE; ++i){
             for (int j = 0; j < TABLE_SIZE; ++j){
-                tab[i][j].setLit(false);
                 tab[i][j].setLight(light_level);
             }
         }
     }
-
+    
+    /**
+     * Sets the light level of all tiles to the maximum value
+     */
+    public void light(){
+        for (int i = 0; i < TABLE_SIZE; ++i){
+            for (int j = 0; j < TABLE_SIZE; ++j){
+                tab[i][j].setLight(100);
+            }
+        }
+    }
+    
+    public void marcar(Node p){
+        if (valid(p)){
+            tab[p.getX()][p.getY()].setID(3);
+        }
+    }
 }

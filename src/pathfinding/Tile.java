@@ -7,8 +7,8 @@ import java.util.Random;
  */
 public class Tile {
     private int terrain_id, light_level;
-    private boolean passable, lit;
-    private Objecte content;
+    private boolean passable;
+    private Subject content;
     private Random gen = new Random();
     
     /**
@@ -21,7 +21,6 @@ public class Tile {
         else terrain_id = 5;
         passable = true;
         content = null;
-        lit = false;
         light_level = 100;
     }
     
@@ -35,7 +34,6 @@ public class Tile {
         if (terrain_id == 1) passable = false;
         else passable = true;
         content = null;
-        lit = true;
         light_level = 100;
     }
     
@@ -58,7 +56,7 @@ public class Tile {
     /**
      * @return returns the content of the tile
      */
-    public Objecte getObject(){
+    public Subject getObject(){
         return content;
     }
     
@@ -74,13 +72,6 @@ public class Tile {
      */
     public boolean isPassable(){
         return passable;
-    }
-
-    /**
-     * @return returns true if the tile is lit
-     */
-    public boolean isLit(){
-        return lit;
     }
     
     /**
@@ -111,8 +102,12 @@ public class Tile {
      * Places an object in a tile
      * @param obj specifies the object to add
      */
-    public void setObjecte(Objecte obj){
+    public void setObjecte(Subject obj){
         content = obj;
+        if (terrain_id == 1){
+            terrain_id = 0;
+            passable = true;
+        }
     }
     
     /**
@@ -152,14 +147,6 @@ public class Tile {
         }
         content = null;
         passable = true;
-    }
-    
-    /**
-     * sets the tile lit value
-     * @param b specifies whether the tile will be lit or not
-     */
-    public void setLit(boolean b){
-        lit = b;
     }
 
 }

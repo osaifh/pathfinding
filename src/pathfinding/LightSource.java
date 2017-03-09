@@ -4,7 +4,7 @@ package pathfinding;
  *
  * @author Alumne
  */
-public class LightSource extends Objecte {
+public class LightSource extends Subject {
     int intensity;
     
     /**

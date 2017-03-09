@@ -149,9 +149,7 @@ public class Hunter extends Creature{
      * @param tab
      * @param range
      */
-    @Override
     public void lookAround(Table tab, int range){
-            tab.getTile(getNode()).setLit(true);
             for (int i = -1; i < 2; ++i){
                 for (int j = -1; j < 2; ++j){
                     if (i!=0 && j !=0){
@@ -212,10 +210,10 @@ public class Hunter extends Creature{
 
     private Node[] iBFS(Node act_pos, Node target, Table tab){
          PriorityQueue qpath = new PriorityQueue(11,node_comparator);
-         ParList visitats = new ParList();
+         PairList visitats = new PairList();
          Node source = act_pos;
          Node current = act_pos;
-         NodePar current_par = new NodePar(current);
+         NodePair current_par = new NodePair(current);
          visitats.add(current_par);
          NodeData current_data = new NodeData(current_par,source,target);
          qpath.add(current_data);
@@ -235,7 +233,7 @@ public class Hunter extends Creature{
                          Node temp = new Node();
                          temp.set(current.getX() + i, current.getY() + j);
                          if (!visitats.findNode(temp)){
-                             NodePar new_par = new NodePar(temp);
+                             NodePair new_par = new NodePair(temp);
                              new_par.setSource(current_par);
                              NodeData new_data = new NodeData(new_par,source,target);
                              qpath.add(new_data);

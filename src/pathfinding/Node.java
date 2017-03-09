@@ -9,7 +9,8 @@ import java.util.Random;
 public class Node {
 
     private int x, y;
-
+    private Random randomGenerator = new Random();
+    
     /**
      *
      */
@@ -29,13 +30,32 @@ public class Node {
      *
      * @param size
      */
-    public void generate(int size) {
-        Random randomGenerator = new Random();
+    public void generate(int size){
         x = randomGenerator.nextInt(size);
         y = randomGenerator.nextInt(size);
     }
+    
+    /**
+     *
+     * @param size
+     * @param xx
+     * @param xy
+     * @param yx
+     * @param yy
+     */
+    public void generate(int size, int xx, int xy, int yx, int yy){
+        do {
+            x = xx + randomGenerator.nextInt(size);
+            y = xy + randomGenerator.nextInt(size);
+        } while (!(x <= yx && y <= yy));
+    }
 
-    boolean compare(Node a) {
+    /**
+     *
+     * @param a
+     * @return
+     */
+    public boolean compare(Node a) {
         return (a.x == this.x & a.y == this.y);
     }
 
