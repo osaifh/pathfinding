@@ -1,7 +1,5 @@
 package pathfinding.auxiliar;
 
-import pathfinding.auxiliar.NodePair;
-
 /**
  *
  * @author Alumne

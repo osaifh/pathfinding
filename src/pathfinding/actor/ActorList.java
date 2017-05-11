@@ -13,8 +13,8 @@ public class ActorList {
      *
      */
     public ActorList(){
-        list = new ArrayList();
-        active_list = new ArrayList();
+        list = new ArrayList<>();
+        active_list = new ArrayList<>();
     }
     
     /**
@@ -34,6 +34,19 @@ public class ActorList {
      */
     public boolean contains(Actor a){
         return list.contains(a);
+    }
+    
+    public int size(){
+        return list.size();
+    }
+    
+    public Actor get(int i){
+        if (i >= 0 && i < list.size()){
+            return list.get(i);
+        }
+        else {
+            return null;
+        }
     }
     
     /**
@@ -79,13 +92,12 @@ public class ActorList {
      *
      * @param t
      */
-    
     public void simulate(Table t){
         for (int i = 0; i < list.size(); i++){
             if (list.get(i)!=null && list.get(i).getID() == 2 && active_list.get(i)){
                 if (!((Creature)list.get(i)).isAlive()) this.remove(list.get(i),t);
             }
-            if (active_list.get(i)){
+            if (i < active_list.size() && active_list.get(i) && i < list.size() && list.get(i)!= null){
                 list.get(i).simulate(t);
             }
         }

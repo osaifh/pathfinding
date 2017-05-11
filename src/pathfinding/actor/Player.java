@@ -19,6 +19,7 @@ public class Player extends Creature {
         id = 2;
         pos = new Node(x,y);
         alive = true;
+        facing_direction = 4;
     }
     
     
@@ -31,6 +32,7 @@ public class Player extends Creature {
      */
     public void lookAround(Table tab, int range, Camera cam){
             cam.setVisibilityTable(pos, true);
+            /* 
             switch (facing_direction){
                 case 1:
                     //facing moveDirection = 1 (N)
@@ -55,7 +57,8 @@ public class Player extends Creature {
                 default:
                     break;
             }
-            /*
+            */
+            
             for (int i = -1; i < 2; ++i){
                 for (int j = -1; j < 2; ++j){
                     if (i!=0 && j !=0){
@@ -64,7 +67,7 @@ public class Player extends Creature {
                     }
                 }
             }
-            */
+            
     }
     
     private void lookDirection(Table tab, int row, float start, float end, int xx, int xy, int yx, int yy, int range, Camera cam){
@@ -93,7 +96,7 @@ public class Player extends Creature {
                 }
                 
                 if (blocked){
-                    if (!tab.checkPassable(delta)){
+                    if (tab.getTile(delta).isOpaque()){
                         newStart = rightSlope;
                         continue;
                     } else {
@@ -101,7 +104,7 @@ public class Player extends Creature {
                         start = newStart;
                     }
                 } else {
-                    if (!tab.checkPassable(delta) && Node.distance(pos,delta) <= 10){
+                    if (tab.getTile(delta).isOpaque() && Node.distance(pos,delta) <= 10){
                         blocked = true;
                         lookDirection(tab,distance + 1,start, leftSlope, xx, xy, yx, yy, range,cam);
                         newStart = rightSlope;

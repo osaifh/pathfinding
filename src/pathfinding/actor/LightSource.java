@@ -2,7 +2,6 @@ package pathfinding.actor;
 
 import pathfinding.auxiliar.Node;
 import pathfinding.Table.Table;
-import pathfinding.actor.Actor;
 
 /**
  *
@@ -88,7 +87,7 @@ public class LightSource implements Actor {
                 }
                 
                 if (blocked){
-                    if (!tab.checkPassable(currentX,currentY)){
+                    if (tab.checkOpaque(currentX,currentY)){
                         newStart = rightSlope;
                         continue;
                     } else {
@@ -96,7 +95,7 @@ public class LightSource implements Actor {
                         start = newStart;
                     }
                 } else {
-                    if (!tab.checkPassable(currentX,currentY) && (int)Node.distance(pos,delta) <= range){
+                    if (tab.checkOpaque(currentX,currentY) && (int)Node.distance(pos,delta) <= range){
                         blocked = true;
                         i_cast_light(tab,distance + 1,start-1, leftSlope, xx, xy, yx, yy, range);
                         newStart = rightSlope;

@@ -13,11 +13,11 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.Timer;
+import pathfinding.actor.Core;
 import pathfinding.actor.Door;
 import pathfinding.actor.Interactable;
 import pathfinding.actor.Mob;
 import pathfinding.actor.Player;
-import pathfinding.auxiliar.Node;
 
 /**
  * Class used to put everything together
@@ -154,7 +154,7 @@ public class Controller {
                         if (!cam.isLocked()) cam.getPos().moveDirection(6,1);
                         break;
                     case KeyEvent.VK_SPACE:
-                        if (!cam.isLocked()) tab.getTile(cam.getPos()).clear();
+                        if (!cam.isLocked()) tab.getTile(cam.getPos()).clearContent();
                         break;
                     case KeyEvent.VK_A:
                         activePlayer.iMove(tab,3);
@@ -180,9 +180,12 @@ public class Controller {
                         lights = !lights;
                         break;
                     case KeyEvent.VK_Q:
-                        if (tab.checkInteractable(cam.getPos())){
-                            ((Interactable)tab.getTile(cam.getPos()).getContent()).interact(tab);
+                        for (int i = 0; i < tab.getTile(cam.getPos()).getContentSize(); ++i){
+                            if (tab.getTile(cam.getPos()).getContent(i) instanceof Interactable){
+                                ((Interactable)tab.getTile(cam.getPos()).getContent(i)).interact(tab);
+                            }
                         }
+                        
                     break;
                     case KeyEvent.VK_P:
                         if (timer.isRunning()) timer.stop();
@@ -194,31 +197,65 @@ public class Controller {
                         tab.add(cam.getPos().getX(),cam.getPos().getY(),n);
                         break;
                     case KeyEvent.VK_2:
-                        tab.set(cam.getPos(),1);
+                        tab.getTile(cam.getPos()).setWall();
                         break;
                     case KeyEvent.VK_3:
                         Door d = new Door(cam.getPos().getX(),cam.getPos().getY(), tab);
-                        tab.getTile(cam.getPos().getX(),cam.getPos().getY()).setContent(d);
+                        tab.getTile(cam.getPos().getX(),cam.getPos().getY()).addContent(d);
                         break;
                     case KeyEvent.VK_4:
                         {
                             LightSource ln = new LightSource(5,cam.getPos().getX(),cam.getPos().getY());
-                            tab.getTile(cam.getPos()).setContent(ln);
+                            tab.getTile(cam.getPos()).addContent(ln);
                             lightList.add(ln,true);
                             break;
                         }
                     case KeyEvent.VK_5:
                         {
                             LightSource ln = new LightSource(10,cam.getPos().getX(),cam.getPos().getY());
-                            tab.getTile(cam.getPos()).setContent(ln);
+                            tab.getTile(cam.getPos()).addContent(ln);
                             lightList.add(ln,true);
                             break;
                         }
                     case KeyEvent.VK_6:
                         {
                             LightSource ln = new LightSource(20,cam.getPos().getX(),cam.getPos().getY());
-                            tab.getTile(cam.getPos()).setContent(ln);
+                            tab.getTile(cam.getPos()).addContent(ln);
                             lightList.add(ln,true);
+                            break;
+                        }
+                    case KeyEvent.VK_7:
+                        {
+                            Core c = new Core(cam.getPos().getX(),cam.getPos().getY());
+                            objList.add(c,true);
+                            tab.add(cam.getPos().getX(),cam.getPos().getY(),c);
+                            break;
+                        }
+                    case KeyEvent.VK_8:
+                        {
+                            for (int i = 0; i < objList.size(); ++i){
+                                objList.get(i).print();
+                                if (objList.get(i) instanceof Core){
+                                    System.out.println("We are here");
+                                    ((Core) objList.get(i)).makeScout(tab,objList);
+                                }
+                            }
+                            break;
+                        }
+                    case KeyEvent.VK_9:
+                        {
+                            tab.generateObject(200, 4);
+                            break;
+                        }
+                    case KeyEvent.VK_0:
+                        {
+                            for (int i = 0; i < objList.size(); ++i){
+                                objList.get(i).print();
+                                if (objList.get(i) instanceof Core){
+                                    System.out.println("We are here");
+                                    ((Core) objList.get(i)).makeWorker(tab,objList);
+                                }
+                            }
                             break;
                         }
                     default:

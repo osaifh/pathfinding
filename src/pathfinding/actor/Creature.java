@@ -55,23 +55,26 @@ public abstract class Creature implements Actor {
     }
     
     /**
-     * Moves a single tile in one moveDirection
+     * Moves a single tile in one direction
      * @param tab the table where we move
      * @param i the direction to move
      */
     public void iMove(Table tab, int i){
-        //Fix this at some point, this could be done better
         setFacingDirection(i);
         Node npos = new Node(pos);
         if (npos.iMove(tab, i)){
-            tab.getTile(pos).clearContent();
+            tab.getTile(pos).clearMatchingContent(this);
             pos.iMove(tab,i);
-            tab.getTile(pos).setContent(this);
+            tab.getTile(pos).addContent(this);
         }
-        else if (tab.checkInteractable(npos.nodeMove(tab, i))){
-            ((Interactable)tab.getTile(npos.nodeMove(tab, i)).getContent()).interact(tab);
+        else {
+            npos.nodeMove(tab, i);
+            for (int j = 0; j < tab.getTile(npos).getContentSize(); ++j) {
+                if (tab.getTile(npos).getContent(j) instanceof Interactable){
+                    ((Interactable) tab.getTile(npos).getContent(j)).interact(tab);
+                }
+            }
         }
-  
     }
     
     public int getFacingDirection(){

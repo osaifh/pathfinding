@@ -12,7 +12,7 @@ public class Node {
     private int x, y;
     private Random randomGenerator = new Random();
     private static HashMap<Integer,Node> DIRECTIONS;
-    static{
+    static {
         DIRECTIONS = new HashMap<>();
         DIRECTIONS.put(0,new Node(-1,-1));
         DIRECTIONS.put(1,new Node(-1,0));
@@ -24,11 +24,9 @@ public class Node {
         DIRECTIONS.put(7,new Node(1,1));
     }
     /*
-    
         0 1 2  NW N NE
         3 X 4  W  X  E
         5 6 7  SW S SE
-    
     */
     
     
@@ -173,10 +171,8 @@ public class Node {
         return false;
     }
     
-    public Node nodeMove(Table t, int dir){
-        Node n = new Node(this);
-        n.add(DIRECTIONS.get(dir));
-        return n;
+    public void nodeMove(Table t, int dir){
+        this.add(DIRECTIONS.get(dir));
     }
 
 }

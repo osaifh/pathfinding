@@ -4,6 +4,7 @@ import pathfinding.auxiliar.Node;
 import java.util.Random;
 import pathfinding.actor.Actor;
 import pathfinding.actor.Interactable;
+import pathfinding.actor.genericObject;
 
 /**
  * This class is used to make and work with a border made of tiles
@@ -38,12 +39,12 @@ public class Table {
     
     /**
      * This function is used to determinate whether a node's coordinates are within a valid range in the table
-     * @param act is the node we want to checkPassable
+     * @param n is the node we want to checkPassable
      * @return returns true if the node's coordinates are within a valid range in the table
      */
-    public boolean valid(Node act){
-        if (act!=null){
-            return (act.getX() >= 0 & act.getX()<TABLE_SIZE & act.getY() >= 0 & act.getY()<TABLE_SIZE);
+    public boolean valid(Node n){
+        if (n!=null){
+            return (n.getX() >= 0 & n.getX()<TABLE_SIZE & n.getY() >= 0 & n.getY()<TABLE_SIZE);
         } else return false;
     }
 
@@ -59,12 +60,12 @@ public class Table {
 
     /**
      * Checks whether a node is passable or not
-     * @param act act is the node we want to check
+     * @param n n is the node we want to check
      * @return returns whether the node is passable or not
      */
-    public boolean checkPassable(Node act){
-        if (valid(act)){
-            return (tab[act.getX()][act.getY()].isPassable());
+    public boolean checkPassable(Node n){
+        if (valid(n)){
+            return (tab[n.getX()][n.getY()].isPassable());
         }
         else return false;
     }
@@ -79,6 +80,19 @@ public class Table {
         if (valid(x,y)){
             return (tab[x][y].isPassable());
         } else return false;
+    }
+    
+    public boolean checkOpaque(int x, int y){
+        if (valid(x,y)){
+            return (tab[x][y].isOpaque());
+        } else return false;
+    }
+    
+    public boolean checkOpaque(Node n){
+        if (valid(n)){
+            return (tab[n.getX()][n.getY()].isOpaque());
+        }
+        else return false;
     }
 
     /**
@@ -101,16 +115,25 @@ public class Table {
      * @param exc
      * @return 
      */
+    /*
     public boolean checkException(int x, int y, int exc){
         if (valid(x,y)){
+            boolean found = false
+            for (int i = 0; i < tab[x][y].getContentSize(); ++i){
+                
+            }
             return ((tab[x][y].isPassable()) || tab[x][y].getID()==exc);
         }
         else return false;
-    }
+    }*/
     
     public boolean checkInteractable(Node n){
         if (valid(n)){
-            return tab[n.getX()][n.getY()].getContent() instanceof Interactable;
+            boolean found = false;
+            for (int i = 0; i < tab[n.getX()][n.getY()].getContentSize() && !found; ++i){
+                found = (tab[n.getX()][n.getY()].getContent(i) instanceof Interactable);
+            }
+            return found;
         }
         else return false;
     }
@@ -134,7 +157,7 @@ public class Table {
      */
     public void add(Node n, int id){
         if (valid(n)){
-            add(n.getX(),n.getY(),id);
+            tab[n.getX()][n.getY()].setID(id);
         }
     }
 
@@ -146,7 +169,12 @@ public class Table {
      */
     public void add(int x, int y, Actor obj){
         if (valid(x,y)){
-            tab[x][y].setContent(obj);
+            if (tab[x][y].contains(obj)){
+                tab[x][y].updateMatchingContent(obj);
+            }
+            else {
+                tab[x][y].addContent(obj);
+            }
         }
     }
 
@@ -155,10 +183,13 @@ public class Table {
      * @param obj
      */
     public void add(Actor obj){
-        int x = obj.getNode().getX();
-        int y = obj.getNode().getY();
-        if (valid(x,y)){
-            add(x,y,obj);
+        if (valid(obj.getNode().getX(),obj.getNode().getY())){
+            if (tab[obj.getNode().getX()][obj.getNode().getY()].contains(obj)){
+                tab[obj.getNode().getX()][obj.getNode().getY()].updateMatchingContent(obj);
+            }
+            else {
+                tab[obj.getNode().getX()][obj.getNode().getY()].addContent(obj);
+            }
         }
     }
 
@@ -332,29 +363,36 @@ public class Table {
                 ++attempt;
             } while (!tab[position.getX()][position.getY()].isPassable() && attempt < MAX_ATTEMPTS);
             if (attempt == MAX_ATTEMPTS) System.out.println("Ran out of attempts");
-            //else tab[position.getX()][position.getY()].setContent(new Actor(id,position.getX(),position.getY()));
+            else tab[position.getX()][position.getY()].addContent(new genericObject(id,position.getX(),position.getY()));
+         
         }
     }
 
     /**
      * Sets the terrain ID of a determinate position
-     * @param pos the position to change
+     * @param n the position to change
      * @param id the new terrain ID
      */
-    public void set(Node pos, int id){
-        if (Table.this.valid(pos)){
-            tab[pos.getX()][pos.getY()].setID(id);
-            if (id == 1) tab[pos.getX()][pos.getY()].setPassable(false);
+    public void set(Node n, int id){
+        if (Table.this.valid(n)){
+            tab[n.getX()][n.getY()].setID(id);
+            if (id == 1) tab[n.getX()][n.getY()].setPassable(false);
         }
     }
 
     /**
      * Returns the ID of a determinate position
-     * @param act the position to check
+     * @param n the position to check
      * @return returns the ID of the position
      */
-    public int getID(Node act){
-        return tab[act.getX()][act.getY()].getID();
+    public int getID(Node n){
+        if (valid(n)){
+            if (tab[n.getX()][n.getY()].getContentSize()!=0){
+                return tab[n.getX()][n.getY()].getID(0);
+            }
+            else return tab[n.getX()][n.getY()].getTerrainID();
+        }
+        else return -1;
     }
 
     /**
@@ -365,7 +403,10 @@ public class Table {
      */
     public int getID(int x, int y){
         if (valid(x,y)){
-            return tab[x][y].getTerrainID();
+            if (tab[x][y].getContentSize()!=0){
+                return tab[x][y].getID(0);
+            }
+            else return tab[x][y].getTerrainID();
         }
         else return -1;
     }
@@ -386,19 +427,19 @@ public class Table {
      */
     public boolean checkWall(int x, int y){
         if (valid(x,y)){
-            return (tab[x][y].getID()==1);
+            return (!tab[x][y].isPassable());
         }
         else return false;
     }
 
     /**
      *
-     * @param aux
+     * @param n
      * @return
      */
-    public Tile getTile(Node aux){
-        if (valid(aux)){
-            return (tab[aux.getX()][aux.getY()]);
+    public Tile getTile(Node n){
+        if (valid(n)){
+            return (tab[n.getX()][n.getY()]);
         }
         else return null;
     }
@@ -422,9 +463,9 @@ public class Table {
      * @param y
      * @return
      */
-    public Actor getObject(int x, int y){
+    public Actor getActor(int x, int y){
         if (valid(x,y)){
-            return tab[x][y].getContent();
+            return tab[x][y].getContent(0);
         }
         else return null;
     }
@@ -434,8 +475,11 @@ public class Table {
      * @param n
      * @return
      */
-    public Actor getObject(Node n){
-        return getObject(n.getX(),n.getY());
+    public Actor getActor(Node n){
+        if (valid(n)){
+            return getActor(n.getX(),n.getY());
+        }
+        else return null;
     }
 
     /**
@@ -444,7 +488,7 @@ public class Table {
      */
     public void updateObject(Actor obj){
         if (obj!=null){
-            tab[obj.getNode().getX()][obj.getNode().getX()].setContent(obj);
+            tab[obj.getNode().getX()][obj.getNode().getX()].updateMatchingContent(obj);
         }
     }
 
@@ -547,7 +591,7 @@ public class Table {
         for (int i = xx; i < yx; ++i){
             for (int j = xy; j < yy; ++j){
                 Edge aux = isEdge(i,j);
-                if (null!=aux) switch (aux) {
+                if (aux!=null) switch (aux) {
                     case NW:
                         tab[i][j].setID(6);
                         break;
@@ -559,8 +603,6 @@ public class Table {
                         break;
                     case SE:
                         tab[i][j].setID(9);
-                        break;
-                    default:
                         break;
                 }
             }
@@ -636,9 +678,9 @@ public class Table {
         }
     }
     
-    public void marcar(Node p){
-        if (valid(p)){
-            tab[p.getX()][p.getY()].setID(3);
+    public void marcar(Node n){
+        if (valid(n)){
+            tab[n.getX()][n.getY()].setID(3);
         }
     }
 }

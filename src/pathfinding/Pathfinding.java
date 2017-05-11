@@ -6,7 +6,7 @@ package pathfinding;
  * @version indev
  */
 public class Pathfinding {
-    public static void main(String[] args) throws InterruptedException{
+    public static void main(String[] args) throws InterruptedException {
         Controller game = new Controller();
         game.run();
     }

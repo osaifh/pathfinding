@@ -62,16 +62,14 @@ public class Mob extends Creature {
     public void run(Table tab){
         if (move && runpath.length > 0 && runindex < runpath.length){
             if (tab.getTile(runpath[runindex]).isPassable()){
-                tab.getTile(pos).clearContent();
-                pos.print();
+                tab.getTile(pos).clearMatchingContent(this);
                 //eating
-                if (tab.getTile(runpath[runindex]).getID()==4){
+                if (tab.getTile(runpath[runindex]).containsID(4)){
                     hunger += 10;
                     tab.getTile(runpath[runindex]).clearContent();
                 }
                 pos = (runpath[runindex]);
-                pos.print();
-                tab.getTile(pos).setContent(this);
+                tab.getTile(pos).addContent(this);
                 if (runindex == runpath.length-1) move = false;
                 else ++runindex;
             } else {
@@ -141,9 +139,9 @@ public class Mob extends Creature {
                 next_step.setToNode(pos);
                 next_step.moveDirection(decision,1);
             } while (!tab.checkPassable(next_step));
-            tab.getTile(pos).clearContent();
+            tab.getTile(pos).clearMatchingContent(this);
             pos = next_step;
-            tab.getTile(pos).setContent(this);
+            tab.getTile(pos).addContent(this);
         }
     }
     
@@ -294,7 +292,7 @@ public class Mob extends Creature {
      * @param tab
      */
     @Override
-    public void simulate(Table tab){
+    public void simulate(Table tab) {
         tick_counter ++;
         if (tick_counter >= tick_max){
             tick_counter = 0;
@@ -337,8 +335,7 @@ public class Mob extends Creature {
                     if (stamina >= 75){
                         asleep = false;
                         current_action = 0;
-                    }   break;
-                default:
+                    }
                     break;
             }
 
@@ -353,7 +350,7 @@ public class Mob extends Creature {
      * Prints some relevant information from the creature.
      * Used only for testing.
      */
-    public void print(){
+    public void print() {
             System.out.println("object ID: " + id);
             System.out.println("position x = " + pos.getX() + " y = " + pos.getY());
             System.out.println("Health: " + hunger + " Stamina: " + stamina);

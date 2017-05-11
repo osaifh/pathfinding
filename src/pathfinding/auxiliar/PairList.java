@@ -1,7 +1,5 @@
 package pathfinding.auxiliar;
 
-import pathfinding.auxiliar.NodePair;
-
 /**
  * Class used to store a list of Node Pairs.
  * These are used to trace the paths of the pathfinding algorithms.
@@ -41,7 +39,7 @@ public class PairList {
      * Returns the size of a PairList
      * @return the size of the implicit parameter
      */
-    public int get_size(){
+    public int getSize(){
         return size;
     }
         

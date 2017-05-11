@@ -9,7 +9,6 @@ import java.awt.Rectangle;
 import javax.swing.JLayeredPane;
 import java.util.HashMap;
 import javax.swing.ImageIcon;
-import pathfinding.auxiliar.FilePaths;
 
 /**
  * This class is used to render what the camera currently shows.
@@ -18,25 +17,29 @@ import pathfinding.auxiliar.FilePaths;
 public class Camera extends JFrame {
 
     private final static int CAMERA_SIZE = 11;
+    private final static int OBJECT_LAYERS = 3;
     private Table t;
     private Node position;
     private boolean camera_lock;
     private JLayeredPane jpanel = getLayeredPane();
     private JLabel[][]
             terrain_table = new JLabel[CAMERA_SIZE][CAMERA_SIZE],
-            object_table = new JLabel[CAMERA_SIZE][CAMERA_SIZE],
+            //object_table = new JLabel[CAMERA_SIZE][CAMERA_SIZE],
             sight_table = new JLabel[CAMERA_SIZE][CAMERA_SIZE],
             light_table = new JLabel[CAMERA_SIZE][CAMERA_SIZE];
+    private JLabel[][][]
+            object_table = new JLabel[CAMERA_SIZE][CAMERA_SIZE][OBJECT_LAYERS];
     private boolean[][] visibility_table;
     private static final HashMap<Integer,ImageIcon> TERRAIN_MAP;
     private static final HashMap<Integer,ImageIcon> SPRITE_MAP;
     private static final HashMap<Integer,ImageIcon> LIGHT_MAP;
-    static{
+    static {
         TERRAIN_MAP = new HashMap<>();
         TERRAIN_MAP.put(-1, FilePaths.black);
         TERRAIN_MAP.put(0, FilePaths.grass);
         TERRAIN_MAP.put(1, FilePaths.wall);
         TERRAIN_MAP.put(3, FilePaths.red);
+        TERRAIN_MAP.put(4, FilePaths.food);
         TERRAIN_MAP.put(5, FilePaths.brown);
         TERRAIN_MAP.put(6, FilePaths.grass_NW);
         TERRAIN_MAP.put(7, FilePaths.grass_NE);
@@ -47,6 +50,7 @@ public class Camera extends JFrame {
         SPRITE_MAP.put(4, FilePaths.food);
         SPRITE_MAP.put(7, FilePaths.door_open);
         SPRITE_MAP.put(8, FilePaths.door_closed);
+        SPRITE_MAP.put(20, FilePaths.core);
         LIGHT_MAP = new HashMap<>();
         LIGHT_MAP.put(0, FilePaths.dark10);
         LIGHT_MAP.put(1, FilePaths.dark9);
@@ -87,9 +91,6 @@ public class Camera extends JFrame {
                     terrain_table[i][j] = new JLabel();
                     terrain_table[i][j].setBounds(new Rectangle((width-CAMERA_SIZE*64)/2, (i)*64,(j)*64, 64));
                     terrain_table[i][j].setHorizontalAlignment(JLabel.RIGHT);
-                    object_table[i][j] = new JLabel();
-                    object_table[i][j].setBounds(new Rectangle((width-CAMERA_SIZE*64)/2, (i)*64,(j)*64, 64)); 
-                    object_table[i][j].setHorizontalAlignment(JLabel.RIGHT);
                     sight_table[i][j] = new JLabel();
                     sight_table[i][j].setBounds(new Rectangle((width-CAMERA_SIZE*64)/2, (i)*64,(j)*64, 64)); 
                     sight_table[i][j].setHorizontalAlignment(JLabel.RIGHT);
@@ -97,9 +98,14 @@ public class Camera extends JFrame {
                     light_table[i][j].setBounds(new Rectangle((width-CAMERA_SIZE*64)/2, (i)*64,(j)*64, 64)); 
                     light_table[i][j].setHorizontalAlignment(JLabel.RIGHT);
                     jpanel.add(terrain_table[i][j], new Integer(0));
-                    jpanel.add(object_table[i][j], new Integer(1));
-                    jpanel.add(sight_table[i][j], new Integer(2));
-                    jpanel.add(light_table[i][j], new Integer(3));
+                    jpanel.add(sight_table[i][j], new Integer(3));
+                    jpanel.add(light_table[i][j], new Integer(4));
+                    for (int k = 0; k < OBJECT_LAYERS; k++){
+                        object_table[i][j][k] = new JLabel();
+                        object_table[i][j][k].setBounds(new Rectangle((width-CAMERA_SIZE*64)/2, (i)*64,(j)*64, 64)); 
+                        object_table[i][j][k].setHorizontalAlignment(JLabel.RIGHT);
+                        jpanel.add(object_table[i][j][k], new Integer(k+1));
+                    }
                 }
            }
     }
@@ -153,7 +159,7 @@ public class Camera extends JFrame {
         position.set(x, y);
     }
     
-    public void fillVisibilityTable(){
+    public void fillVisibilityTable() {
         for (int i = 0; i < visibility_table.length; ++i){
             for (int j = 0; j < visibility_table.length; ++j){
                 visibility_table[i][j] = false;
@@ -161,7 +167,7 @@ public class Camera extends JFrame {
         }
     }
     
-    public void clearVisibilityTable(){
+    public void clearVisibilityTable() {
         for (int i = 0; i < visibility_table.length; ++i){
             for (int j = 0; j < visibility_table.length; ++j){
                 visibility_table[i][j] = true;
@@ -169,7 +175,7 @@ public class Camera extends JFrame {
         }
     }
     
-    public void setVisibilityTable(Node n, boolean b){
+    public void setVisibilityTable(Node n, boolean b) {
         visibility_table[n.getX()][n.getY()] = b;
     }
     
@@ -186,22 +192,31 @@ public class Camera extends JFrame {
                     if (visibility_table[x][y]){
                         sight_table[i][j].setIcon(null);
                         terrain_table[i][j].setIcon(TERRAIN_MAP.get(t.getTile(x,y).getTerrainID()));
-                        if (t.getObject(x,y)!=null) {
-                            object_table[i][j].setIcon(SPRITE_MAP.get(t.getTile(x,y).getID()));
+                        if (t.getActor(x,y)!=null) {
+                            for (int k = 0; k < OBJECT_LAYERS; ++k){
+                                if (t.getTile(x,y).getContent(k)!=null){
+                                    object_table[i][j][k].setIcon(SPRITE_MAP.get(t.getTile(x,y).getContent(k).getID()));
+                                } else {
+                                    object_table[i][j][k].setIcon(null);
+                                }
+                            }
                         } else {
-                            object_table[i][j].setIcon(null);
+                            for (int k = 0; k < OBJECT_LAYERS; ++k){
+                                object_table[i][j][k].setIcon(null);
+                            }
                         }
                         light_table[i][j].setIcon(LIGHT_MAP.get(t.getTile(x,y).getLight()/10));
                 }
                 else sight_table[i][j].setIcon(FilePaths.black);
                 } else {
                     terrain_table[i][j].setIcon(FilePaths.black);
-                    object_table[i][j].setIcon(null);
                     sight_table[i][j].setIcon(null);
                     light_table[i][j].setIcon(null);
+                    for (int k = 0; k < OBJECT_LAYERS; ++k){
+                        object_table[i][j][k].setIcon(null);
+                    }
                 }
             }
         }
     }
-    
 }
