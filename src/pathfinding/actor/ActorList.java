@@ -84,7 +84,7 @@ public class ActorList {
     public void print(){
         for (int i = 0; i < list.size(); i++){
             list.get(i).print();
-            System.out.println(active_list.get(i));
+            //System.out.println(active_list.get(i));
         }
     }
     
@@ -94,11 +94,13 @@ public class ActorList {
      */
     public void simulate(Table t){
         for (int i = 0; i < list.size(); i++){
-            if (list.get(i)!=null && list.get(i).getID() == 2 && active_list.get(i)){
-                if (!((Creature)list.get(i)).isAlive()) this.remove(list.get(i),t);
-            }
-            if (i < active_list.size() && active_list.get(i) && i < list.size() && list.get(i)!= null){
-                list.get(i).simulate(t);
+            if (i < active_list.size() && active_list.get(i) && list.get(i)!= null){
+                if (!(list.get(i)).isAlive()){
+                    t.getTile(list.get(i).getNode()).clearMatchingContent(list.get(i));
+                    remove(list.get(i),t);
+                } else {
+                    list.get(i).simulate(t);
+                }
             }
         }
     }

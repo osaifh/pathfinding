@@ -8,7 +8,8 @@ import pathfinding.auxiliar.Node;
  * @author Alumne
  */
 public class Door extends Interactable {
-    Boolean open;
+    boolean open;
+    boolean alive;
     
     public Door(int x, int y, Table t){
         pos = new Node(x,y);
@@ -16,6 +17,7 @@ public class Door extends Interactable {
         t.getTile(pos).setPassable(open);
         t.getTile(pos).setOpaque(!open);
         id = 8;
+        alive = true;
     }
         
     public void interact(Table t) {
@@ -30,6 +32,16 @@ public class Door extends Interactable {
 
     public void print() {
         System.out.println("this is a door");
+    }
+    
+    @Override
+    public boolean equalNode(Actor x){
+        return pos.compare(x.getNode());
+    }
+
+    @Override
+    public boolean isAlive(){
+        return alive;
     }
     
 }

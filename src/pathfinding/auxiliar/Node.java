@@ -142,7 +142,7 @@ public class Node {
     }
     
     public static double ManhattanDistance(Node one, Node two){
-        return ((one.x - two.x)+(one.y-two.y));
+        return (Math.abs(one.x - two.x)+Math.abs(one.y - two.y));
     }
     
     /**
@@ -150,6 +150,11 @@ public class Node {
      */
     public void print() {
         System.out.println("[x=" + x + ",y=" + y + "]"); 
+    }
+    
+    @Override
+    public String toString(){
+        return ("[x=" + x + ",y=" + y + "]");
     }
     
     /**
@@ -174,5 +179,37 @@ public class Node {
     public void nodeMove(Table t, int dir){
         this.add(DIRECTIONS.get(dir));
     }
-
+    
+    public static Node[] getDirections(){
+        Node[] directions = new Node[8];
+        for (int i = 0; i < 8; ++i){
+            directions[i] = DIRECTIONS.get(i);
+        }
+        return directions;
+    }
+    
+    public static Node[] getDirectionsN(){
+        Node[] directions = new Node[4];
+        Node[] directions_8 = getDirections();
+        int j = 0;
+        for (int i = 0; i < 8; ++i){
+            if (i != 0 && i != 2 && i !=5 && i != 7){
+                directions[j] = directions_8[i];
+                ++j;
+            }
+        }
+        return directions;
+    }
+    
+    public int relativeDirection(Node target){
+        if (target.x<x && target.y<y) return 0;
+        if (target.x<x && target.y==y) return 1;
+        if (target.x<x && target.y>y) return 2;
+        if (target.x==x && target.y<y) return 3;
+        if (target.x==x && target.y>y) return 4;
+        if (target.x>x && target.y<y) return 5;
+        if (target.x>x && target.y==y) return 6;
+        if (target.x>x && target.y>y) return 7;
+        return -1;
+    }
 }

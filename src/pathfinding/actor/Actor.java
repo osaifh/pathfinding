@@ -19,7 +19,9 @@ public interface Actor {
     
     public void setNode(int x, int y);
     
-    public Boolean equalNode(Actor x);
+    public boolean equalNode(Actor x);
+    
+    public boolean isAlive();
     
     public void simulate(Table t);
     

@@ -28,6 +28,7 @@ public class Core extends Creature {
         objectiveList = new ArrayList<>();
         ongoingObjectiveList = new ArrayList<>();
         resources = 0;
+        alive = true;
     }
     
     public ArrayList getObjectiveList(){
@@ -103,7 +104,7 @@ public class Core extends Creature {
                 }
                 else if (minionList.get(i) instanceof Worker){
                     Worker s = (Worker) minionList.get(i);
-                    if (objectiveList.size()!=0 && s.getStatus()==0){
+                    if (!objectiveList.isEmpty() && s.getStatus()==0){
                         System.out.println("Sending objectives");
                         objectiveList.get(0).print();
                         s.setStatus(2);

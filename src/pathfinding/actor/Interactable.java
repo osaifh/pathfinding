@@ -10,6 +10,7 @@ import pathfinding.auxiliar.Node;
 public abstract class Interactable implements Actor {
     Node pos;
     int id;
+    boolean alive;
     
     public Actor getActor(){
         return this;
@@ -31,10 +32,14 @@ public abstract class Interactable implements Actor {
         pos.set(x,y);
     };
     
-    public Boolean equalNode(Actor x){
+    public boolean equalNode(Actor x){
         return pos.compare(x.getNode());
     };
     
-    public abstract void interact(Table t);
+    public abstract void interact(Table t);    
+
+    public boolean isAlive(){
+        return alive;
+    }
     
 }

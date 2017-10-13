@@ -9,6 +9,7 @@ import pathfinding.Table.Table;
  */
 public class LightSource implements Actor {
     int intensity;
+    boolean alive;
     Node pos;
     
     /**
@@ -20,9 +21,10 @@ public class LightSource implements Actor {
     public LightSource(int intensity, int x, int y){
         pos = new Node(x,y);
         this.intensity = intensity;
+        alive = true;
     }
     
-    public Boolean equalNode(Actor x){
+    public boolean equalNode(Actor x){
         return pos.compare(x.getNode());
     }
     
@@ -114,7 +116,8 @@ public class LightSource implements Actor {
         cast_light(tab);
     }
     
-    public void print(){}
+    public void print(){
+    }
 
     public Actor getActor() {
         return this;
@@ -138,5 +141,10 @@ public class LightSource implements Actor {
     @Override
     public void setNode(int x, int y) {
         pos.set(x, y);
+    }
+
+    @Override
+    public boolean isAlive() {
+        return alive;
     }
 }

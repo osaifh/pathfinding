@@ -1,14 +1,8 @@
 package pathfinding.actor;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.PriorityQueue;
 import pathfinding.Table.Table;
 import pathfinding.auxiliar.Memory;
 import pathfinding.auxiliar.Node;
-import pathfinding.auxiliar.NodeData;
-import pathfinding.auxiliar.NodePair;
-import pathfinding.auxiliar.PairList;
 
 public class Scout extends Creature {
     private Boolean move;
@@ -159,64 +153,13 @@ public class Scout extends Creature {
     }
     
     public void BFS(int x, int y, Table tab){
-        Node[] path = iBFS(pos, new Node(x,y), tab);
+        Node[] path = tab.iBFS(pos, new Node(x,y));
         if (path!= null){
             runpath = path;
             move = true;
             runindex = 1;
         } else {
             runpath = null;
-        }
-    }
-
-    private static Comparator<NodeData> node_comparator = (NodeData n1, NodeData n2) -> {
-        if (n1.getTotal() > n2.getTotal()) return 1;
-        else if (n1.getTotal() < n2.getTotal()) return -1;
-        else return 0;
-    };
-            
-    private Node[] iBFS (Node act_pos, Node target, Table tab) {
-        if (!tab.getTile(target).isPassable()) return null; //early exit
-        PriorityQueue qpath = new PriorityQueue(11,node_comparator);
-        PairList visitats = new PairList();
-        Node source = act_pos;
-        Node current = act_pos;
-        NodePair current_par = new NodePair(current);
-        visitats.add(current_par);
-        NodeData current_data = new NodeData(current_par,source,target);
-        qpath.add(current_data);
-        int limit = 10000;
-        boolean first = true;
-        while (!qpath.isEmpty() & limit > 0){
-            if(!first){
-                current_data = (NodeData)qpath.poll();
-                current_par = current_data.getNodePar();
-                current = current_data.getNode();
-            } else first = false;
-            if (current.compare(target)) break;
-            else {
-                for (int i = -1; i < 2; ++i){
-                for (int j = -1; j < 2; ++j){
-                    if (!(i==0 & j==0) && tab.checkPassable(current.getX() + i,current.getY() + j)){
-                        Node temp = new Node();
-                        temp.set(current.getX() + i, current.getY() + j);
-                        if (!visitats.findNode(temp)){
-                            NodePair new_par = new NodePair(temp);
-                            new_par.setSource(current_par);
-                            NodeData new_data = new NodeData(new_par,source,target);
-                            qpath.add(new_data);
-                            visitats.add(new_par);
-                        }
-                    }
-                }
-                }
-            }
-            --limit;
-        }
-        if (!target.compare(current)) return null;
-        else{
-            Node[] path = visitats.tracePath(current_par);
-            return path;
         }
     }
     

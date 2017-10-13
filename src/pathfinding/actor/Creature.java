@@ -17,6 +17,7 @@ public abstract class Creature implements Actor {
     int tick_counter = 0;
     int facing_direction;
     int id;
+    int hp, maxHP;
     
     /**
      * Gets the sight range
@@ -26,31 +27,59 @@ public abstract class Creature implements Actor {
         return sight_range;
     }
     
-    public Boolean isAlive(){
+    @Override
+    public boolean isAlive(){
         return alive;
     }
     
+    @Override
     public Actor getActor(){
         return this;
     }
 
+    @Override
     public Node getNode(){
         return pos;
     }
     
+    @Override
     public int getID(){
         return id;
     }
     
+    public int getHP(){
+        return hp;
+    }
+    
+    public int getmaxHP(){
+        return maxHP;
+    }
+    
+    public int getFacingDirection(){
+        return facing_direction;
+    }
+    
+    @Override
     public void setNode(Node n){
         pos = n;
     }
     
+    /**
+     *
+     * @param x
+     * @param y
+     */
+    @Override
     public void setNode(int x, int y){
         pos.set(x, y);
     }
     
-    public Boolean equalNode(Actor x){
+    public void setHP(int hp){
+        this.hp = hp;
+    }
+    
+    @Override
+    public boolean equalNode(Actor x){
         return pos.compare(x.getNode());
     }
     
@@ -75,10 +104,6 @@ public abstract class Creature implements Actor {
                 }
             }
         }
-    }
-    
-    public int getFacingDirection(){
-        return facing_direction;
     }
     
     public void setFacingDirection(int d){

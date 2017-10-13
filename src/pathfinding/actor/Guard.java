@@ -2,13 +2,8 @@ package pathfinding.actor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.PriorityQueue;
 import pathfinding.Table.Table;
 import pathfinding.auxiliar.Node;
-import pathfinding.auxiliar.NodeData;
-import pathfinding.auxiliar.NodePair;
-import pathfinding.auxiliar.PairList;
 
 /**
  *
@@ -150,14 +145,14 @@ public class Guard extends Creature {
         
         if (patrolList.size()>1){
             //first iteration
-            auxPath1 = iBFS(n,patrolList.get(0),t);
-            auxPath2 = iBFS(patrolList.get(patrolList.size()-1),n,t);
+            auxPath1 = t.iBFS(n,patrolList.get(0));
+            auxPath2 = t.iBFS(patrolList.get(patrolList.size()-1),n);
             minDistance = auxPath1.length + auxPath2.length;
             index = 0;
             //rest of the iterations
             for (int i = 0; i < patrolList.size()-1; ++i){
                 auxPath2 = Arrays.copyOf(auxPath1,auxPath1.length);
-                auxPath1 = iBFS(patrolList.get(i),patrolList.get(i+1),t);
+                auxPath1 = t.iBFS(patrolList.get(i),patrolList.get(i+1));
                 curDistance = auxPath1.length + auxPath2.length;
                 if (curDistance < minDistance){
                     index = i+1;
@@ -165,11 +160,11 @@ public class Guard extends Creature {
             }
             patrolList.add(index,n);
             if (index == 0){
-                pathList.add(0,iBFS(patrolList.get(patrolList.size()-1),n,t));
+                pathList.add(0,t.iBFS(patrolList.get(patrolList.size()-1),n));
             } else {
-                pathList.add(index,iBFS(patrolList.get(index-1),patrolList.get(index),t));
+                pathList.add(index,t.iBFS(patrolList.get(index-1),patrolList.get(index)));
             }
-            pathList.add(index+1,iBFS(patrolList.get(index),patrolList.get(index+1),t));
+            pathList.add(index+1,t.iBFS(patrolList.get(index),patrolList.get(index+1)));
         } else {
             patrolList.add(n);
         }
@@ -205,56 +200,4 @@ public class Guard extends Creature {
     public void print() {
         
     }
-    
-    private static Comparator<NodeData> node_comparator = (NodeData n1, NodeData n2) -> {
-        if (n1.getTotal() > n2.getTotal()) return 1;
-        else if (n1.getTotal() < n2.getTotal()) return -1;
-        else return 0;
-    };
-            
-    private Node[] iBFS (Node act_pos, Node target, Table tab) {
-        if (!tab.getTile(target).isPassable()) return null; //early exit
-        PriorityQueue qpath = new PriorityQueue(11,node_comparator);
-        PairList visitats = new PairList();
-        Node source = act_pos;
-        Node current = act_pos;
-        NodePair current_par = new NodePair(current);
-        visitats.add(current_par);
-        NodeData current_data = new NodeData(current_par,source,target);
-        qpath.add(current_data);
-        int limit = 10000;
-        boolean first = true;
-        while (!qpath.isEmpty() & limit > 0){
-            if(!first){
-                current_data = (NodeData)qpath.poll();
-                current_par = current_data.getNodePar();
-                current = current_data.getNode();
-            } else first = false;
-            if (current.compare(target)) break;
-            else {
-                for (int i = -1; i < 2; ++i){
-                for (int j = -1; j < 2; ++j){
-                    if (!(i==0 & j==0) && tab.checkPassable(current.getX() + i,current.getY() + j)){
-                        Node temp = new Node();
-                        temp.set(current.getX() + i, current.getY() + j);
-                        if (!visitats.findNode(temp)){
-                            NodePair new_par = new NodePair(temp);
-                            new_par.setSource(current_par);
-                            NodeData new_data = new NodeData(new_par,source,target);
-                            qpath.add(new_data);
-                            visitats.add(new_par);
-                        }
-                    }
-                }
-                }
-            }
-            --limit;
-        }
-        if (!target.compare(current)) return null;
-        else{
-            Node[] path = visitats.tracePath(current_par);
-            return path;
-        }
-    }
-    
 }

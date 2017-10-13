@@ -122,7 +122,7 @@ public class Tile {
         for (int i = 0; i < icontent.size() && !found; ++i){
             if (icontent.get(i)==x){
                 found = true;
-                icontent.remove(x);
+                icontent.remove(i);
             }
         }
     }
@@ -150,6 +150,10 @@ public class Tile {
      */
     public boolean isOpaque(){
         return opaque;
+    }
+    
+    public boolean isEmpty(){
+        return (icontent.isEmpty());
     }
     
     /**
@@ -237,6 +241,7 @@ public class Tile {
         //content = null;
         icontent.clear();
         passable = true;
+        opaque = false;
     }
 
 }

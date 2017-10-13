@@ -1,14 +1,8 @@
 package pathfinding.actor;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.PriorityQueue;
 import pathfinding.Table.Table;
 import pathfinding.auxiliar.Memory;
 import pathfinding.auxiliar.Node;
-import pathfinding.auxiliar.NodeData;
-import pathfinding.auxiliar.NodePair;
-import pathfinding.auxiliar.PairList;
 
 public class Worker extends Creature {
     private Boolean move;
@@ -107,7 +101,7 @@ public class Worker extends Creature {
     }
     
     public void BFS(int x, int y, Table tab){
-        Node[] path = iBFS(pos, new Node(x,y), tab);
+        Node[] path = tab.iBFS(pos, new Node(x,y));
         if (path!= null){
             runpath = path;
             move = true;
@@ -117,56 +111,6 @@ public class Worker extends Creature {
         }
     }
 
-    private static Comparator<NodeData> node_comparator = (NodeData n1, NodeData n2) -> {
-        if (n1.getTotal() > n2.getTotal()) return 1;
-        else if (n1.getTotal() < n2.getTotal()) return -1;
-        else return 0;
-    };
-            
-    private Node[] iBFS (Node act_pos, Node target, Table tab) {
-        if (!tab.getTile(target).isPassable()) return null; //early exit
-        PriorityQueue qpath = new PriorityQueue(11,node_comparator);
-        PairList visitats = new PairList();
-        Node source = act_pos;
-        Node current = act_pos;
-        NodePair current_par = new NodePair(current);
-        visitats.add(current_par);
-        NodeData current_data = new NodeData(current_par,source,target);
-        qpath.add(current_data);
-        int limit = 10000;
-        boolean first = true;
-        while (!qpath.isEmpty() & limit > 0){
-            if(!first){
-                current_data = (NodeData)qpath.poll();
-                current_par = current_data.getNodePar();
-                current = current_data.getNode();
-            } else first = false;
-            if (current.compare(target)) break;
-            else {
-                for (int i = -1; i < 2; ++i){
-                for (int j = -1; j < 2; ++j){
-                    if (!(i==0 & j==0) && tab.checkPassable(current.getX() + i,current.getY() + j)){
-                        Node temp = new Node();
-                        temp.set(current.getX() + i, current.getY() + j);
-                        if (!visitats.findNode(temp)){
-                            NodePair new_par = new NodePair(temp);
-                            new_par.setSource(current_par);
-                            NodeData new_data = new NodeData(new_par,source,target);
-                            qpath.add(new_data);
-                            visitats.add(new_par);
-                        }
-                    }
-                }
-                }
-            }
-            --limit;
-        }
-        if (!target.compare(current)) return null;
-        else{
-            Node[] path = visitats.tracePath(current_par);
-            return path;
-        }
-    }
     
     @Override
     public void simulate(Table t) {
@@ -174,29 +118,31 @@ public class Worker extends Creature {
         if (tick_counter >= tick_max){
             tick_counter = 0;
             System.out.println("Status: " + status);
-            if (status == 1){
-                run(t);
-                if (resources != 0 && getNode().compare(host.getNode())){
-                    host.addResources(resources);
-                    host.objectiveDone(objective);
-                    resources = 0;
-                    status = 0;
-                    objective = null;
-                }
-                if (!move && (status != 0)){
-                    if (objective == null) status = 2;
-                    else status = 3;
-                }
-            }
-            else if (status == 2){
-                BFS(objective.getX(),objective.getY(),t);
-                if (runpath == null) status = 0;
-                else status = 1;
-            }
-            else if (status == 3){
-                BFS(host.getNode().getX(),host.getNode().getY(),t);
-                if (runpath == null) status = 0;
-                else status = 1;
+            switch (status) {
+                case 1:
+                    run(t);
+                    if (resources != 0 && getNode().compare(host.getNode())){
+                        host.addResources(resources);
+                        host.objectiveDone(objective);
+                        resources = 0;
+                        status = 0;
+                        objective = null;
+                    }   if (!move && (status != 0)){
+                        if (objective == null) status = 2;
+                        else status = 3;
+                    }   break;
+                case 2:
+                    BFS(objective.getX(),objective.getY(),t);
+                    if (runpath == null) status = 0;
+                    else status = 1;
+                    break;
+                case 3:
+                    BFS(host.getNode().getX(),host.getNode().getY(),t);
+                    if (runpath == null) status = 0;
+                    else status = 1;
+                    break;
+                default:
+                    break;
             }
         }
     }

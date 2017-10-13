@@ -18,6 +18,7 @@ public class FilePaths {
     public static ImageIcon black = new ImageIcon(FILE_PATH+"\\src\\resources\\Black.png");
     public static ImageIcon red = new ImageIcon(FILE_PATH+"\\src\\resources\\Red.png");
     public static ImageIcon grass = new ImageIcon(FILE_PATH+"\\src\\resources\\Grass.png");
+    public static ImageIcon white = new ImageIcon(FILE_PATH+"\\src\\resources\\White.png");
     public static ImageIcon grass_NW = new ImageIcon(FILE_PATH+"\\src\\resources\\Grass_edge_NW.png");
     public static ImageIcon grass_NE = new ImageIcon(FILE_PATH+"\\src\\resources\\Grass_edge_NE.png");
     public static ImageIcon grass_SW = new ImageIcon(FILE_PATH+"\\src\\resources\\Grass_edge_SW.png");
@@ -41,4 +42,13 @@ public class FilePaths {
     public static ImageIcon dark8 = new ImageIcon(FILE_PATH+"\\src\\resources\\dark\\dark8.png");
     public static ImageIcon dark9 = new ImageIcon(FILE_PATH+"\\src\\resources\\dark\\dark9.png");
     public static ImageIcon dark10 = new ImageIcon(FILE_PATH+"\\src\\resources\\dark\\dark10.png");
+    public static ImageIcon blank = new ImageIcon(FILE_PATH+"\\src\\resources\\UI\\Blank.png");
+    public static ImageIcon night = new ImageIcon(FILE_PATH+"\\src\\resources\\UI\\Night.png");
+    public static ImageIcon day = new ImageIcon(FILE_PATH+"\\src\\resources\\UI\\Day.png");
+    public static ImageIcon lightsOn = new ImageIcon(FILE_PATH+"\\src\\resources\\UI\\lightsOn.png");
+    public static ImageIcon lightsOff = new ImageIcon(FILE_PATH+"\\src\\resources\\UI\\lightsOff.png");
+    public static ImageIcon selected = new ImageIcon(FILE_PATH+"\\src\\resources\\UI\\Selected.png");
+    public static ImageIcon UIblack = new ImageIcon(FILE_PATH+"\\src\\resources\\UI\\Black.png");
+    public static ImageIcon blue = new ImageIcon(FILE_PATH+"\\src\\resources\\UI\\Blue.png");
+    
 }

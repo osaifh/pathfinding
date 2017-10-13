@@ -12,16 +12,19 @@ import pathfinding.auxiliar.PairList;
  *
  * @author Alumne
  */
-public class Mob extends Creature {
+public class Monster extends Creature {
     private boolean move, asleep;
     private Node[] runpath;
     private Memory mem, long_term;
     private int runindex, current_action, hunger, stamina;
+    private Actor target;
+    private ActorList objList;
+    private final int tick_max = 15;
     
-    public Mob(int x, int y){
+    public Monster(Node pos, ActorList objList){
         id = 2;
         hp = 100;
-        pos = new Node(x,y);
+        this.pos = pos.getNodeCopy();
         move = asleep = false;
         runpath = null;
         runindex = current_action = 0;
@@ -29,6 +32,8 @@ public class Mob extends Creature {
         long_term = new Memory();
         hunger = stamina = 100;
         alive = true;
+        this.objList = objList;
+        
     }
     
     /**
@@ -232,6 +237,73 @@ public class Mob extends Creature {
         }
     }
     
+    public void lookAround(Table tab, int range){            
+        for (int i = -1; i < 2; ++i){
+            for (int j = -1; j < 2; ++j){
+                if (i!=0 && j !=0){
+                    lookDirection(tab,1,1.0f,0.0f, 0,i,j,0,range);
+                    lookDirection(tab,1,1.0f,0.0f, i,0,0,j,range);
+                }
+            }
+        }
+    }
+    
+   
+    
+    private void lookDirection(Table tab, int row, float start, float end, int xx, int xy, int yx, int yy, int range){
+        float newStart = 0.0f;
+        if (start < end){
+            return;
+        }
+        if (target != null){
+            return;
+        }
+        boolean blocked = false;
+        for (int distance = row; distance <= range && !blocked; distance++){
+            int deltaY = -distance;
+            for (int deltaX = -distance; deltaX <= 0; deltaX++){
+                int currentX = pos.getX() + deltaX * xx + deltaY * xy;
+                int currentY = pos.getY() + deltaX * yx + deltaY * yy;
+                float leftSlope = (deltaX - 0.5f) / (deltaY + 0.5f);
+                float rightSlope = (deltaX + 0.5f) / (deltaY - 0.5f);
+                
+                if (!(tab.valid(currentX,currentY)) || start < rightSlope){
+                    continue;
+                } else if (end > leftSlope){
+                    break;
+                }
+                
+                Node delta = new Node(currentX,currentY);
+                if (Node.distance(pos,delta) <= range  && tab.getTile(delta).getLight()>=20){
+                    if (tab.getTile(delta).getContentSize()!=0){
+                        for (int i = 0; i < tab.getTile(delta).getContentSize() && target == null; ++i){
+                            Actor obj = tab.getTile(delta).getContent(i);
+                            if (obj instanceof Player){
+                                target = obj;
+                            }
+                        }
+                    }
+                }
+                
+                if (blocked){
+                    if (tab.getTile(delta).isOpaque()){
+                        newStart = rightSlope;
+                        continue;
+                    } else {
+                        blocked = false;
+                        start = newStart;
+                    }
+                } else {
+                    if (tab.getTile(delta).isOpaque() && Node.distance(pos,delta) <= 10){
+                        blocked = true;
+                        lookDirection(tab,distance + 1,start, leftSlope, xx, xy, yx, yy, range);
+                        newStart = rightSlope;
+                    }
+                }
+            }
+        }
+    }
+    
      /**
      * simulates a single step for a creature
      * @param tab
@@ -241,8 +313,8 @@ public class Mob extends Creature {
         tick_counter ++;
         if (tick_counter >= tick_max){
             tick_counter = 0;
-            --hunger;
-            if (!asleep) --stamina;
+            //--hunger;
+            //if (!asleep) --stamina;
 
             if (current_action == 0){
                 long_term.add(pos);
@@ -268,11 +340,40 @@ public class Mob extends Creature {
 
             switch (current_action) {
                 case 1:
-                    run(tab);
-                    if(!move) current_action = 0;
+                    if (target!= null && Node.ManhattanDistance(pos, target.getNode())<=2){
+                        move = false;
+                        current_action = 2;
+                        
+                    } else {
+                        run(tab);
+                        if(!move) current_action = 0;
+                    }
                     break;
                 case 2:
-                    idle(tab);
+                    if (target == null){
+                        lookAround(tab,8);
+                    }
+                    if (target != null){
+                        if (Node.ManhattanDistance(pos, target.getNode())<= 2){
+                            facing_direction = pos.relativeDirection(target.getNode());
+                            if (facing_direction != -1){
+                                Melee m = new Melee(2,1,this,objList,tab);
+                                objList.add(m, true);
+                                tab.add(m);
+                            }
+                        } else {
+                            Node closest = new Node(target.getNode().getNodeCopy());
+                            Node t = new Node();
+                            for (Node d : Node.getDirections()){
+                                t = target.getNode().getNodeCopy();
+                                t.add(d);
+                                if (Node.distance(pos, t) < Node.distance(pos, target.getNode())) closest = t;
+                            }
+                            BFS(closest.getX(),closest.getY(),tab);
+                            current_action = 1;
+                        }
+                        target = null;
+                    }
                     if (hunger < 75 || stamina < 25) current_action = 0;
                     break;
                 case 3:
@@ -300,4 +401,5 @@ public class Mob extends Creature {
             System.out.println("position x = " + pos.getX() + " y = " + pos.getY());
             System.out.println("Health: " + hunger + " Stamina: " + stamina);
     }
+
 }

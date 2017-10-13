@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pathfinding.actor;
 
 import pathfinding.Table.Camera;
@@ -14,12 +9,16 @@ import pathfinding.auxiliar.Node;
  * @author Alumne
  */
 public class Player extends Creature {
+    private LightSource l;
     
     public Player(int x, int y){
         id = 2;
         pos = new Node(x,y);
         alive = true;
         facing_direction = 4;
+        maxHP = 100;
+        hp = 100;
+        l = new LightSource(6,pos.getX(),pos.getY());
     }
     
     
@@ -119,6 +118,24 @@ public class Player extends Creature {
     }
     
     public void simulate(Table t){
-        
+        tick_counter ++;
+        l.cast_light(t);
+        l.setNode(pos);
+        if (tick_counter >= tick_max){
+            tick_counter = 0;
+            if (hp <= 0){
+                alive = false;
+            }
+        }
+    }
+    
+    @Override
+    public boolean equalNode(Actor x){
+        return pos.compare(x.getNode());
+    }
+
+    @Override
+    public boolean isAlive() {
+        return alive;
     }
 }
