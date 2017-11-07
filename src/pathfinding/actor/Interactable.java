@@ -1,5 +1,6 @@
 package pathfinding.actor;
 
+import pathfinding.Table.Camera;
 import pathfinding.Table.Table;
 import pathfinding.auxiliar.Node;
 
@@ -41,5 +42,5 @@ public abstract class Interactable implements Actor {
     public boolean isAlive(){
         return alive;
     }
-    
+
 }

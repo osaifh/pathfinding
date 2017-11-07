@@ -121,5 +121,6 @@ public class Core extends Creature {
     public void print() {
         System.out.println("this is a core");
     }
+
     
 }

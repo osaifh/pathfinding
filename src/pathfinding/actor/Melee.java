@@ -19,12 +19,14 @@ public class Melee extends Interactable {
         this.pos = source.getNode().getNodeCopy();
         pos.iMove(t, facing_direction);
         for (int i = 0; i < height; ++i){
-            MeleeTile m = new MeleeTile(pos,t,source);
-            objList.add(m, true);
-            m_list.add(m);
-            t.add(m);
-            pos = pos.getNodeCopy();
-            pos.iMove(t, facing_direction);
+            if (t.valid(pos)){
+                MeleeTile m = new MeleeTile(pos,t,source);
+                objList.add(m, true);
+                m_list.add(m);
+                t.add(m);
+                pos = pos.getNodeCopy();
+                pos.iMove(t, facing_direction);
+            }
         }
     }
     

@@ -100,6 +100,13 @@ public class Tile {
         return null;
     }
     
+    public Actor getContent(){
+        if (!icontent.isEmpty()){
+            return icontent.get(0);
+        }
+        return null;
+    }
+    
     public Actor getMatchingContent(Actor x){
         for (int i = 0; i < icontent.size(); ++i){
             if (icontent.get(i)==x){
@@ -121,6 +128,16 @@ public class Tile {
         boolean found = false;
         for (int i = 0; i < icontent.size() && !found; ++i){
             if (icontent.get(i)==x){
+                found = true;
+                icontent.remove(i);
+            }
+        }
+    }
+    
+    public void clearMatchingContent(int id){
+        boolean found = false;
+        for (int i = 0; i < icontent.size() && !found; ++i){
+            if (icontent.get(i).getID()==id){
                 found = true;
                 icontent.remove(i);
             }

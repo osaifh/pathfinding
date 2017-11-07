@@ -18,14 +18,13 @@ public class MeleeTile extends Interactable {
             Actor obj = t.getTile(pos).getContent(i);
             if (obj instanceof Creature && obj != source){
                 ((Creature)obj).setHP(((Creature)obj).getHP()-20);
-                System.out.println(((Creature)obj).getHP());
             }
         }
     }
     
     @Override
     public void interact(Table t) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    
     }
 
     @Override

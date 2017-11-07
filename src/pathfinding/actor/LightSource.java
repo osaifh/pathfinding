@@ -1,5 +1,6 @@
 package pathfinding.actor;
 
+import pathfinding.Table.Camera;
 import pathfinding.auxiliar.Node;
 import pathfinding.Table.Table;
 
@@ -147,4 +148,5 @@ public class LightSource implements Actor {
     public boolean isAlive() {
         return alive;
     }
+
 }

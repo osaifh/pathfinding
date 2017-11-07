@@ -2,6 +2,7 @@ package pathfinding.actor;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import pathfinding.Controller;
 import pathfinding.Table.Table;
 import pathfinding.auxiliar.Memory;
 import pathfinding.auxiliar.Node;
@@ -20,8 +21,9 @@ public class Monster extends Creature {
     private Actor target;
     private ActorList objList;
     private final int tick_max = 15;
+    private Controller controller;
     
-    public Monster(Node pos, ActorList objList){
+    public Monster(Node pos, ActorList objList, Controller controller){
         id = 2;
         hp = 100;
         this.pos = pos.getNodeCopy();
@@ -33,7 +35,7 @@ public class Monster extends Creature {
         hunger = stamina = 100;
         alive = true;
         this.objList = objList;
-        
+        this.controller = controller;
     }
     
     /**
@@ -60,14 +62,15 @@ public class Monster extends Creature {
     public void run(Table tab){
         if (move && runpath.length > 0 && runindex < runpath.length){
             if (tab.getTile(runpath[runindex]).isPassable()){
+                iMove(tab,runpath[runindex]);
+                /*
                 tab.getTile(pos).clearMatchingContent(this);
-                //eating
-                if (tab.getTile(runpath[runindex]).containsID(4)){
-                    hunger += 10;
-                    tab.getTile(runpath[runindex]).clearContent();
-                }
                 pos = (runpath[runindex]);
-                tab.getTile(pos).addContent(this);
+                tab.getTile(pos).addContent(this);*/
+                if (tab.getTile(pos).containsID(4)){
+                    hunger += 10;
+                    tab.getTile(pos).clearMatchingContent(4);
+                }
                 if (runindex == runpath.length-1) move = false;
                 else ++runindex;
             } else {
@@ -87,7 +90,7 @@ public class Monster extends Creature {
         int length = 5 + randint.nextInt(6);
         Node[] newpath = new Node[length];
         for (int i = 0; i < length; ++i){
-            Node pos = new Node();
+            Node pos;
             if (i == 0) pos = getNode();
             else pos = newpath[i-1];
             int[] dir_val = new int[8];
@@ -128,7 +131,7 @@ public class Monster extends Creature {
      * Performs a random idle movement
      * @param tab the tab where we're moving
      */
-    public void idle(Table tab){
+    private void idle(Table tab){
         int decision = randint.nextInt(2);
         if (decision == 0){
             iMove(tab,randint.nextInt(8));
@@ -149,7 +152,7 @@ public class Monster extends Creature {
     /**
      * Sleeps during a single step, increasing the creature's stamina
      */
-    public void sleep(){
+    private void sleep(){
         stamina += 10;
     }
     
@@ -169,7 +172,7 @@ public class Monster extends Creature {
      * @param y
      * @param tab
      */
-    public void BFS(int x, int y, Table tab){
+    private void BFS(int x, int y, Table tab){
         Node[] path = tab.iBFS(pos, new Node(x,y));
         if (path!= null){
             runpath = path;
@@ -248,8 +251,6 @@ public class Monster extends Creature {
         }
     }
     
-   
-    
     private void lookDirection(Table tab, int row, float start, float end, int xx, int xy, int yx, int yy, int range){
         float newStart = 0.0f;
         if (start < end){
@@ -278,7 +279,7 @@ public class Monster extends Creature {
                     if (tab.getTile(delta).getContentSize()!=0){
                         for (int i = 0; i < tab.getTile(delta).getContentSize() && target == null; ++i){
                             Actor obj = tab.getTile(delta).getContent(i);
-                            if (obj instanceof Player){
+                            if (obj instanceof Creature){
                                 target = obj;
                             }
                         }
@@ -304,6 +305,67 @@ public class Monster extends Creature {
         }
     }
     
+    private void attackTarget(Table tab){
+        facing_direction = pos.relativeDirection(target.getNode());
+        if (facing_direction != -1){
+            Melee m = new Melee(2,1,this,objList,tab);
+            objList.add(m, true);
+            tab.add(m);
+        }
+    }
+    
+    private void chaseTarget(Table tab){
+        if (target!= null){
+            Node closest = target.getNode().getNodeCopy();
+            for (Node d : Node.getDirections()){
+                Node t = target.getNode().getNodeCopy();
+                t.add(d);
+                if (Node.distance(pos, t) < Node.distance(pos, target.getNode())) closest = t;
+            }
+            BFS(closest.getX(),closest.getY(),tab);
+        }
+        else current_action = 0;
+    }
+    
+    private Node[] runAwayFromTarget(Table tab){
+        move = true;
+        runindex = 0;
+        int length = 5 + randint.nextInt(6);
+        Node[] newpath = new Node[length];
+        for (int i = 0; i < length; ++i){
+            Node npos;
+            if (i == 0) npos = getNode().getNodeCopy();
+            else npos = newpath[i-1].getNodeCopy();
+            double[] dir_val = new double[8];
+            int max = 0;
+            double value_max = -1;
+            for (int j = 0; j < 8; ++j){
+                    Node aux = npos.getNodeCopy();
+                    aux.moveDirection(j,1);
+                    if (tab.checkPassable(aux)){
+                        dir_val[j] = Node.distance(aux,target.getNode());
+                        if (dir_val[j]>value_max){
+                            value_max = dir_val[j];
+                            max = j;
+                        }
+                    } else dir_val[j]=-1;
+            }
+            if (value_max>=0){
+                npos.moveDirection(max, 1);
+                newpath[i] = npos;
+            }
+            else {
+                if (i == 0) return null;
+                else {
+                    Node [] resized_path = new Node[i];
+                    for (int j = 0; j < i; ++j) resized_path[j] = newpath[j];
+                    return resized_path;
+                }
+            }
+        }
+        return newpath;
+    }
+    
      /**
      * simulates a single step for a creature
      * @param tab
@@ -313,68 +375,55 @@ public class Monster extends Creature {
         tick_counter ++;
         if (tick_counter >= tick_max){
             tick_counter = 0;
-            //--hunger;
+            --hunger;
             //if (!asleep) --stamina;
-
+            lookAround(tab,8);
             if (current_action == 0){
                 long_term.add(pos);
-                if (stamina<25){
-                    current_action = 3;
-                    asleep = true;
-                }
-                else if (hunger<75){
-                    findID(4,tab,6);
-                    if (move & runpath != null){
-                        current_action = 1;
-                    } else {
-                        runpath = runAway(tab);
-                        if (runpath != null){
-                            current_action = 1;
-                        }
+                if (target==null){
+                    if (stamina<25){
+                        current_action = 3;
+                        asleep = true;
                     }
+                    else if (hunger<75){
+                        findID(4,tab,6);
+                        if (move & runpath != null) current_action = 1;
+                        else {
+                            runpath = runAway(tab);
+                            if (runpath != null) current_action = 1;
+                        }
+                    } else current_action = 4;
                 }
                 else {
-                    current_action = 2;
+                    if (!move) current_action = 2;
+                    else current_action = 1;
                 }
             }
 
             switch (current_action) {
                 case 1:
-                    if (target!= null && Node.ManhattanDistance(pos, target.getNode())<=2){
+                    if (target!= null && !controller.isDay() && Node.ManhattanDistance(pos, target.getNode())<=2){
                         move = false;
                         current_action = 2;
-                        
                     } else {
                         run(tab);
                         if(!move) current_action = 0;
                     }
                     break;
                 case 2:
-                    if (target == null){
-                        lookAround(tab,8);
-                    }
-                    if (target != null){
-                        if (Node.ManhattanDistance(pos, target.getNode())<= 2){
-                            facing_direction = pos.relativeDirection(target.getNode());
-                            if (facing_direction != -1){
-                                Melee m = new Melee(2,1,this,objList,tab);
-                                objList.add(m, true);
-                                tab.add(m);
-                            }
+                    if (controller.isDay()){
+                        runpath = runAwayFromTarget(tab);
+                        if (runpath!= null) current_action = 1;
+                    } else {
+                        if (target != null && Node.ManhattanDistance(pos, target.getNode())<= 2){
+                            attackTarget(tab);
                         } else {
-                            Node closest = new Node(target.getNode().getNodeCopy());
-                            Node t = new Node();
-                            for (Node d : Node.getDirections()){
-                                t = target.getNode().getNodeCopy();
-                                t.add(d);
-                                if (Node.distance(pos, t) < Node.distance(pos, target.getNode())) closest = t;
-                            }
-                            BFS(closest.getX(),closest.getY(),tab);
+                            chaseTarget(tab);
                             current_action = 1;
                         }
                         target = null;
+                        if (hunger < 75 || stamina < 25) current_action = 0;
                     }
-                    if (hunger < 75 || stamina < 25) current_action = 0;
                     break;
                 case 3:
                     sleep();
@@ -383,9 +432,13 @@ public class Monster extends Creature {
                         current_action = 0;
                     }
                     break;
+                case 4:
+                    idle(tab);
+                    current_action = 0;
+                    break;
             }
 
-            if (hunger <= 0 || stamina <= 0 || hp <= 0){
+            if (stamina <= 0 || hp <= 0){
                 tab.getTile(pos).clearContent();
                 alive = false;
             }
@@ -397,9 +450,9 @@ public class Monster extends Creature {
      * Used only for testing.
      */
     public void print() {
-            System.out.println("object ID: " + id);
-            System.out.println("position x = " + pos.getX() + " y = " + pos.getY());
-            System.out.println("Health: " + hunger + " Stamina: " + stamina);
+        System.out.println("object ID: " + id);
+        System.out.println("position x = " + pos.getX() + " y = " + pos.getY());
+        System.out.println("Health: " + hunger + " Stamina: " + stamina);
     }
 
 }

@@ -8,42 +8,47 @@ import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JLabel; 
-import javax.swing.JFrame; 
-import javax.swing.JLayeredPane;
+import javax.swing.JFrame;
 import javax.swing.ImageIcon;
 import pathfinding.Controller;
 import pathfinding.auxiliar.Node;
 import pathfinding.actor.Actor;
 import pathfinding.actor.Creature;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferStrategy;
+import javax.swing.JPanel;
 
 /**
  * This class is used to render what the camera currently shows.
  * @author Me
  */
 public class Camera extends JFrame {
-
-    private final static int CAMERA_SIZE = 11;
-    private final static int OBJECT_LAYERS = 3;
+    private final static int TILE_SIZE = 32;
+    private static int cameraSize;
+    private int panelWidth, panelHeight, leftMargin;
     private Table t;
     private Node position;
     private boolean camera_lock;
-    private JLayeredPane jpanel = getLayeredPane();
-    private Controller parentController;
+    private JPanel jpanel = new JPanel();
+    private final Controller parentController;
     private Creature activePlayer;
+    private Creature lockedObject;
+    /*
     private JLabel[][]
             right_UI = new JLabel[CAMERA_SIZE][3],
-            left_UI = new JLabel[CAMERA_SIZE][3];
-    private JLabel[][]
-            terrain_table = new JLabel[CAMERA_SIZE][CAMERA_SIZE],
+            left_UI = new JLabel[CAMERA_SIZE][3];*/
+    private JLabel[][] inputTable;
+    /*
             sight_table = new JLabel[CAMERA_SIZE][CAMERA_SIZE],
             light_table = new JLabel[CAMERA_SIZE][CAMERA_SIZE];
     private JLabel[][][]
-            object_table = new JLabel[CAMERA_SIZE][CAMERA_SIZE][OBJECT_LAYERS];
+            object_table = new JLabel[CAMERA_SIZE][CAMERA_SIZE][OBJECT_LAYERS];*/
     private boolean[][] visibility_table;
     private static final HashMap<Integer,ImageIcon> TERRAIN_MAP;
     private static final HashMap<Integer,ImageIcon> SPRITE_MAP;
-    private static final HashMap<Integer,ImageIcon> LIGHT_MAP;
     private static final HashMap<Integer,ImageIcon> UI_MAP;
+    
     static {
         TERRAIN_MAP = new HashMap<>();
         TERRAIN_MAP.put(-1, FilePaths.black);
@@ -52,10 +57,10 @@ public class Camera extends JFrame {
         TERRAIN_MAP.put(3, FilePaths.red);
         TERRAIN_MAP.put(4, FilePaths.food);
         TERRAIN_MAP.put(5, FilePaths.brown);
-        TERRAIN_MAP.put(6, FilePaths.grass_NW);
+        /*TERRAIN_MAP.put(6, FilePaths.grass_NW);
         TERRAIN_MAP.put(7, FilePaths.grass_NE);
         TERRAIN_MAP.put(8, FilePaths.grass_SW);
-        TERRAIN_MAP.put(9, FilePaths.grass_SE);
+        TERRAIN_MAP.put(9, FilePaths.grass_SE);*/
         TERRAIN_MAP.put(10, FilePaths.white);
         SPRITE_MAP = new HashMap<>();
         SPRITE_MAP.put(2, FilePaths.player);
@@ -66,18 +71,6 @@ public class Camera extends JFrame {
         SPRITE_MAP.put(20, FilePaths.core);
         SPRITE_MAP.put(21, FilePaths.scout);
         SPRITE_MAP.put(22, FilePaths.worker);
-        LIGHT_MAP = new HashMap<>();
-        LIGHT_MAP.put(0, FilePaths.dark10);
-        LIGHT_MAP.put(1, FilePaths.dark9);
-        LIGHT_MAP.put(2, FilePaths.dark8);
-        LIGHT_MAP.put(3, FilePaths.dark7);
-        LIGHT_MAP.put(4, FilePaths.dark6);
-        LIGHT_MAP.put(5, FilePaths.dark5);
-        LIGHT_MAP.put(6, FilePaths.dark4);
-        LIGHT_MAP.put(7, FilePaths.dark3);
-        LIGHT_MAP.put(8, FilePaths.dark2);
-        LIGHT_MAP.put(9, FilePaths.dark1);
-        LIGHT_MAP.put(10, null);
         UI_MAP = new HashMap<>();
         UI_MAP.put(0,FilePaths.blank);
         UI_MAP.put(1,FilePaths.day);
@@ -104,38 +97,27 @@ public class Camera extends JFrame {
         position = new Node();
         visibility_table = new boolean[t.getSize()][t.getSize()];
         jpanel.setLayout(null);
-        jpanel.setBackground(Color.lightGray);
+        jpanel.setBackground(Color.black);
         jpanel.setPreferredSize(new Dimension(640,640));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setTitle("Simulation");
         setVisible(true);
         this.t = t;
-        int width = (int)this.getBounds().getWidth();
-        for (int i = 0; i < CAMERA_SIZE; i++) {
-            for (int k = 0; k < 3; ++k){
-                left_UI[i][k] = new JLabel();
-                left_UI[i][k].setBounds(new Rectangle((width-CAMERA_SIZE*64)/2-64, (i)*64, 64, 64));
-                left_UI[i][k].setHorizontalAlignment(JLabel.RIGHT);
-                jpanel.add(left_UI[i][k], new Integer(0));
-                right_UI[i][k] = new JLabel();
-                right_UI[i][k].setBounds(new Rectangle((width-CAMERA_SIZE*64)/2-64, (i)*64, CAMERA_SIZE*64 + 64, 64));
-                right_UI[i][k].setHorizontalAlignment(JLabel.RIGHT);
-                jpanel.add(right_UI[i][k],new Integer(1));
-            }
-            left_UI[i][2].setIcon(UI_MAP.get(0));
-            right_UI[i][2].setIcon(UI_MAP.get(0));
-            for (int j = 0; j < CAMERA_SIZE; j++) {
-                terrain_table[i][j] = new JLabel();
-                terrain_table[i][j].setBounds(new Rectangle((width-CAMERA_SIZE*64)/2, (i)*64,(j)*64, 64));
-                terrain_table[i][j].setHorizontalAlignment(JLabel.RIGHT);
-                sight_table[i][j] = new JLabel();
-                sight_table[i][j].setBounds(new Rectangle((width-CAMERA_SIZE*64)/2, (i)*64,(j)*64, 64)); 
-                sight_table[i][j].setHorizontalAlignment(JLabel.RIGHT);
-                light_table[i][j] = new JLabel();
-                light_table[i][j].setBounds(new Rectangle((width-CAMERA_SIZE*64)/2, (i)*64,(j)*64, 64)); 
-                light_table[i][j].setHorizontalAlignment(JLabel.RIGHT);
-                //testing mouse adapter
+        panelWidth = (int)this.getBounds().getWidth();
+        panelHeight = (int)this.getBounds().getHeight();
+        cameraSize = panelHeight/32;
+        leftMargin = (panelWidth - cameraSize*32)/2;
+        inputTable = new JLabel[cameraSize][cameraSize];
+        int x, y;
+        for (int i = 0; i < cameraSize; i++) {
+            for (int j = 0; j < cameraSize; j++) {
+                inputTable[i][j] = new JLabel();
+                //real ghetto hours fix this shit
+                x = j*32 + leftMargin;
+                y = i*32 - 32;
+                inputTable[i][j].setBounds(x, y, TILE_SIZE, TILE_SIZE);
+                inputTable[i][j].setHorizontalAlignment(JLabel.RIGHT);
                 final int a = i;
                 final int b = j;
                 MouseAdapter mAdapter = new MouseAdapter(){
@@ -143,25 +125,22 @@ public class Camera extends JFrame {
                     
                     @Override
                     public void mouseClicked(MouseEvent e){
-                        x = a+(position.getX()-(CAMERA_SIZE/2));
-                        y = b+(position.getY()-(CAMERA_SIZE/2));
+                        x = a+(position.getX()-(cameraSize/2));
+                        y = b+(position.getY()-(cameraSize/2));
                         parentController.handleMouseInput(x, y);
                     }
                 };
-                light_table[i][j].addMouseListener(mAdapter);
-                
-                jpanel.add(terrain_table[i][j], new Integer(0));
-                jpanel.add(sight_table[i][j], new Integer(3));
-                jpanel.add(light_table[i][j], new Integer(4));
-                for (int k = 0; k < OBJECT_LAYERS; k++){
-                    object_table[i][j][k] = new JLabel();
-                    object_table[i][j][k].setBounds(new Rectangle((width-CAMERA_SIZE*64)/2, (i)*64,(j)*64, 64)); 
-                    object_table[i][j][k].setHorizontalAlignment(JLabel.RIGHT);
-                    jpanel.add(object_table[i][j][k], new Integer(k+1));
-                }
+                inputTable[i][j].setIcon(FilePaths.black);
+                inputTable[i][j].addMouseListener(mAdapter);
+                this.add(inputTable[i][j]);
             }
+            
         }
-        initializeUI();
+        //testing mouse adapter
+        /* 
+            
+            light_table[i][j]
+        */
     }
     
     /**
@@ -169,7 +148,7 @@ public class Camera extends JFrame {
      * @return Returns the size of the camera
      */
     public int getCameraSize() {
-        return CAMERA_SIZE;
+        return cameraSize;
     }
     
     /**
@@ -190,10 +169,22 @@ public class Camera extends JFrame {
     
     /**
      * Locks or unlocks the camera to the player position
-     * @param b Whether to set the camera lock to true or false
+     * @param actor the actor to lock the camera to
      */
-    public void setLocked(boolean b) {
-        camera_lock = b;
+    public void toggleLocked(Actor actor) {
+        if (!camera_lock){            
+            if (actor instanceof Creature){
+                this.lockedObject = (Creature) actor;
+                System.out.println(lockedObject.toString());
+                camera_lock = true;
+            }
+        } else {
+            if (lockedObject!=null){
+                lockedObject.setCamera(null);
+                lockedObject = null;
+            }
+            camera_lock = false;
+        }
     }
     
     /**
@@ -215,6 +206,19 @@ public class Camera extends JFrame {
     
     public void setActivePlayer(Creature activePlayer){
         this.activePlayer = activePlayer;
+    }
+    
+    public void setLockedObject(Creature creature){
+        this.lockedObject = creature;
+    }
+    
+    public boolean checkLockedCreature(Creature creature){
+        return (lockedObject == creature);
+        
+    }
+    
+    public void updatePosition(){
+        if (camera_lock && lockedObject!=null) this.position.setToNode(lockedObject.getNode());
     }
     
     public void fillVisibilityTable() {
@@ -241,57 +245,84 @@ public class Camera extends JFrame {
      * Updates the icons that the camera currently displays
      */
     public void update() {
-        int x, y;
+        int x, y, drawX, drawY;
+        BufferStrategy bs = this.getBufferStrategy();
+        if(bs == null) {
+                this.createBufferStrategy(3);			
+                return;
+        }
+        Graphics2D g = (Graphics2D) bs.getDrawGraphics();
         updateUI();
-        for (int i = 0; i < CAMERA_SIZE; ++i) {
-            for (int j = 0; j < CAMERA_SIZE; ++j) {
-                x = i+(position.getX()-(CAMERA_SIZE/2));
-                y = j+(position.getY()-(CAMERA_SIZE/2));
+        for (int i = 0; i < cameraSize; ++i) {
+            for (int j = 0; j < cameraSize; ++j) {
+                x = i+(position.getX()-(cameraSize/2));
+                y = j+(position.getY()-(cameraSize/2));
+                drawX = j*32 + leftMargin;
+                drawY = i*32;
                 if (t.valid(x,y)) {
+                    Tile tile = t.getTile(x, y);
                     if (visibility_table[x][y]){
-                        sight_table[i][j].setIcon(null);
-                        terrain_table[i][j].setIcon(TERRAIN_MAP.get(t.getTile(x,y).getTerrainID()));
+                        g.drawImage(TERRAIN_MAP.get(tile.getTerrainID()).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
                         if (t.getActor(x,y)!=null) {
-                            for (int k = 0; k < OBJECT_LAYERS; ++k){
-                                if (t.getTile(x,y).getContent(k)!=null){
-                                    object_table[i][j][k].setIcon(SPRITE_MAP.get(t.getTile(x,y).getContent(k).getID()));
-                                } else {
-                                    object_table[i][j][k].setIcon(null);
+                            for (int k = 0; k < tile.getContentSize(); ++k){
+                                if (tile.getContent(k)!=null && SPRITE_MAP.get(tile.getContent(k).getID())!=null){
+                                    g.drawImage(SPRITE_MAP.get(tile.getContent(k).getID()).getImage(),drawX,drawY,TILE_SIZE,TILE_SIZE, rootPane);
                                 }
                             }
-                        } else {
-                            for (int k = 0; k < OBJECT_LAYERS; ++k){
-                                object_table[i][j][k].setIcon(null);
-                            }
                         }
-                        light_table[i][j].setIcon(LIGHT_MAP.get(t.getTile(x,y).getLight()/10));
-                }
-                else sight_table[i][j].setIcon(FilePaths.black);
-                } else {
-                    terrain_table[i][j].setIcon(FilePaths.black);
-                    sight_table[i][j].setIcon(null);
-                    light_table[i][j].setIcon(null);
-                    for (int k = 0; k < OBJECT_LAYERS; ++k){
-                        object_table[i][j][k].setIcon(null);
+                        if (tile.getLight()<90) {
+                            float alpha = 100 - tile.getLight();
+                            alpha /= 100;
+                            g.setColor(new Color(0,0,0,alpha));
+                            g.fillRect(drawX, drawY, TILE_SIZE, TILE_SIZE);
+                        }
                     }
+                else {
+                        g.setColor(Color.black);
+                        g.fillRect(drawX, drawY, TILE_SIZE, TILE_SIZE);
+                    }
+                } else {
+                    g.setColor(Color.black);
+                    g.fillRect(drawX, drawY, TILE_SIZE, TILE_SIZE);
                 }
             }
         }
+        g.dispose();
+        bs.show();
     }
     
-    private void updateUI() {    
+    private void updateUI() {
+        
+        BufferStrategy bs = this.getBufferStrategy();
+        if(bs == null) {
+            this.createBufferStrategy(2);			
+            return;
+        }
+        Graphics2D g = (Graphics2D) bs.getDrawGraphics();
+        initializeUI(g);
+        int drawX, drawY;
+        drawX = leftMargin + cameraSize*32;
+        drawY = 0;
+        int aux;
         if (activePlayer.isAlive()){
+            drawY += TILE_SIZE*5-2;
             for (int i = 0; i < 5; ++i){
-                if ((activePlayer.getHP()*100)/activePlayer.getmaxHP() > (5-(i+1))*20){
-                    right_UI[i][0].setIcon(UI_MAP.get(7));
-                }
-                else right_UI[i][0].setIcon(UI_MAP.get(6));
+                if ((activePlayer.getHP()*100)/activePlayer.getmaxHP() > (5-(i+1))*20) aux = 7;
+                else aux = 6;
+                g.drawImage(UI_MAP.get(aux).getImage(),drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
+                drawY -= 32;
             }
         }
-        if (parentController.isDay()) right_UI[9][1].setIcon(UI_MAP.get(1));
-        else right_UI[9][1].setIcon(UI_MAP.get(2));
-        if (parentController.lightsOn()) right_UI[10][1].setIcon(UI_MAP.get(3));
-        else right_UI[10][1].setIcon(UI_MAP.get(4));
+        drawY += TILE_SIZE*6-2;
+        if (parentController.isDay()) aux = 1;
+        else aux = 2;
+        g.drawImage(UI_MAP.get(aux).getImage(),drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
+        drawY += 32;
+        if (parentController.lightsOn()) aux = 3;
+        else aux = 4;
+        g.drawImage(UI_MAP.get(aux).getImage(),drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
+        drawY += 32;
+        /*
         for (int i = 0; i < left_UI.length; ++i){
             if (i == (parentController.getSelected()-1)){
                 left_UI[i][0].setIcon(UI_MAP.get(5));
@@ -300,15 +331,19 @@ public class Camera extends JFrame {
                 left_UI[i][0].setIcon(null);
             }
         }
+        */
+        g.dispose();
+        bs.show();
     }
     
-    private void initializeUI() {
-        left_UI[0][1].setIcon(SPRITE_MAP.get(2));
-        left_UI[1][1].setIcon(TERRAIN_MAP.get(1));
-        left_UI[2][1].setIcon(SPRITE_MAP.get(8));
-        left_UI[3][1].setIcon(UI_MAP.get(3));
-        left_UI[4][1].setIcon(UI_MAP.get(3));
-        left_UI[5][1].setIcon(UI_MAP.get(3));
-        left_UI[6][1].setIcon(SPRITE_MAP.get(20));
+    private void initializeUI(Graphics2D g){
+        int rightX = leftMargin + cameraSize*TILE_SIZE;
+        int leftX = leftMargin - TILE_SIZE;
+        int drawY = TILE_SIZE - 4;
+        for (int i = 0; i < cameraSize; ++i){
+            g.drawImage(UI_MAP.get(0).getImage(),leftX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
+            g.drawImage(UI_MAP.get(0).getImage(),rightX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
+            drawY += 32;
+        }
     }
 }

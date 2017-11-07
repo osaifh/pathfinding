@@ -167,8 +167,14 @@ public class Node {
     }
     
     public Boolean iMove(Table t, int dir){
-        Node n = new Node(this);
-        n.add(DIRECTIONS.get(dir));
+        this.add(DIRECTIONS.get(dir));
+        if (t.checkPassable(this)){
+            return true;
+        }
+        return false;
+    }
+    
+    public Boolean iMove(Table t, Node n){
         if (t.checkPassable(n)){
             this.setToNode(n);
             return true;
@@ -180,6 +186,10 @@ public class Node {
         this.add(DIRECTIONS.get(dir));
     }
     
+    public void nodeMove(Table t, Node n){
+        this.setToNode(n);
+    }
+    
     public static Node[] getDirections(){
         Node[] directions = new Node[8];
         for (int i = 0; i < 8; ++i){
@@ -188,6 +198,10 @@ public class Node {
         return directions;
     }
     
+    /**
+     * Returns only the non-diagonal directions (N,S,E,W)
+     * @return an array of nodes with the non-diagonal directions 
+     */
     public static Node[] getDirectionsN(){
         Node[] directions = new Node[4];
         Node[] directions_8 = getDirections();

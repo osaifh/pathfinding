@@ -59,7 +59,7 @@ public class Mob extends Creature {
                 //eating
                 if (tab.getTile(runpath[runindex]).containsID(4)){
                     hunger += 10;
-                    tab.getTile(runpath[runindex]).clearContent();
+                    tab.getTile(runpath[runindex]).clearMatchingContent(4);
                 }
                 pos = (runpath[runindex]);
                 tab.getTile(pos).addContent(this);
@@ -296,8 +296,8 @@ public class Mob extends Creature {
      * Used only for testing.
      */
     public void print() {
-            System.out.println("object ID: " + id);
-            System.out.println("position x = " + pos.getX() + " y = " + pos.getY());
-            System.out.println("Health: " + hunger + " Stamina: " + stamina);
+        System.out.println("object ID: " + id);
+        System.out.println("position x = " + pos.getX() + " y = " + pos.getY());
+        System.out.println("Health: " + hunger + " Stamina: " + stamina);
     }
 }

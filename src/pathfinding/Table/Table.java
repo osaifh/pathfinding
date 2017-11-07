@@ -16,7 +16,7 @@ import pathfinding.auxiliar.PairList;
  */
 public class Table {
     private Tile[][] tab;
-    private final int TABLE_SIZE = 100;
+    private final int TABLE_SIZE = 1000;
     private final int MAX_ATTEMPTS = 20;
     private enum Edge {
         none, NW, NE, SW, SE;
@@ -39,7 +39,7 @@ public class Table {
                 tab[i][j] = new Tile(aux);
             }
         }
-        updateEdges(0,0,TABLE_SIZE,TABLE_SIZE);
+        //updateEdges(0,0,TABLE_SIZE,TABLE_SIZE);
     }
     
     /**
@@ -585,6 +585,8 @@ public class Table {
         return x0 * (1 - alpha) + alpha * x1;
     }
 
+    
+   
     /**
      * updates the edges of the terrain in a square
      * @param xx Top left corner
@@ -592,6 +594,7 @@ public class Table {
      * @param yx Bottom left corner
      * @param yy Bottom right corner
      */
+    /* 
     public void updateEdges(int xx, int xy, int yx, int yy){
         for (int i = xx; i < yx; ++i){
             for (int j = xy; j < yy; ++j){
@@ -613,7 +616,8 @@ public class Table {
             }
         }
     }
-
+    */
+/*
     private Edge isEdge(int x, int y){
         //garbage code
         if (tab[x][y].getTerrainID()==0){
@@ -651,7 +655,7 @@ public class Table {
         }
         return Edge.none;
     }
-
+*/
     /**
      *
      * @param time
@@ -688,24 +692,6 @@ public class Table {
             tab[n.getX()][n.getY()].setID(3);
         }
     }
-    
-    /**
-     * Finds a path to a position in the table
-     * If no path is found, runpath will be set to null
-     * @param x
-     * @param y
-     * @param tab
-     */
-    public void BFS(int x, int y, Table tab){
-        /*Node[] path = iBFS(pos, new Node(x,y), tab);
-        if (path!= null){
-            runpath = path;
-            move = true;
-            runindex = 1;
-        } else {
-            runpath = null;
-        }*/
-    }
 
     private static Comparator<NodeData> node_comparator = (NodeData n1, NodeData n2) -> {
         if (n1.getTotal() > n2.getTotal()) return 1;
@@ -714,7 +700,7 @@ public class Table {
     };
             
     public Node[] iBFS (Node act_pos, Node target) {
-        if (!getTile(target).isPassable()) return null; //early exit
+        if (!valid(target) || !getTile(target).isPassable()) return null; //early exit
         PriorityQueue qpath = new PriorityQueue(11,node_comparator);
         PairList visitats = new PairList();
         Node source = act_pos;

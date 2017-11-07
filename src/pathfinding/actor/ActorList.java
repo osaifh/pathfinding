@@ -96,8 +96,10 @@ public class ActorList {
         for (int i = 0; i < list.size(); i++){
             if (i < active_list.size() && active_list.get(i) && list.get(i)!= null){
                 if (!(list.get(i)).isAlive()){
-                    t.getTile(list.get(i).getNode()).clearMatchingContent(list.get(i));
-                    remove(list.get(i),t);
+                    if (list.get(i).getNode()!=null){
+                        t.getTile(list.get(i).getNode()).clearMatchingContent(list.get(i));
+                        remove(list.get(i),t); 
+                    }
                 } else {
                     list.get(i).simulate(t);
                 }

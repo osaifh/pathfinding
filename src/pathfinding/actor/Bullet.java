@@ -49,7 +49,7 @@ public class Bullet extends Interactable {
     }
     
     public void collision(Node n, Table t){
-        if (!t.getTile(n).isEmpty()){
+        if (t.valid(n) && !t.getTile(n).isEmpty()){
             Actor obj = t.getActor(n);
             if (obj instanceof Creature){
                 ((Creature)obj).setHP(((Creature)obj).getHP()-20);
