@@ -13,7 +13,7 @@ public abstract class Creature implements Actor {
     Node pos;
     Random randint = new Random();
     Boolean alive;
-    final int sight_range = 10;
+    int sight_range = 10;
     final int tick_max = 30;
     int tick_counter = 0;
     int facing_direction;

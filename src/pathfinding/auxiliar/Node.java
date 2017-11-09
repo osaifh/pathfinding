@@ -24,6 +24,7 @@ public class Node {
         DIRECTIONS.put(7,new Node(1,1));
     }
     /*
+        These are the directions and their respective int value
         0 1 2  NW N NE
         3 X 4  W  X  E
         5 6 7  SW S SE
@@ -31,12 +32,12 @@ public class Node {
     
     
     /**
-     *
+     * Empty constructor
      */
     public Node(){}
     
     /**
-     *
+     * Constructor with x,y values
      * @param x
      * @param y
      */
@@ -45,32 +46,36 @@ public class Node {
         this.y = y;
     }
     
+    /**
+     * Constructor that makes a copy of the values of the n Node
+     * @param n the node to copy
+     */
     public Node(Node n){
         this.x = n.x;
         this.y = n.y;
     }
     
     /**
-     *
-     * @param size
+     * sets the values of the node to random given a range
+     * @param range the range of values from 0 to range - 1
      */
-    public void generate(int size){
-        x = randomGenerator.nextInt(size);
-        y = randomGenerator.nextInt(size);
+    public void generate(int range){
+        x = randomGenerator.nextInt(range);
+        y = randomGenerator.nextInt(range);
     }
     
     /**
-     *
-     * @param size
+     * sets the values of the node to random given a range and a given set of 4 coordinates
+     * @param range
      * @param xx
      * @param xy
      * @param yx
      * @param yy
      */
-    public void generate(int size, int xx, int xy, int yx, int yy) {
+    public void generate(int range, int xx, int xy, int yx, int yy) {
         do {
-            x = xx + randomGenerator.nextInt(size);
-            y = xy + randomGenerator.nextInt(size);
+            x = xx + randomGenerator.nextInt(range);
+            y = xy + randomGenerator.nextInt(range);
         } while (!(x <= yx && y <= yy));
     }
 
@@ -215,6 +220,11 @@ public class Node {
         return directions;
     }
     
+    /**
+     * Returns the relative direction from a node ot another
+     * @param target the node to compare to
+     * @return the relative direction to target
+     */
     public int relativeDirection(Node target){
         if (target.x<x && target.y<y) return 0;
         if (target.x<x && target.y==y) return 1;

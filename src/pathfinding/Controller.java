@@ -11,8 +11,9 @@ import pathfinding.auxiliar.Node;
 import java.util.Random;
 
 /**
- * Class used to put everything together
- * @author Alumne
+ * This class is used to control all the parameters of the game environment like the map (table), the list of objects, the controllable character
+ * the time, handles the keyboard and mouse input, and manages the camera which shows the graphical part of the aplication
+ * @author 
  */
 public class Controller {
     private boolean running, lights, lightsOn, paused;
@@ -48,49 +49,71 @@ public class Controller {
     }
     
     /**
-     * Generates some objects needed to start
+     * Initializes and generates some objects on startup
      */
-	 //Pass in the startup as arguments, never use magic numbers like this
-	 //Or have them declared final somewhere and give them a name. 
-	 //This just helps with maintainability. 
     public void startup() {
-        tab.generateWalls(200);
-        tab.generateObject(200, 4);
         tab.getTile(49,49).clear();
-        activePlayer = new Player(49,49);
+        activePlayer = new Player(10,10);
+        generateActor(activePlayer);
         cam.setActivePlayer(activePlayer);
         cam.setLockedObject(activePlayer);
-        tab.add(activePlayer);
-        objList.add(activePlayer, true);
         cam.setPos(activePlayer.getNode());
-        Site s = new Site(new Node(activePlayer.getNode().getX()+1,activePlayer.getNode().getY()+1),tab,objList,lightList);
+        //Site s = new Site(new Node(activePlayer.getNode().getX()+1,activePlayer.getNode().getY()+1),tab,objList,lightList);
     }
     
-
+    /**
+     * Starts the execution of the game
+     */
     public void run() {
         startup();
         cam.clearVisibilityTable();
         timer.start();
     }
     
+    /**
+     * Given an actor, this function adds said actor to the table and to the objectList
+     * thus making the actor ready. This must be used on new objects so they're properly generated
+     * @param actor the new actor we have generated
+     */
+    public void generateActor(Actor actor){
+        tab.add(actor);
+        objList.add(actor, true);
+    }
+    
+    /**
+     * Used to know whether it's daytime or not
+     * @return returns true if it's daytime
+     */
     public boolean isDay(){
         return (time < 1200);
     }
     
+    /**
+     * Used to know whether the lights are on or not
+     * @return returns true if the lights are on
+     */
     public boolean lightsOn(){
         return lightsOn;
     }
     
+    /**
+     * Returns the selected element of the UI
+     * @return the selected element of the UI
+     */
     public int getSelected(){
         return UIselected;
     }
     
+    /**
+     * Returns the active controllable character
+     * @return the active controllable character
+     */
     public Creature getActivePlayer(){
         return activePlayer;
     }
     
     /**
-     * Main game loop
+     * Main game loop, called by timer
      */
     public void gameStep(){
         //updates lights and visibility
@@ -107,18 +130,11 @@ public class Controller {
             } 
         }
         
-        //test this??
-        /*
-        if (!activePlayer.isAlive()){
-            tab.getTile(activePlayer.getNode()).clearMatchingContent(activePlayer);
-            activePlayer = null;
-            timer.stop();
-        }*/
-
         //simulates all the objects and updates the camera
         lightList.simulate(tab);
         if (!paused) objList.simulate(tab);
         cam.update();
+        
         /*
         if (!cam.isLocked()){
             for (int i = 0; i < objList.size() && !cam.isLocked(); ++i){
@@ -130,8 +146,8 @@ public class Controller {
             }
         }*/
         
-        ++test;
         /*
+        ++test;
         if (test >= 200){
             Node testNode;
             do {
@@ -149,21 +165,27 @@ public class Controller {
                //tab.add(new genericObject(4,testNode.getX(),testNode.getY()));
             }
         }*/
-        //prints some values
-        ++time;
         
+        //updates the time value
+        ++time;
         if (time > 2400) time = 0;
-        //if (time%100 == 0)
-        //System.out.println("time: " + time);
+
+        //prints some values
+        //if (time%100 == 0) System.out.println("time: " + time);
     }
     
+    /**
+     * Handles the mouse input for certain given coordinates.
+     * It's called every time the user clicks a valid tile
+     * @param x horizontal coordinate
+     * @param y vertical coordiate
+     */
     public void handleMouseInput(int x, int y){
         Node pos = new Node(x,y);
         switch (UIselected) {
             case 1:
                 Bullet b = new Bullet(activePlayer.getNode().getNodeCopy(),8,pos);
-                objList.add(b, true);
-                tab.add(b);
+                generateActor(b);
                 break;
             case 2:
                 tab.getTile(pos).setWall();
@@ -175,34 +197,33 @@ public class Controller {
             case 4:
             {
                 LightSource ln = new LightSource(5,pos.getX(),pos.getY());
-                tab.add(ln);
                 lightList.add(ln,true);
                 break;
             }
             case 5:
             {
                 LightSource ln = new LightSource(10,pos.getX(),pos.getY());
-                tab.add(ln);
                 lightList.add(ln,true);
                 break;
             }
             case 6:
             {
                 LightSource ln = new LightSource(20,pos.getX(),pos.getY());
-                tab.add(ln);
                 lightList.add(ln,true);
                 break;
             }
             case 7:
             {
                 Monster n = new Monster(pos,objList,controller);
-                objList.add(n,true);
-                tab.add(n);
+                generateActor(n);
                 break;
             }
         }
     }
     
+    /**
+     * Handles the keyboard input
+     */
     KeyListener kListener = new KeyListener() {
         int action;
         

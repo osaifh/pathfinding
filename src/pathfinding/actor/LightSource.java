@@ -1,6 +1,5 @@
 package pathfinding.actor;
 
-import pathfinding.Table.Camera;
 import pathfinding.auxiliar.Node;
 import pathfinding.Table.Table;
 

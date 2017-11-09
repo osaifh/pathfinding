@@ -9,7 +9,6 @@ import java.util.ArrayList;
 public class Tile {
     private int terrain_id, light_level;
     private boolean passable, opaque;
-    //private Actor content;
     private ArrayList<Actor> icontent;
     private Random gen = new Random();
     
@@ -23,7 +22,6 @@ public class Tile {
         else terrain_id = 5;
         passable = true;
         opaque = false;
-        //content = null;
         light_level = 100;
         icontent = new ArrayList<>();
     }
@@ -35,17 +33,18 @@ public class Tile {
      */
     public Tile(int terrain_id){
         this.terrain_id = terrain_id;
-        if (terrain_id == 1){
-            passable = false;
-            opaque = true;
-        }
-        else {
-            passable = true;
-            opaque = false;
-        }
-        //content = null;
-        icontent = new ArrayList<>();
+        passable = true;
+        opaque = false;
         light_level = 100;
+        icontent = new ArrayList<>();
+    }
+    
+    public Tile(Terrain terrain){
+        this.terrain_id = terrain.getId();
+        this.passable = terrain.isPassable();
+        this.opaque = terrain.isOpaque();
+        this.light_level = 100;
+        icontent = new ArrayList<>();
     }
     
     /**
@@ -53,7 +52,6 @@ public class Tile {
      * @return if the tile contains an object, returns the ID of the object;
      */
     public int getID(int i){
-        //return content.getID();
         if (i < icontent.size()){
             return icontent.get(i).getID();
         }
@@ -61,7 +59,6 @@ public class Tile {
     }
     
     public int getID(){
-        //return content.getID();
         if (icontent.size()>0){
             return icontent.get(0).getID();
         }
@@ -90,10 +87,10 @@ public class Tile {
     }
     
     /**
+     * @param i
      * @return returns the content of the tile
      */
     public Actor getContent(int i){
-        //return content;
         if (i < icontent.size()){
             return icontent.get(i);
         }
@@ -201,15 +198,7 @@ public class Tile {
         passable = false;
         opaque = true;
     }
-    
-    /**
-     * Places an object in a tile
-     * @param obj specifies the object to add
-     */
-    /*public void setContent(Actor obj){
-        content = obj;
-    }*/
-    
+
     public void addContent(Actor obj){
         icontent.add(obj);
     }
@@ -235,16 +224,10 @@ public class Tile {
     }
     
     /**
-     * removes an object from a tile and sets it to passable
+     * removes an object from a tile
      */
     public void clearContent(){
-        //content = null;
         icontent.clear();
-        passable = true;
-        opaque = false;
-        if (terrain_id != 0 && terrain_id != 5){
-            terrain_id = 0;
-        }
     }
     
     /**
@@ -252,11 +235,7 @@ public class Tile {
      * if the terrain ID is different than 0 it sets it to 5
      */
     public void clear(){
-        if (terrain_id != 0){
-            terrain_id = 5;
-        }
-        //content = null;
-        icontent.clear();
+        if(!icontent.isEmpty()) icontent.clear();
         passable = true;
         opaque = false;
     }

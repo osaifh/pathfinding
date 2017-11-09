@@ -1,23 +1,24 @@
 package pathfinding.Table;
 
-
 import java.util.HashMap;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferStrategy;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import javax.swing.JLabel; 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.ImageIcon;
+import javax.swing.SwingUtilities;
 import pathfinding.Controller;
 import pathfinding.auxiliar.Node;
 import pathfinding.actor.Actor;
 import pathfinding.actor.Creature;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.image.BufferStrategy;
-import javax.swing.JPanel;
 
 /**
  * This class is used to render what the camera currently shows.
@@ -34,16 +35,7 @@ public class Camera extends JFrame {
     private final Controller parentController;
     private Creature activePlayer;
     private Creature lockedObject;
-    /*
-    private JLabel[][]
-            right_UI = new JLabel[CAMERA_SIZE][3],
-            left_UI = new JLabel[CAMERA_SIZE][3];*/
     private JLabel[][] inputTable;
-    /*
-            sight_table = new JLabel[CAMERA_SIZE][CAMERA_SIZE],
-            light_table = new JLabel[CAMERA_SIZE][CAMERA_SIZE];
-    private JLabel[][][]
-            object_table = new JLabel[CAMERA_SIZE][CAMERA_SIZE][OBJECT_LAYERS];*/
     private boolean[][] visibility_table;
     private static final HashMap<Integer,ImageIcon> TERRAIN_MAP;
     private static final HashMap<Integer,ImageIcon> SPRITE_MAP;
@@ -52,25 +44,21 @@ public class Camera extends JFrame {
     static {
         TERRAIN_MAP = new HashMap<>();
         TERRAIN_MAP.put(-1, FilePaths.black);
-        TERRAIN_MAP.put(0, FilePaths.grass);
         TERRAIN_MAP.put(1, FilePaths.wall);
-        TERRAIN_MAP.put(3, FilePaths.red);
-        TERRAIN_MAP.put(4, FilePaths.food);
-        TERRAIN_MAP.put(5, FilePaths.brown);
-        /*TERRAIN_MAP.put(6, FilePaths.grass_NW);
-        TERRAIN_MAP.put(7, FilePaths.grass_NE);
-        TERRAIN_MAP.put(8, FilePaths.grass_SW);
-        TERRAIN_MAP.put(9, FilePaths.grass_SE);*/
         TERRAIN_MAP.put(10, FilePaths.white);
+        TERRAIN_MAP.put(100, FilePaths.deepWater);
+        TERRAIN_MAP.put(101, FilePaths.water);
+        TERRAIN_MAP.put(102, FilePaths.shallowWater);
+        TERRAIN_MAP.put(103, FilePaths.sand);
+        TERRAIN_MAP.put(104, FilePaths.brown);
+        TERRAIN_MAP.put(105, FilePaths.grass);
+        TERRAIN_MAP.put(106, FilePaths.rock);
         SPRITE_MAP = new HashMap<>();
         SPRITE_MAP.put(2, FilePaths.player);
         SPRITE_MAP.put(3, FilePaths.red);
         SPRITE_MAP.put(4, FilePaths.food);
         SPRITE_MAP.put(7, FilePaths.door_open);
         SPRITE_MAP.put(8, FilePaths.door_closed);
-        SPRITE_MAP.put(20, FilePaths.core);
-        SPRITE_MAP.put(21, FilePaths.scout);
-        SPRITE_MAP.put(22, FilePaths.worker);
         UI_MAP = new HashMap<>();
         UI_MAP.put(0,FilePaths.blank);
         UI_MAP.put(1,FilePaths.day);
@@ -113,11 +101,13 @@ public class Camera extends JFrame {
         for (int i = 0; i < cameraSize; i++) {
             for (int j = 0; j < cameraSize; j++) {
                 inputTable[i][j] = new JLabel();
-                //real ghetto hours fix this shit
                 x = j*32 + leftMargin;
                 y = i*32 - 32;
+                //don't do this at home kids
                 inputTable[i][j].setBounds(x, y, TILE_SIZE, TILE_SIZE);
                 inputTable[i][j].setHorizontalAlignment(JLabel.RIGHT);
+                
+                //this looks weird but it just works
                 final int a = i;
                 final int b = j;
                 MouseAdapter mAdapter = new MouseAdapter(){
@@ -125,22 +115,17 @@ public class Camera extends JFrame {
                     
                     @Override
                     public void mouseClicked(MouseEvent e){
-                        x = a+(position.getX()-(cameraSize/2));
-                        y = b+(position.getY()-(cameraSize/2));
-                        parentController.handleMouseInput(x, y);
+                        if (SwingUtilities.isLeftMouseButton(e)){
+                            x = a+(position.getX()-(cameraSize/2));
+                            y = b+(position.getY()-(cameraSize/2));
+                            parentController.handleMouseInput(x, y);
+                        }
                     }
                 };
-                inputTable[i][j].setIcon(FilePaths.black);
                 inputTable[i][j].addMouseListener(mAdapter);
                 this.add(inputTable[i][j]);
             }
-            
         }
-        //testing mouse adapter
-        /* 
-            
-            light_table[i][j]
-        */
     }
     
     /**
@@ -172,7 +157,7 @@ public class Camera extends JFrame {
      * @param actor the actor to lock the camera to
      */
     public void toggleLocked(Actor actor) {
-        if (!camera_lock){            
+        if (!camera_lock){
             if (actor instanceof Creature){
                 this.lockedObject = (Creature) actor;
                 System.out.println(lockedObject.toString());
@@ -245,22 +230,31 @@ public class Camera extends JFrame {
      * Updates the icons that the camera currently displays
      */
     public void update() {
+        drawMap();
+        /*
         int x, y, drawX, drawY;
+        Tile tile;
+        //I copied the bufferStrategy part of the code so I'm not sure what it does exactly
+        //but it works
         BufferStrategy bs = this.getBufferStrategy();
         if(bs == null) {
                 this.createBufferStrategy(3);			
                 return;
         }
         Graphics2D g = (Graphics2D) bs.getDrawGraphics();
+        //call this function to update the UI
         updateUI();
+        //this draws the stuff we see
         for (int i = 0; i < cameraSize; ++i) {
             for (int j = 0; j < cameraSize; ++j) {
+                //x and y are the coordinates of the matching tiles of the table
                 x = i+(position.getX()-(cameraSize/2));
                 y = j+(position.getY()-(cameraSize/2));
+                //drawX and drawY are the coordinates in which we draw the tiles
                 drawX = j*32 + leftMargin;
                 drawY = i*32;
                 if (t.valid(x,y)) {
-                    Tile tile = t.getTile(x, y);
+                    tile = t.getTile(x, y);
                     if (visibility_table[x][y]){
                         g.drawImage(TERRAIN_MAP.get(tile.getTerrainID()).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
                         if (t.getActor(x,y)!=null) {
@@ -270,18 +264,23 @@ public class Camera extends JFrame {
                                 }
                             }
                         }
-                        if (tile.getLight()<90) {
+                        //only draw a rectangle if the light value isn't max
+                        //this shouldn't be needed I'm just trying to optimize I guess
+                        if (tile.getLight()<100) {
                             float alpha = 100 - tile.getLight();
                             alpha /= 100;
                             g.setColor(new Color(0,0,0,alpha));
                             g.fillRect(drawX, drawY, TILE_SIZE, TILE_SIZE);
                         }
                     }
-                else {
+                    //the coordinate is not visible to the controllable actor
+                    else {
                         g.setColor(Color.black);
                         g.fillRect(drawX, drawY, TILE_SIZE, TILE_SIZE);
                     }
-                } else {
+                }
+                //the coordinate is outside of the table
+                else {
                     g.setColor(Color.black);
                     g.fillRect(drawX, drawY, TILE_SIZE, TILE_SIZE);
                 }
@@ -289,6 +288,7 @@ public class Camera extends JFrame {
         }
         g.dispose();
         bs.show();
+        */
     }
     
     private void updateUI() {
@@ -302,18 +302,20 @@ public class Camera extends JFrame {
         initializeUI(g);
         int drawX, drawY;
         drawX = leftMargin + cameraSize*32;
-        drawY = 0;
+        //turns out for some reason this drawY is unaligned by 2 pixels
+        //it just works man
+        drawY = TILE_SIZE-2;
         int aux;
         if (activePlayer.isAlive()){
-            drawY += TILE_SIZE*5-2;
             for (int i = 0; i < 5; ++i){
                 if ((activePlayer.getHP()*100)/activePlayer.getmaxHP() > (5-(i+1))*20) aux = 7;
                 else aux = 6;
                 g.drawImage(UI_MAP.get(aux).getImage(),drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
-                drawY -= 32;
+                drawY += 32;
             }
         }
-        drawY += TILE_SIZE*6-2;
+        //if not, set the vertical coordinate to the proper value
+        else drawY = TILE_SIZE*6-2;
         if (parentController.isDay()) aux = 1;
         else aux = 2;
         g.drawImage(UI_MAP.get(aux).getImage(),drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
@@ -346,4 +348,23 @@ public class Camera extends JFrame {
             drawY += 32;
         }
     }
+    
+    private void drawMap(){
+        BufferStrategy bs = this.getBufferStrategy();
+        if(bs == null) {
+                this.createBufferStrategy(3);			
+                return;
+        }
+        Graphics2D g = (Graphics2D) bs.getDrawGraphics();
+        int size = t.getSize();
+        for (int i = 0; i < size; i++){
+            for (int j = 0; j < size; ++j){
+                Tile tile = t.getTile(i, j);
+                g.drawImage(TERRAIN_MAP.get(tile.getTerrainID()).getImage(),j,i,1,1, rootPane);
+            }
+        }
+        g.dispose();
+        bs.show();
+    }
+    
 }

@@ -18,28 +18,38 @@ public class Table {
     private Tile[][] tab;
     private final int TABLE_SIZE = 1000;
     private final int MAX_ATTEMPTS = 20;
-    private enum Edge {
+    private static Terrain[] terrainArray;
+    /*private enum Edge {
         none, NW, NE, SW, SE;
+    }*/
+    static {
+        terrainArray = new Terrain[10];
+        //String name, boolean passable, boolean opaque, int id, float range
+        terrainArray[0] = new Terrain("deepWater",false,false,100,0.1f);
+        terrainArray[1] = new Terrain("water",false,false,101,0.45f);
+        terrainArray[2] = new Terrain("shallowWater",true,false,102,0.5f);
+        terrainArray[3] = new Terrain("sand",true,false,103,0.55f);
+        terrainArray[4] = new Terrain("dirt",true,false,104,0.70f);
+        terrainArray[5] = new Terrain("grass",true,false,105,0.90f);
+        terrainArray[6] = new Terrain("rock",false,true,106,1.0f);
     }
 
     /**
      * Default table constructor
      * Generates a table of a specific size determined by the TABLE_SIZE parameter
      * The terrain is randomly generated using a Perlin noise function
-     * After generating it, another function is called to properly set the edges of the tiles
      */
     public Table(){
         tab = new Tile[TABLE_SIZE][TABLE_SIZE];
-        int aux;
+        int k;
         float[][] tab_gen = generatePerlinNoise(generateWhiteNoise(TABLE_SIZE,TABLE_SIZE),4);
         for (int i = 0; i < TABLE_SIZE; ++i){
             for (int j = 0; j < TABLE_SIZE; ++j){
-                if (tab_gen[i][j]>0.5)aux=5;
-                else aux = 0;
-                tab[i][j] = new Tile(aux);
+                k = 0;
+                while (tab_gen[i][j] > terrainArray[k].getRange()) ++k;
+                tab[i][j] = new Tile(terrainArray[k]);
             }
         }
-        //updateEdges(0,0,TABLE_SIZE,TABLE_SIZE);
     }
     
     /**
@@ -87,50 +97,18 @@ public class Table {
         } else return false;
     }
     
-    public boolean checkOpaque(int x, int y){
-        if (valid(x,y)){
-            return (tab[x][y].isOpaque());
-        } else return false;
-    }
-    
     public boolean checkOpaque(Node n){
         if (valid(n)){
             return (tab[n.getX()][n.getY()].isOpaque());
         }
         else return false;
     }
-
-    /**
-     * Returns true if the position
-     * @param act
-     * @param exc
-     * @return 
-     
-    public boolean checkException(Node act, int exc){
-        if (valid(act)){
-            return (tab[act.getX()][act.getY()].isPassable() || tab[act.getX()][act.getY()].getID()==exc);
-        }
-        else return false;
-    } */
-
-    /**
-     * 
-     * @param x
-     * @param y
-     * @param exc
-     * @return 
-     */
-    /*
-    public boolean checkException(int x, int y, int exc){
+    
+    public boolean checkOpaque(int x, int y){
         if (valid(x,y)){
-            boolean found = false
-            for (int i = 0; i < tab[x][y].getContentSize(); ++i){
-                
-            }
-            return ((tab[x][y].isPassable()) || tab[x][y].getID()==exc);
-        }
-        else return false;
-    }*/
+            return (tab[x][y].isOpaque());
+        } else return false;
+    }
     
     public boolean checkInteractable(Node n){
         if (valid(n)){
@@ -143,12 +121,14 @@ public class Table {
         else return false;
     }
 
+    
     /**
      *
      * @param x
      * @param y
      * @param id
      */
+    @Deprecated
     public void add(int x, int y, int id){
         if (valid(x,y)){
             tab[x][y].setID(id);
@@ -160,12 +140,13 @@ public class Table {
      * @param n
      * @param id
      */
+    @Deprecated
     public void add(Node n, int id){
         if (valid(n)){
             tab[n.getX()][n.getY()].setID(id);
         }
     }
-
+    
     /**
      *
      * @param x
@@ -202,6 +183,7 @@ public class Table {
      *
      * @param n
      */
+    @Deprecated
     public void generateWalls(int n){
         Random wallgenerator = new Random();
         for (int i = 0; i <= n; ++i){
@@ -253,111 +235,9 @@ public class Table {
     /**
      *
      * @param n
-     * @param cam
-     */
-    public void generateBoxes(int n, Camera cam){
-        Random boxgenerator = new Random();
-        for (int i = 0; i < n; ++i){
-            int width, height;
-            Node begin = new Node();
-            do {
-            begin.generate(TABLE_SIZE);
-            } while (checkWall(begin.getX(),begin.getY()));
-            width = boxgenerator.nextInt(6)+5;
-            height = boxgenerator.nextInt(6)+5;
-            iGenerateBoxes(width,height,begin,cam);
-        }
-    }
-
-    //PROTOTYPE
-    private void iGenerateBoxes(int width, int height, Node begin, Camera cam){
-        Random boxgenerator = new Random();
-        int num_doors = boxgenerator.nextInt(5)+1;
-        int num_squares = height*2 + width*2;
-        int curr_doors = 0;
-        int roll;
-        int entropy = boxgenerator.nextInt(num_squares);
-        Node act = new Node();
-        //generate horizontal walls
-        for (int i = 0; i < width; ++i){
-            if (checkPassable(begin.getX()+i,begin.getY())){
-                roll = boxgenerator.nextInt(num_squares)-entropy;
-                if (roll > 0 || curr_doors == num_doors) tab[begin.getX()+i][begin.getY()].setWall();
-                else {
-                    entropy = 0;
-                    if (curr_doors > 0){
-                        System.out.println("Recursive call");
-                        int n_width = boxgenerator.nextInt(width)-1;
-                        int n_height = boxgenerator.nextInt(height)-1;
-                        Node n_begin = new Node(begin.getX()+i-(n_width/2),begin.getY()-(n_height));
-                        if (n_width>2 && n_height>2) iGenerateBoxes(n_width, n_height, n_begin,cam);
-                    }
-                    ++curr_doors;
-                }
-                ++entropy;
-            }
-            if (checkPassable(begin.getX()+i,begin.getY()+height-1)){
-                roll = boxgenerator.nextInt(num_squares)-entropy;
-                if (roll > 0 || curr_doors == num_doors) tab[begin.getX()+i][begin.getY()+height-1].setWall();
-                else {
-                    entropy = 0;
-                    if (curr_doors > 0){
-                        System.out.println("Recursive call");
-                        int n_width = boxgenerator.nextInt(width)-1;
-                        int n_height = boxgenerator.nextInt(height)-1;
-                        Node n_begin = new Node(begin.getX()+i-(n_width/2),begin.getY()+height-1);
-                        if (n_width>2 && n_height>2) iGenerateBoxes(n_width, n_height, n_begin,cam);
-                    }
-                    ++curr_doors;
-                }
-                ++entropy;
-            }
-        }
-        //generate vertical walls
-        for (int i = 0; i < height; ++i){
-            if (checkPassable(begin.getX(),begin.getY()+i)){
-                roll = boxgenerator.nextInt(num_squares)-entropy;
-                if (roll > 0 || curr_doors == num_doors) tab[begin.getX()][begin.getY()+i].setWall();
-                else {
-                    entropy = 0;
-                    if (curr_doors > 0){
-                        System.out.println("Recursive call");
-                        int n_width = boxgenerator.nextInt(width)-1;
-                        int n_height = boxgenerator.nextInt(height)-1;
-                        Node n_begin = new Node(begin.getX()-n_width,begin.getY()+i-(n_height/2));
-                        if (n_width>2 && n_height>2) iGenerateBoxes(n_width, n_height, n_begin,cam);
-                    }
-                    ++curr_doors;
-                }
-                ++entropy;
-            }
-            if (checkPassable(begin.getX()+width-1,begin.getY()+i)){
-                roll = boxgenerator.nextInt(num_squares)-entropy;
-                if (roll > 0 || curr_doors == num_doors) tab[begin.getX()+width-1][begin.getY()+i].setWall();
-                else {
-                    entropy = 0;
-                    if (curr_doors > 0){
-                        System.out.println("Recursive call");
-                        int n_width = boxgenerator.nextInt(width)-1;
-                        int n_height = boxgenerator.nextInt(height)-1;
-                        Node n_begin = new Node(begin.getX()+width-1,begin.getY()+i-(height/2));
-                        System.out.println("Recursive call");
-                        if (n_width>2 && n_height>2) iGenerateBoxes(n_width, n_height, n_begin,cam);
-                    }
-                    ++curr_doors;
-                }
-                ++entropy;
-            }
-
-        }
-        System.out.println("Generated a box at position"); begin.print();
-    }
-
-    /**
-     *
-     * @param n
      * @param id
      */
+    @Deprecated
     public void generateObject(int n, int id){
         for (int i = 0; i < n; ++i){
             Node position = new Node();
@@ -378,6 +258,7 @@ public class Table {
      * @param n the position to change
      * @param id the new terrain ID
      */
+    @Deprecated
     public void set(Node n, int id){
         if (Table.this.valid(n)){
             tab[n.getX()][n.getY()].setID(id);
@@ -422,19 +303,6 @@ public class Table {
      */
     public int getSize(){
         return TABLE_SIZE;
-    }
-
-    /**
-     *
-     * @param x
-     * @param y
-     * @return
-     */
-    public boolean checkWall(int x, int y){
-        if (valid(x,y)){
-            return (!tab[x][y].isPassable());
-        }
-        else return false;
     }
 
     /**
@@ -585,77 +453,6 @@ public class Table {
         return x0 * (1 - alpha) + alpha * x1;
     }
 
-    
-   
-    /**
-     * updates the edges of the terrain in a square
-     * @param xx Top left corner
-     * @param xy Top right corner
-     * @param yx Bottom left corner
-     * @param yy Bottom right corner
-     */
-    /* 
-    public void updateEdges(int xx, int xy, int yx, int yy){
-        for (int i = xx; i < yx; ++i){
-            for (int j = xy; j < yy; ++j){
-                Edge aux = isEdge(i,j);
-                if (aux!=null) switch (aux) {
-                    case NW:
-                        tab[i][j].setID(6);
-                        break;
-                    case NE:
-                        tab[i][j].setID(7);
-                        break;
-                    case SW:
-                        tab[i][j].setID(8);
-                        break;
-                    case SE:
-                        tab[i][j].setID(9);
-                        break;
-                }
-            }
-        }
-    }
-    */
-/*
-    private Edge isEdge(int x, int y){
-        //garbage code
-        if (tab[x][y].getTerrainID()==0){
-            boolean valid = true;
-            for (int i = -1; i < 2; ++i){
-                for (int j = -1; j < 2; ++j){
-                    if (!valid(x+i,y+j)) valid = false;
-                }
-            }
-        if (valid){
-        if ((0==tab[x-1][y].getTerrainID() || (6<=tab[x-1][y].getTerrainID()&&tab[x-1][y].getTerrainID()<=8)) 
-        && (0==tab[x][y-1].getTerrainID() ||(6<=tab[x-1][y].getTerrainID()&&tab[x-1][y].getTerrainID()<=8))
-        && (5==tab[x+1][y].getTerrainID() || tab[x+1][y].getTerrainID()==7) 
-        && (5==tab[x][y+1].getTerrainID() || tab[x+1][y].getTerrainID()==7))
-            return Edge.NW;
-        else
-        if ((0==tab[x-1][y].getTerrainID() || tab[x+1][y].getTerrainID()==6 ||tab[x+1][y].getTerrainID()==7||tab[x+1][y].getTerrainID()==9)
-        && (0==tab[x][y+1].getTerrainID() || tab[x+1][y].getTerrainID()==6 ||tab[x+1][y].getTerrainID()==7||tab[x+1][y].getTerrainID()==9)
-        && (5==tab[x+1][y].getTerrainID() || tab[x+1][y].getTerrainID()==8)
-        && (5==tab[x][y-1].getTerrainID() || tab[x+1][y].getTerrainID()==8))
-            return Edge.NE;
-        else
-        if ((0==tab[x+1][y].getTerrainID() || tab[x+1][y].getTerrainID()==6 ||tab[x+1][y].getTerrainID()==8||tab[x+1][y].getTerrainID()==9)
-        && (0==tab[x][y-1].getTerrainID() || tab[x+1][y].getTerrainID()==6 ||tab[x+1][y].getTerrainID()==8||tab[x+1][y].getTerrainID()==9)
-        && (5==tab[x-1][y].getTerrainID() || tab[x+1][y].getTerrainID()==7)
-        && (5==tab[x][y+1].getTerrainID() || tab[x+1][y].getTerrainID()==7))
-            return Edge.SW;
-        else
-        if ((0==tab[x+1][y].getTerrainID() || tab[x+1][y].getTerrainID()==7 ||tab[x+1][y].getTerrainID()==8||tab[x+1][y].getTerrainID()==9)
-        && (0==tab[x][y+1].getTerrainID() || tab[x+1][y].getTerrainID()==7 ||tab[x+1][y].getTerrainID()==8||tab[x+1][y].getTerrainID()==9)
-        && (5==tab[x-1][y].getTerrainID() || tab[x+1][y].getTerrainID()==6)
-        && (5==tab[x][y-1].getTerrainID() || tab[x+1][y].getTerrainID()==6))
-            return Edge.SE;
-        }
-        }
-        return Edge.none;
-    }
-*/
     /**
      *
      * @param time
@@ -743,4 +540,5 @@ public class Table {
             return path;
         }
     }
+    
 }

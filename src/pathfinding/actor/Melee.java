@@ -2,7 +2,6 @@ package pathfinding.actor;
 
 import java.util.ArrayList;
 import pathfinding.Table.Table;
-import pathfinding.auxiliar.Node;
 
 public class Melee extends Interactable {
     private int tick_counter = 0;
@@ -33,7 +32,7 @@ public class Melee extends Interactable {
     
     @Override
     public void interact(Table t) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
     }
 
     @Override

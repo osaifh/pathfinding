@@ -19,9 +19,18 @@ public class Player extends Creature {
         maxHP = 100;
         hp = 100;
         l = new LightSource(6,pos.getX(),pos.getY());
+        sight_range = 20;
     }
     
-    
+    @Override
+    public boolean equalNode(Actor x){
+        return pos.compare(x.getNode());
+    }
+
+    @Override
+    public boolean isAlive() {
+        return alive;
+    }
     
     /**
      * Determinates the visibility for the active creature
@@ -30,34 +39,7 @@ public class Player extends Creature {
      * @param cam the camera used to determinate visibility
      */
     public void lookAround(Table tab, int range, Camera cam){
-            cam.setVisibilityTable(pos, true);
-            /* 
-            switch (facing_direction){
-                case 1:
-                    //facing moveDirection = 1 (N)
-                    lookDirection(tab,1,1.0f,0.0f, 0,1,-1,0,range,cam);
-                    lookDirection(tab,1,1.0f,0.0f, 0,1,1,0,range,cam);
-                    break;
-                case 3:
-                    //facing moveDirection = 3 (W)
-                    lookDirection(tab,1,1.0f,0.0f, -1,0,0,1,range,cam);
-                    lookDirection(tab,1,1.0f,0.0f, 1,0,0,1,range,cam);
-                    break;
-                case 4:
-                    //facing moveDirection = 4 (E)
-                    lookDirection(tab,1,1.0f,0.0f, 1,0,0,-1,range,cam);
-                    lookDirection(tab,1,1.0f,0.0f, -1,0,0,-1,range,cam);
-                    break;
-                case 6:
-                    //facing moveDirection = 6 (S)
-                    lookDirection(tab,1,1.0f,0.0f, 0,-1,1,0,range,cam);
-                    lookDirection(tab,1,1.0f,0.0f, 0,-1,-1,0,range,cam);
-                    break;
-                default:
-                    break;
-            }
-            */
-            
+            cam.setVisibilityTable(pos, true);            
             for (int i = -1; i < 2; ++i){
                 for (int j = -1; j < 2; ++j){
                     if (i!=0 && j !=0){
@@ -112,13 +94,10 @@ public class Player extends Creature {
             }
         }
     }
-    
-    public void print(){
-        
-    }
-    
+
+    @Override
     public void simulate(Table t){
-        tick_counter ++;
+        tick_counter++;
         l.cast_light(t);
         l.setNode(pos);
         if (tick_counter >= tick_max){
@@ -128,14 +107,8 @@ public class Player extends Creature {
             }
         }
     }
+        
+    @Override
+    public void print(){}
     
-    @Override
-    public boolean equalNode(Actor x){
-        return pos.compare(x.getNode());
-    }
-
-    @Override
-    public boolean isAlive() {
-        return alive;
-    }
 }

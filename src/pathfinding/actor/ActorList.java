@@ -1,6 +1,7 @@
 package pathfinding.actor;
 import pathfinding.Table.Table;
 import java.util.ArrayList;
+
 /**
  *
  * @author Alumne

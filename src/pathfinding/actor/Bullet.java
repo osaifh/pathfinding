@@ -71,7 +71,6 @@ public class Bullet extends Interactable {
             l.cast_light(t);
         }
         if (tick_counter >= tick_max){
-            
             tick_counter = 0;
             if (complex && alive){
                 facing_direction = pos.relativeDirection(target);
@@ -90,7 +89,6 @@ public class Bullet extends Interactable {
                 collision(npos,t);
                 alive = false;
             }
-            
         }
     }
 
