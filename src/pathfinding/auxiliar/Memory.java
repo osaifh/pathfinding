@@ -2,7 +2,7 @@ package pathfinding.auxiliar;
 
 /**
  *
- * @author Alumne
+ * @author
  */
 public class Memory {
     private Node[] content;

@@ -57,6 +57,8 @@ public class FilePaths {
     public static ImageIcon ghostE = new ImageIcon(RESOURCE_PATH+"ghost\\ghostE.png");
     public static ImageIcon ghostW = new ImageIcon(RESOURCE_PATH+"ghost\\ghostW.png");
     
+    
+    //old sprites
     public static ImageIcon oldPlayer = new ImageIcon(RESOURCE_PATH+"PlayerOld.png");
     
 }

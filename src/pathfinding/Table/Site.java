@@ -1,12 +1,13 @@
 package pathfinding.Table;
 
-import java.util.ArrayList;
 import pathfinding.actor.ActorList;
 import pathfinding.actor.LightSource;
 import pathfinding.auxiliar.Node;
 import java.util.Random;
+
 /**
- *
+ * Some test class to test generation stuff
+ * It isn't even finished
  * @author Alumne
  */
 public class Site {

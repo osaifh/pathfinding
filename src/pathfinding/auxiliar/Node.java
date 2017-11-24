@@ -1,7 +1,6 @@
 package pathfinding.auxiliar;
 
 import java.util.Random;
-import java.util.HashMap;
 import pathfinding.Table.Table;
 
 /**
@@ -9,29 +8,9 @@ import pathfinding.Table.Table;
  * @author 
  */
 public class Node {
-
     private int x, y;
     private Random randomGenerator = new Random();
-    private static HashMap<Integer,Node> DIRECTIONS;
-    static {
-        DIRECTIONS = new HashMap<>();
-        DIRECTIONS.put(0,new Node(-1,-1));
-        DIRECTIONS.put(1,new Node(-1,0));
-        DIRECTIONS.put(2,new Node(-1,1));
-        DIRECTIONS.put(3,new Node(0,-1));
-        DIRECTIONS.put(4,new Node(0,1));
-        DIRECTIONS.put(5,new Node(1,-1));
-        DIRECTIONS.put(6,new Node(1,0));
-        DIRECTIONS.put(7,new Node(1,1));
-    }
-    /*
-        These are the directions and their respective int value
-        0 1 2  NW N NE
-        3 X 4  W  X  E
-        5 6 7  SW S SE
-    */
-    
-    
+
     /**
      * Empty constructor
      */
@@ -159,22 +138,17 @@ public class Node {
         System.out.println("[x=" + x + ",y=" + y + "]"); 
     }
     
-    @Override
-    public String toString(){
-        return ("[x=" + x + ",y=" + y + "]");
-    }
-    
     /**
      *
      * @param dir
      * @param increment
      */
     public void moveDirection (int dir, int increment) {
-        for (int i = 0; i < increment; ++i) this.add(DIRECTIONS.get(dir)); 
+        for (int i = 0; i < increment; ++i) this.add(Constants.DIRECTIONS.get(dir)); 
     }
     
     public Boolean iMove(Table t, int dir){
-        this.add(DIRECTIONS.get(dir));
+        this.add(Constants.DIRECTIONS.get(dir));
         if (t.checkPassable(this)){
             return true;
         }
@@ -190,7 +164,7 @@ public class Node {
     }
     
     public void nodeMove(Table t, int dir){
-        this.add(DIRECTIONS.get(dir));
+        this.add(Constants.DIRECTIONS.get(dir));
     }
     
     public void nodeMove(Table t, Node n){
@@ -200,7 +174,7 @@ public class Node {
     public static Node[] getDirections(){
         Node[] directions = new Node[8];
         for (int i = 0; i < 8; ++i){
-            directions[i] = DIRECTIONS.get(i);
+            directions[i] = Constants.DIRECTIONS.get(i);
         }
         return directions;
     }
@@ -211,14 +185,10 @@ public class Node {
      */
     public static Node[] getDirectionsN(){
         Node[] directions = new Node[4];
-        Node[] directions_8 = getDirections();
-        int j = 0;
-        for (int i = 0; i < 8; ++i){
-            if (i != 0 && i != 2 && i !=5 && i != 7){
-                directions[j] = directions_8[i];
-                ++j;
-            }
-        }
+        directions[0] = Constants.DIRECTIONS.get(1);
+        directions[1] = Constants.DIRECTIONS.get(3);
+        directions[2] = Constants.DIRECTIONS.get(4);
+        directions[3] = Constants.DIRECTIONS.get(6);
         return directions;
     }
     
@@ -238,4 +208,10 @@ public class Node {
         if (target.x>x && target.y>y) return 7;
         return -1;
     }
+    
+    @Override
+    public String toString(){
+        return ("[x=" + x + ",y=" + y + "]");
+    }
+    
 }
