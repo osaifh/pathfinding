@@ -3,9 +3,10 @@ package pathfinding.auxiliar;
 import java.util.Random;
 import java.util.HashMap;
 import pathfinding.Table.Table;
+
 /**
  *
- * @author Alumne
+ * @author 
  */
 public class Node {
 
@@ -84,8 +85,9 @@ public class Node {
      * @param a
      * @return
      */
-    public boolean compare(Node a) {
-        return (a.x == this.x & a.y == this.y);
+    @Override
+    public boolean equals(Object a) {
+        return (((Node)a).x == this.x & ((Node)a).y == this.y);
     }
 
     /**
@@ -222,7 +224,7 @@ public class Node {
     
     /**
      * Returns the relative direction from a node ot another
-     * @param target the node to compare to
+     * @param target the node to equals to
      * @return the relative direction to target
      */
     public int relativeDirection(Node target){

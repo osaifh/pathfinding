@@ -1,5 +1,7 @@
 package pathfinding.Table;
 
+import java.util.Random;
+
 /**
  * Class used to help generate the terrain in table
  * @author 
@@ -17,6 +19,7 @@ public class Terrain {
         this.id = id;
         this.range = range;
     }
+    
 
     public String getName(){
         return name;
@@ -36,5 +39,22 @@ public class Terrain {
     
     public float getRange(){
         return range;
+    }
+    
+    public int getRandomID(){
+        Random random = new Random();
+        System.out.println(name);
+        if (name.equals("grass")){
+            int x = random.nextInt(10);
+            switch (x) {
+                case 0:
+                    return 106;
+                case 1:
+                    return 107;
+                default:
+                    return 105;
+            }
+        }
+        return -1;
     }
 }

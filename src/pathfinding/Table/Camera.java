@@ -10,6 +10,9 @@ import java.awt.image.BufferStrategy;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import static java.lang.Thread.sleep;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JLabel; 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -40,25 +43,38 @@ public class Camera extends JFrame {
     private static final HashMap<Integer,ImageIcon> TERRAIN_MAP;
     private static final HashMap<Integer,ImageIcon> SPRITE_MAP;
     private static final HashMap<Integer,ImageIcon> UI_MAP;
+    //temporal stuff: this will be changed later
+    private boolean showMap = false;
+    private mapThread thread1, thread4;
+    private Thread thread2, thread3;
     
     static {
         TERRAIN_MAP = new HashMap<>();
         TERRAIN_MAP.put(-1, FilePaths.black);
         TERRAIN_MAP.put(1, FilePaths.wall);
+        TERRAIN_MAP.put(2, FilePaths.red);
+        TERRAIN_MAP.put(4, FilePaths.white);
         TERRAIN_MAP.put(10, FilePaths.white);
         TERRAIN_MAP.put(100, FilePaths.deepWater);
         TERRAIN_MAP.put(101, FilePaths.water);
         TERRAIN_MAP.put(102, FilePaths.shallowWater);
         TERRAIN_MAP.put(103, FilePaths.sand);
         TERRAIN_MAP.put(104, FilePaths.brown);
-        TERRAIN_MAP.put(105, FilePaths.grass);
-        TERRAIN_MAP.put(106, FilePaths.rock);
+        TERRAIN_MAP.put(105, FilePaths.grassBase);
+        TERRAIN_MAP.put(106, FilePaths.grass2);
+        TERRAIN_MAP.put(107, FilePaths.grass3);
+        TERRAIN_MAP.put(108, FilePaths.rock);
+        TERRAIN_MAP.put(109, FilePaths.groundTile);
         SPRITE_MAP = new HashMap<>();
-        SPRITE_MAP.put(2, FilePaths.player);
+        SPRITE_MAP.put(2, FilePaths.oldPlayer);
         SPRITE_MAP.put(3, FilePaths.red);
         SPRITE_MAP.put(4, FilePaths.food);
         SPRITE_MAP.put(7, FilePaths.door_open);
         SPRITE_MAP.put(8, FilePaths.door_closed);
+        SPRITE_MAP.put(10,FilePaths.ghostS);
+        SPRITE_MAP.put(11,FilePaths.ghostN);
+        SPRITE_MAP.put(12,FilePaths.ghostE);
+        SPRITE_MAP.put(13,FilePaths.ghostW);
         UI_MAP = new HashMap<>();
         UI_MAP.put(0,FilePaths.blank);
         UI_MAP.put(1,FilePaths.day);
@@ -81,6 +97,25 @@ public class Camera extends JFrame {
         //The best practice here is to overload your constructor so you can pass in arguments for these items if you'd like
         //but have defaults when you don't need to change them. 
         this.parentController = parentController;
+        thread1 = new mapThread(this,0,500);
+        thread4 = new mapThread(this,500,1000);
+        thread2 = new Thread("New Thread") {
+            @Override
+            public void run(){
+                while (true){
+                    updateUI();
+                }
+            }
+        };
+        thread3 = new Thread("New Thread") {
+            boolean ready1, ready2;
+            @Override
+            public void run(){
+                while (true){
+                   updateTable();
+                }
+            }
+        };
         camera_lock = true;
         position = new Node();
         visibility_table = new boolean[t.getSize()][t.getSize()];
@@ -120,6 +155,13 @@ public class Camera extends JFrame {
                             y = b+(position.getY()-(cameraSize/2));
                             parentController.handleMouseInput(x, y);
                         }
+                    }
+                    
+                    @Override
+                    public void mouseEntered(MouseEvent e){
+                        x = a+(position.getX()-(cameraSize/2));
+                        y = b+(position.getY()-(cameraSize/2));
+                        parentController.handleMouseHover(x,y);
                     }
                 };
                 inputTable[i][j].addMouseListener(mAdapter);
@@ -225,25 +267,47 @@ public class Camera extends JFrame {
     public void setVisibilityTable(Node n, boolean b) {
         visibility_table[n.getX()][n.getY()] = b;
     }
+  
     
     /**
-     * Updates the icons that the camera currently displays
+     * Updates the picture that the camera currently displays
      */
+    
     public void update() {
-        drawMap();
-        /*
+       /* BufferStrategy bs = this.getBufferStrategy();
+        if(bs == null) {
+                this.createBufferStrategy(3);			
+                return;
+        }*/
+        
+       updateUI();
+       updateTable();
+       // if (showMap) drawMap(0,1000);
+        
+        
+        
+        //thread1.start();
+        //call this function to update the UI
+        //thread2.start();
+        //thread3.start();
+        //thread4.start();
+        //updateUI();
+        //
+        //updateTable();
+    }
+    
+    public void updateTable(){
         int x, y, drawX, drawY;
         Tile tile;
         //I copied the bufferStrategy part of the code so I'm not sure what it does exactly
         //but it works
         BufferStrategy bs = this.getBufferStrategy();
         if(bs == null) {
-                this.createBufferStrategy(3);			
-                return;
+            this.createBufferStrategy(3);			
+            return;
         }
         Graphics2D g = (Graphics2D) bs.getDrawGraphics();
-        //call this function to update the UI
-        updateUI();
+        
         //this draws the stuff we see
         for (int i = 0; i < cameraSize; ++i) {
             for (int j = 0; j < cameraSize; ++j) {
@@ -286,9 +350,11 @@ public class Camera extends JFrame {
                 }
             }
         }
+        if (showMap){
+            drawMap(g,0,t.getSize());
+        }
         g.dispose();
         bs.show();
-        */
     }
     
     private void updateUI() {
@@ -349,22 +415,47 @@ public class Camera extends JFrame {
         }
     }
     
-    private void drawMap(){
-        BufferStrategy bs = this.getBufferStrategy();
-        if(bs == null) {
-                this.createBufferStrategy(3);			
-                return;
-        }
-        Graphics2D g = (Graphics2D) bs.getDrawGraphics();
-        int size = t.getSize();
-        for (int i = 0; i < size; i++){
-            for (int j = 0; j < size; ++j){
-                Tile tile = t.getTile(i, j);
-                g.drawImage(TERRAIN_MAP.get(tile.getTerrainID()).getImage(),j,i,1,1, rootPane);
+    public void drawMap(Graphics2D g, int lowerRange, int upperRange){
+           // BufferStrategy bs = this.getBufferStrategy();
+           // if(bs == null) {
+              //      this.createBufferStrategy(3);			
+             //       return;
+            //}
+           //Graphics2D g = (Graphics2D) bs.getDrawGraphics();
+            int size = t.getSize();
+            int drawX, drawY;
+            final int drawSize = 2;
+            g.setColor(Color.black);
+            int camSize = TILE_SIZE * cameraSize;
+            int mapMargin = (camSize - 1000/drawSize)/2;
+            g.fillRect(leftMargin+mapMargin - 8, mapMargin - 8, (camSize - mapMargin*2)+16, (camSize - mapMargin*2)+16);
+            for (int i = 0; i < upperRange; i+=2){
+                for (int j = 0; j < upperRange; j+=2){
+                    drawX = (j / 2) + leftMargin + mapMargin;
+                    drawY = (i / 2) + mapMargin;
+                    Tile tile = t.getTile(i, j);
+                    g.drawImage(TERRAIN_MAP.get(tile.getTerrainID()).getImage(),drawX,drawY,2,2, rootPane);
+                }
             }
+            g.setPaint(Color.red);
+            g.fillOval((activePlayer.getNode().getY()/2+leftMargin+mapMargin)-2,(activePlayer.getNode().getX()/2+mapMargin)-4, 8, 8);
+            //g.dispose();
+            //bs.show();
+    }
+    
+    public void toggleShowMap(){
+        showMap = !showMap;
+        if (!showMap){
+            BufferStrategy bs = this.getBufferStrategy();
+            if(bs == null) {
+                    this.createBufferStrategy(1);			
+                    return;
+            }
+            Graphics2D g = (Graphics2D) bs.getDrawGraphics();
+            g.clearRect(0, 0, panelWidth, panelHeight);
+            g.dispose();
+            bs.show();
         }
-        g.dispose();
-        bs.show();
     }
     
 }

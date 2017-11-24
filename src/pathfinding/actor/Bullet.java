@@ -7,14 +7,14 @@ import pathfinding.auxiliar.Node;
  *
  * @author Alumne
  */
-public class Bullet extends Interactable {
+public class Bullet extends Particle {
     private final int tick_max = 30;
     private int tick_counter = 0;
     private int speed;
     private int facing_direction;
     private boolean complex;
     private Node target, origin;
-    private int m;
+    private float m, n;
     private LightSource l;
     
     public Bullet(Node n, int facing_direction, int speed){
@@ -28,23 +28,24 @@ public class Bullet extends Interactable {
         l = new LightSource(3,pos.getX(),pos.getY());
     }
     
-    public Bullet(Node n, int speed, Node target){
+    public Bullet(Node pos, int speed, Node target){
         id = 4;
-        pos = n;
+        this.pos = pos;
         this.speed = speed;
         alive = true;
         complex = true;
         this.target = target.getNodeCopy();
-        this.origin = n;
-        this.facing_direction = n.relativeDirection(target);
-        /*
-        int a = target.getY() - n.getY();
-        int b = target.getX() - n.getX();
-        if (b == 0){
-            b = 1;
+        this.origin = pos;
+        this.facing_direction = pos.relativeDirection(target);
+        float a = target.getX() - pos.getX();
+        float b = target.getY() - pos.getY();
+        System.out.println("a: " + a + " b: " + b);
+        if (a == 0){
+            a = 1;
         }
-        m = a / b;
-        */
+        m = b / a;
+        n = b - a * m;
+        System.out.println("m: " + m + " n: " + a);
         l = new LightSource(3,pos.getX(),pos.getY());
     }
     
@@ -57,12 +58,6 @@ public class Bullet extends Interactable {
         }
     }
     
-
-    
-    @Override
-    public void interact(Table t) {
-    }
-
     @Override
     public void simulate(Table t) {
         tick_counter += speed;
@@ -73,7 +68,12 @@ public class Bullet extends Interactable {
         if (tick_counter >= tick_max){
             tick_counter = 0;
             if (complex && alive){
-                facing_direction = pos.relativeDirection(target);
+                int x = pos.getX()+1;
+                int y = (int) (m*x +n);
+                Node next = new Node(x,y);
+                //System.out.println();
+                //pos.iMove(t, next);
+                facing_direction = pos.relativeDirection(next);
             }
             Node npos = new Node(pos);
             t.getTile(pos).clearMatchingContent(this);
@@ -84,7 +84,7 @@ public class Bullet extends Interactable {
             else
             if (npos.iMove(t, facing_direction) && t.getTile(npos).isEmpty()){
                 pos.iMove(t, facing_direction);
-                t.getTile(npos).addContent(this);
+                //t.getTile(npos).addContent(this);
             } else {
                 collision(npos,t);
                 alive = false;
@@ -99,13 +99,12 @@ public class Bullet extends Interactable {
 
     @Override
     public boolean equalNode(Actor x){
-        return pos.compare(x.getNode());
+        return pos.equals(x.getNode());
     }
 
     @Override
     public boolean isAlive(){
         return alive;
     }
-    
     
 }

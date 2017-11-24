@@ -8,7 +8,7 @@ import pathfinding.auxiliar.Node;
  *
  * @author Alumne
  */
-public class Explosion extends Interactable {
+public class Explosion extends Particle {
     private int tick_counter = 0;
     private final int tick_max = 30;
     private ArrayList<ExplosionTile> aoe_list;
@@ -35,14 +35,9 @@ public class Explosion extends Interactable {
     
     public boolean matchingNode(Node n){
         for (int i = 0; i < aoe_list.size(); ++i){
-            if (n.compare(aoe_list.get(i).getNode())) return false;
+            if (n.equals(aoe_list.get(i).getNode())) return false;
         }
         return true;
-    }
-    
-    @Override
-    public void interact(Table t) {
- 
     }
 
     @Override

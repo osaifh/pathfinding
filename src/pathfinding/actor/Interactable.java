@@ -34,7 +34,7 @@ public abstract class Interactable implements Actor {
     };
     
     public boolean equalNode(Actor x){
-        return pos.compare(x.getNode());
+        return pos.equals(x.getNode());
     };
     
     public abstract void interact(Table t);    
@@ -42,5 +42,5 @@ public abstract class Interactable implements Actor {
     public boolean isAlive(){
         return alive;
     }
-
+    
 }

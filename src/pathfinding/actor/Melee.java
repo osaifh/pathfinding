@@ -3,7 +3,7 @@ package pathfinding.actor;
 import java.util.ArrayList;
 import pathfinding.Table.Table;
 
-public class Melee extends Interactable {
+public class Melee extends Particle {
     private int tick_counter = 0;
     private final int tick_max = 30;
     private int height, width;
@@ -29,12 +29,6 @@ public class Melee extends Interactable {
         }
     }
     
-    
-    @Override
-    public void interact(Table t) {
-        
-    }
-
     @Override
     public void simulate(Table t) {
         tick_counter++;

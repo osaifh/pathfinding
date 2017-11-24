@@ -11,6 +11,8 @@ public class LightSource implements Actor {
     int intensity;
     boolean alive;
     Node pos;
+    Actor source;
+    boolean hasSource;
     
     /**
      *
@@ -22,10 +24,18 @@ public class LightSource implements Actor {
         pos = new Node(x,y);
         this.intensity = intensity;
         alive = true;
+        hasSource = false;
+    }
+    
+    public LightSource(int intensity, Actor source){
+        this.intensity = intensity;
+        this.source = source;
+        alive = true;
+        hasSource = true;
     }
     
     public boolean equalNode(Actor x){
-        return pos.compare(x.getNode());
+        return pos.equals(x.getNode());
     }
     
     /**
@@ -114,6 +124,7 @@ public class LightSource implements Actor {
     @Override
     public void simulate(Table tab){
         cast_light(tab);
+        if (hasSource && source==null) alive = false;
     }
     
     public void print(){

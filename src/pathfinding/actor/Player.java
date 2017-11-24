@@ -19,12 +19,12 @@ public class Player extends Creature {
         maxHP = 100;
         hp = 100;
         l = new LightSource(6,pos.getX(),pos.getY());
-        sight_range = 20;
+        sight_range = 30;
     }
     
     @Override
     public boolean equalNode(Actor x){
-        return pos.compare(x.getNode());
+        return pos.equals(x.getNode());
     }
 
     @Override
@@ -85,7 +85,7 @@ public class Player extends Creature {
                         start = newStart;
                     }
                 } else {
-                    if (tab.getTile(delta).isOpaque() && Node.distance(pos,delta) <= 10){
+                    if (tab.getTile(delta).isOpaque() && Node.distance(pos,delta) <= sight_range){
                         blocked = true;
                         lookDirection(tab,distance + 1,start, leftSlope, xx, xy, yx, yy, range,cam);
                         newStart = rightSlope;
@@ -110,5 +110,39 @@ public class Player extends Creature {
         
     @Override
     public void print(){}
+    
+    public void updateID(){
+        switch (facing_direction) {
+            case 0:
+                id = 13;
+                break;
+            case 1:
+                id = 11;
+                break;
+            case 2:
+                id = 12;
+                break;
+            case 3:
+                id = 13;
+                break;
+            case 4:
+                id = 12;
+                break;
+            case 5:
+                id = 13;
+                break;
+            case 6:
+                id = 10;
+                break;
+            case 7:
+                id = 12;
+                break;
+            default:
+                id = 2;
+                break;
+        }
+        //delete this
+        id = 2;
+    }
     
 }

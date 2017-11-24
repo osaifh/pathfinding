@@ -52,12 +52,18 @@ public class Controller {
      * Initializes and generates some objects on startup
      */
     public void startup() {
-        tab.getTile(49,49).clear();
-        activePlayer = new Player(10,10);
+        Node playerPos = new Node();
+        do {
+            playerPos.generate(tab.getSize());
+        } while ((!tab.valid(playerPos) || !tab.checkPassable(playerPos)));
+        activePlayer = new Player(playerPos.getX(),playerPos.getY());
         generateActor(activePlayer);
         cam.setActivePlayer(activePlayer);
         cam.setLockedObject(activePlayer);
         cam.setPos(activePlayer.getNode());
+        //for (int i = 0; i < 10; ++i) tab.generateSquareHouse(10, 1, lightList);
+        //tab.generateTown(new Node(playerPos.getX()-1,playerPos.getY()-1), lightList);
+        //tab.generateSquareHouse(, 10, 2, lightList);
         //Site s = new Site(new Node(activePlayer.getNode().getX()+1,activePlayer.getNode().getY()+1),tab,objList,lightList);
     }
     
@@ -68,6 +74,7 @@ public class Controller {
         startup();
         cam.clearVisibilityTable();
         timer.start();
+        cam.update();
     }
     
     /**
@@ -168,6 +175,7 @@ public class Controller {
         
         //updates the time value
         ++time;
+        time = 2000;
         if (time > 2400) time = 0;
 
         //prints some values
@@ -218,8 +226,21 @@ public class Controller {
                 generateActor(n);
                 break;
             }
+            case 8:
+            {
+                tab.generateSquareHouse(pos.getNodeCopy(), 10, 2, lightList);
+                break;
+            }
         }
     }
+    public void handleMouseHover(int x, int y){
+        if (activePlayer!=null){
+            Node pos = new Node(x,y);
+            activePlayer.setFacingDirection(activePlayer.getNode().relativeDirection(pos));
+            activePlayer.updateID();
+        }
+    }
+    
     
     /**
      * Handles the keyboard input
@@ -303,10 +324,8 @@ public class Controller {
                 case KeyEvent.VK_P:
                     paused = !paused;
                     break;
-                case KeyEvent.VK_Z:
-                    Monster n = new Monster(cam.getPos(),objList,controller);
-                    objList.add(n,true);
-                    tab.add(cam.getPos().getX(),cam.getPos().getY(),n);
+                case KeyEvent.VK_M:
+                    cam.toggleShowMap();
                     break;
                 case KeyEvent.VK_1:
                     UIselected = 1;

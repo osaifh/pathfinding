@@ -82,7 +82,7 @@ public abstract class Creature implements Actor {
     
     @Override
     public boolean equalNode(Actor x){
-        return pos.compare(x.getNode());
+        return pos.equals(x.getNode());
     }
     
     /**

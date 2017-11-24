@@ -45,6 +45,21 @@ public class Tile {
         this.opaque = terrain.isOpaque();
         this.light_level = 100;
         icontent = new ArrayList<>();
+        if(terrain.getName().equals("grass")){
+            Random random = new Random();
+            int x = random.nextInt(100);
+            switch (x) {
+                case 0:
+                    terrain_id  = 107;
+                    break;
+                case 1:
+                    terrain_id  = 106;
+                    break;
+                default:
+                    terrain_id = 105;
+                    break;
+            }
+        }
     }
     
     /**
@@ -192,6 +207,7 @@ public class Tile {
     
     /**
      * places a wall in the tile and removes and objects it could have
+     * deprecate this shit soon
      */
     public void setWall(){
         terrain_id = 1;

@@ -21,7 +21,6 @@ public class Door extends Interactable {
     }
         
     public void interact(Table t) {
-        System.out.println("what's up it's happening");
         open = !open;
         t.getTile(pos).setPassable(open);
         t.getTile(pos).setOpaque(!open);
@@ -37,7 +36,7 @@ public class Door extends Interactable {
     
     @Override
     public boolean equalNode(Actor x){
-        return pos.compare(x.getNode());
+        return pos.equals(x.getNode());
     }
 
     @Override

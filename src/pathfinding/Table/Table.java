@@ -1,11 +1,15 @@
 package pathfinding.Table;
 
 import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.Random;
 import pathfinding.auxiliar.Node;
 import pathfinding.actor.Actor;
+import pathfinding.actor.ActorList;
+import pathfinding.actor.Door;
 import pathfinding.actor.Interactable;
+import pathfinding.actor.LightSource;
 import pathfinding.actor.genericObject;
 import pathfinding.auxiliar.NodeData;
 import pathfinding.auxiliar.NodePair;
@@ -25,13 +29,13 @@ public class Table {
     static {
         terrainArray = new Terrain[10];
         //String name, boolean passable, boolean opaque, int id, float range
-        terrainArray[0] = new Terrain("deepWater",false,false,100,0.1f);
+        terrainArray[0] = new Terrain("deepWater",false,false,100,0f);
         terrainArray[1] = new Terrain("water",false,false,101,0.45f);
-        terrainArray[2] = new Terrain("shallowWater",true,false,102,0.5f);
-        terrainArray[3] = new Terrain("sand",true,false,103,0.55f);
-        terrainArray[4] = new Terrain("dirt",true,false,104,0.70f);
-        terrainArray[5] = new Terrain("grass",true,false,105,0.90f);
-        terrainArray[6] = new Terrain("rock",false,true,106,1.0f);
+        terrainArray[2] = new Terrain("shallowWater",true,false,102,0.475f);
+        terrainArray[3] = new Terrain("sand",true,false,103,0.5f);
+        terrainArray[4] = new Terrain("dirt",true,false,104,0.6f);
+        terrainArray[5] = new Terrain("grass",true,false,105,0.8f);
+        terrainArray[6] = new Terrain("rock",false,true,108,1f);
     }
 
     /**
@@ -42,7 +46,7 @@ public class Table {
     public Table(){
         tab = new Tile[TABLE_SIZE][TABLE_SIZE];
         int k;
-        float[][] tab_gen = generatePerlinNoise(generateWhiteNoise(TABLE_SIZE,TABLE_SIZE),4);
+        float[][] tab_gen = generatePerlinNoise(generateWhiteNoise(TABLE_SIZE,TABLE_SIZE),8);
         for (int i = 0; i < TABLE_SIZE; ++i){
             for (int j = 0; j < TABLE_SIZE; ++j){
                 k = 0;
@@ -390,21 +394,21 @@ public class Table {
         float totalAmplitude = 0.0f;
         //blend noise together
         for (int octave = octaveCount - 1; octave >= 0; octave--)
-         {
+        {
             amplitude *= persistance;
             totalAmplitude += amplitude;
             for (int i = 0; i < width; i++){
-               for (int j = 0; j < height; j++){
-                  perlinNoise[i][j] += smoothNoise[octave][i][j] * amplitude;
-               }
+                for (int j = 0; j < height; j++){
+                    perlinNoise[i][j] += smoothNoise[octave][i][j] * amplitude;
+                }
             }
-         }
+        }
 
         //normalisation
         for (int i = 0; i < width; i++){
-           for (int j = 0; j < height; j++){
-              perlinNoise[i][j] /= totalAmplitude;
-           }
+            for (int j = 0; j < height; j++){
+                perlinNoise[i][j] /= totalAmplitude;
+            }
         }
 
        return perlinNoise;
@@ -483,12 +487,6 @@ public class Table {
             }
         }
     }
-    
-    public void marcar(Node n){
-        if (valid(n)){
-            tab[n.getX()][n.getY()].setID(3);
-        }
-    }
 
     private static Comparator<NodeData> node_comparator = (NodeData n1, NodeData n2) -> {
         if (n1.getTotal() > n2.getTotal()) return 1;
@@ -514,7 +512,7 @@ public class Table {
                 current_par = current_data.getNodePar();
                 current = current_data.getNode();
             } else first = false;
-            if (current.compare(target)) break;
+            if (current.equals(target)) break;
             else {
                 for (int i = -1; i < 2; ++i){
                 for (int j = -1; j < 2; ++j){
@@ -534,11 +532,164 @@ public class Table {
             }
             --limit;
         }
-        if (!target.compare(current)) return null;
+        if (!target.equals(current)) return null;
         else{
             Node[] path = visitats.tracePath(current_par);
             return path;
         }
     }
     
+    public void generateSquareHouse(int size, int ndoors, ActorList lightList){
+        generateSquareHouse(null,size,ndoors,lightList);
+    }
+    
+    public void generateSquareHouse(Node n, int size, int ndoors, ActorList lightList){
+        Node start = new Node();
+        Random random = new Random();
+        if (n==null){
+            Node currentNode;
+            boolean valid;
+
+            do {
+                ArrayList<Node> evaluatedNodes = new ArrayList<Node>();
+                do {
+                    start.generate(TABLE_SIZE);
+                } while (!(valid(start) && checkPassable(start) && !evaluatedNodes.contains(start)));
+                evaluatedNodes.add(start);
+                currentNode = start.getNodeCopy();
+                valid = true;
+                for (int i = 0; i < size && valid; ++i){
+                    for (int j = 0; j < size && valid; ++j){
+                        currentNode.set(currentNode.getX(), currentNode.getX()+1);
+                        valid = checkPassable(currentNode);
+                    }
+                    currentNode.set(currentNode.getX()+1, currentNode.getX());
+                }
+            } while (!valid);
+        } else {
+            start = n;
+        }
+        
+        //walls
+        for (int i = 0; i <= size; ++i){
+            tab[start.getX()+i][start.getY()].setWall();
+            tab[start.getX()+i][start.getY()+size].setWall();
+            tab[start.getX()][start.getY()+i].setWall();
+            tab[start.getX()+size][start.getY()+i].setWall();
+        }
+        
+        //floor
+        for (int i = 1; i < size; ++i){
+            for (int j = 1; j < size; ++j){
+                tab[start.getX()+i][start.getY()+j].setID(109);
+            }
+        }
+        
+        //doors
+        for (int i = 0; i < ndoors; ++i){
+            boolean checked = true;
+            Node d;
+            do {
+                int x = random.nextInt(size);
+                int y = random.nextInt(size);
+                if (random.nextInt(2)==0){
+                    if (random.nextInt(2)==0) d = new Node(start.getX(), start.getY()+y);
+                    else d = new Node(start.getX()+size, start.getY()+y);
+                }
+                else {
+                    if (random.nextInt(2)==0) d = new Node(start.getX()+x, start.getY());
+                    else d = new Node(start.getX()+x, start.getY()+size);
+                }
+                if (!getTile(d).isEmpty()) checked = false;
+                if ((d.getX()-start.getX())==(d.getY()-start.getY())) checked = false;
+            } while (!checked);
+            Door door = new Door(d.getX(),d.getY(), this);
+            add(door);
+            tab[d.getX()][d.getY()].setID(109);
+        }
+        //lights
+        lightList.add(new LightSource(3*size/4,start.getX()+1,start.getY()+1),true);
+        lightList.add(new LightSource(3*size/4,start.getX()+size-1,start.getY()+1),true);
+        lightList.add(new LightSource(3*size/4,start.getX()+1,start.getY()+size-1),true);
+        lightList.add(new LightSource(3*size/4,start.getX()+size-1,start.getY()+size-1),true);
+    }
+    
+    public void generateTown(Node n, ActorList lightList){
+        Node start = new Node();
+        Random random = new Random();
+        int nHouses = random.nextInt(4)+5;
+        int[] HouseSizes = new int[nHouses];
+        int currentWidth, currentHeight;
+        currentWidth = currentHeight = 0;
+        int totalSize = 0;
+        final int SPACE = 5;
+        for (int i = 0; i < nHouses; ++i){
+            HouseSizes[i] = random.nextInt(11)+5;
+            totalSize = HouseSizes[i]+SPACE;
+        }
+        totalSize -= SPACE;
+        if (n==null){
+            Node currentNode;
+            boolean valid;
+
+            do {
+                ArrayList<Node> evaluatedNodes = new ArrayList<Node>();
+                do {
+                    start.generate(TABLE_SIZE);
+                } while (!(valid(start) && checkPassable(start) && !evaluatedNodes.contains(start)));
+                evaluatedNodes.add(start);
+                currentNode = start.getNodeCopy();
+                valid = true;
+                for (int i = 0; i < totalSize && valid; ++i){
+                    for (int j = 0; j < totalSize && valid; ++j){
+                        currentNode.set(currentNode.getX(), currentNode.getX()+1);
+                        valid = checkPassable(currentNode);
+                    }
+                    currentNode.set(currentNode.getX()+1, currentNode.getX());
+                }
+            } while (!valid);
+        } else {
+            start = n;
+        }
+        int currentX = start.getX();
+        int currentY = start.getY();
+        int lastX = currentX;
+        int lastY = currentY;
+        for (int i = 0; i < nHouses; ++i){
+            generateSquareHouse(new Node(currentX,currentY), HouseSizes[i], HouseSizes[i]/10 + 1, lightList);
+            if (i!=0){
+                if (i%4!=0){
+                    if (currentWidth > currentHeight){
+                        currentX = lastX;
+                        lastY = currentY;
+                        currentY += HouseSizes[i]+SPACE;
+                        currentHeight += HouseSizes[i]+SPACE;
+
+                    }
+
+                    else if (currentHeight > currentWidth){
+                        currentY = lastY;
+                        lastX = currentX;
+                        currentX += HouseSizes[i]+SPACE;
+                        currentWidth += HouseSizes[i]+SPACE;
+                    }
+               }
+               else {
+                    lastX = currentX;
+                    lastY = currentY;
+                    currentX += HouseSizes[i]+SPACE;
+                    currentY += HouseSizes[i]+SPACE;
+                    currentWidth += HouseSizes[i]+SPACE;
+                    currentHeight += HouseSizes[i]+SPACE;
+               }
+            }
+            else {
+                lastX = currentX;
+                lastY = currentY;
+                currentX += HouseSizes[i]+SPACE;
+                currentWidth += HouseSizes[i]+SPACE;
+            }
+            
+        }
+    }
 }

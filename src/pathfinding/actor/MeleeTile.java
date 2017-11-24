@@ -3,7 +3,7 @@ package pathfinding.actor;
 import pathfinding.Table.Table;
 import pathfinding.auxiliar.Node;
 
-public class MeleeTile extends Interactable {
+public class MeleeTile extends Particle {
     private int tick_counter = 0;
     private final int tick_max = 10;
     private int life = 10;
@@ -20,11 +20,6 @@ public class MeleeTile extends Interactable {
                 ((Creature)obj).setHP(((Creature)obj).getHP()-20);
             }
         }
-    }
-    
-    @Override
-    public void interact(Table t) {
-    
     }
 
     @Override

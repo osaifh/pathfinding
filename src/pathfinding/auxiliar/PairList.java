@@ -52,7 +52,7 @@ public class PairList {
         if (head!= null){
             NodePair temp = head;
             while(temp!=null){
-                if (temp.getFirst().compare(act)) return true;
+                if (temp.getFirst().equals(act)) return true;
                 temp = temp.getNext();
             }
         }

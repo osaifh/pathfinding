@@ -8,7 +8,7 @@ import pathfinding.auxiliar.Node;
  *
  * @author Alumne
  */
-public class ExplosionTile extends Interactable {
+public class ExplosionTile extends Particle {
     private int tick_counter = 0;
     private final int tick_max = 10;
     private int life = 20;
@@ -36,11 +36,6 @@ public class ExplosionTile extends Interactable {
             }
         }
         l = new LightSource(3,pos.getX(),pos.getY());
-    }
-    
-    @Override
-    public void interact(Table t) {
- 
     }
 
     @Override
