@@ -1,6 +1,5 @@
 package pathfinding.actor.Interactables;
 
-import pathfinding.actor.Interactables.Interactable;
 import pathfinding.Table.Table;
 import pathfinding.auxiliar.Node;
 
@@ -25,9 +24,5 @@ public class genericObject extends Interactable {
         
     }
 
-    @Override
-    public void print() {
-        
-    }
     
 }

@@ -1,11 +1,9 @@
 package pathfinding.actor.Particles;
 
-import pathfinding.actor.Particles.Particle;
 import java.util.ArrayList;
 import pathfinding.Table.Table;
 import pathfinding.actor.Actor;
 import pathfinding.actor.ActorList;
-import pathfinding.actor.Particles.ExplosionTile;
 import pathfinding.auxiliar.Node;
 
 /**
@@ -58,9 +56,5 @@ public class Explosion extends Particle {
         }
     }
 
-    @Override
-    public void print() {
-        System.out.println("Explosion");
-    }
     
 }

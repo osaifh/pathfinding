@@ -25,6 +25,4 @@ public interface Actor {
     
     public void simulate(Table t);
     
-    public void print();
-    
 }

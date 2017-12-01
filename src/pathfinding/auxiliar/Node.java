@@ -1,6 +1,5 @@
 package pathfinding.auxiliar;
 
-import java.util.Random;
 import pathfinding.Table.Table;
 
 /**
@@ -8,9 +7,9 @@ import pathfinding.Table.Table;
  * @author 
  */
 public class Node {
+    
     private int x, y;
-    private Random randomGenerator = new Random();
-
+    
     /**
      * Empty constructor
      */
@@ -40,8 +39,8 @@ public class Node {
      * @param range the range of values from 0 to range - 1
      */
     public void generate(int range){
-        x = randomGenerator.nextInt(range);
-        y = randomGenerator.nextInt(range);
+        x = Constants.RANDOM.nextInt(range);
+        y = Constants.RANDOM.nextInt(range);
     }
     
     /**
@@ -54,8 +53,8 @@ public class Node {
      */
     public void generate(int range, int xx, int xy, int yx, int yy) {
         do {
-            x = xx + randomGenerator.nextInt(range);
-            y = xy + randomGenerator.nextInt(range);
+            x = xx + Constants.RANDOM.nextInt(range);
+            y = xy + Constants.RANDOM.nextInt(range);
         } while (!(x <= yx && y <= yy));
     }
 
@@ -133,13 +132,6 @@ public class Node {
     
     /**
      *
-     */
-    public void print() {
-        System.out.println("[x=" + x + ",y=" + y + "]"); 
-    }
-    
-    /**
-     *
      * @param dir
      * @param increment
      */
@@ -185,10 +177,10 @@ public class Node {
      */
     public static Node[] getDirectionsN(){
         Node[] directions = new Node[4];
-        directions[0] = Constants.DIRECTIONS.get(1);
-        directions[1] = Constants.DIRECTIONS.get(3);
-        directions[2] = Constants.DIRECTIONS.get(4);
-        directions[3] = Constants.DIRECTIONS.get(6);
+        directions[0] = Constants.DIRECTIONS.get(Constants.N);
+        directions[1] = Constants.DIRECTIONS.get(Constants.W);
+        directions[2] = Constants.DIRECTIONS.get(Constants.E);
+        directions[3] = Constants.DIRECTIONS.get(Constants.S);
         return directions;
     }
     
@@ -198,14 +190,14 @@ public class Node {
      * @return the relative direction to target
      */
     public int relativeDirection(Node target){
-        if (target.x<x && target.y<y) return 0;
-        if (target.x<x && target.y==y) return 1;
-        if (target.x<x && target.y>y) return 2;
-        if (target.x==x && target.y<y) return 3;
-        if (target.x==x && target.y>y) return 4;
-        if (target.x>x && target.y<y) return 5;
-        if (target.x>x && target.y==y) return 6;
-        if (target.x>x && target.y>y) return 7;
+        if (target.x<x   && target.y<y)   return Constants.NW;
+        if (target.x<x   && target.y==y) return Constants.N;
+        if (target.x<x   && target.y>y)   return Constants.NE;
+        if (target.x==x && target.y<y)   return Constants.W;
+        if (target.x==x && target.y>y)   return Constants.E;
+        if (target.x>x   && target.y<y)   return Constants.SW;
+        if (target.x>x   && target.y==y) return Constants.S;
+        if (target.x>x   && target.y>y)   return Constants.SE;
         return -1;
     }
     

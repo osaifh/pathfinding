@@ -35,10 +35,5 @@ public class MeleeTile extends Particle {
             tick_counter = 0;
         }     
     }
-
-    @Override
-    public void print() {
-        System.out.println("melee tile");
-    }
     
 }

@@ -1,6 +1,5 @@
 package pathfinding.actor.Creatures;
 
-import pathfinding.actor.Creatures.Creature;
 import java.util.LinkedList;
 import java.util.Queue;
 import pathfinding.Controller;
@@ -20,7 +19,7 @@ import pathfinding.auxiliar.PairList;
 public class Monster extends Creature {
     private boolean move, asleep;
     private Node[] runpath;
-    private Memory mem, long_term;
+    private Memory mem, longTerm;
     private int runindex, current_action, hunger, stamina;
     private Actor target;
     private ActorList objList;
@@ -35,7 +34,7 @@ public class Monster extends Creature {
         runpath = null;
         runindex = current_action = 0;
         mem = new Memory();
-        long_term = new Memory();
+        longTerm = new Memory();
         hunger = stamina = 100;
         alive = true;
         this.objList = objList;
@@ -67,10 +66,7 @@ public class Monster extends Creature {
         if (move && runpath.length > 0 && runindex < runpath.length){
             if (tab.getTile(runpath[runindex]).isPassable()){
                 iMove(tab,runpath[runindex]);
-                /*
-                tab.getTile(pos).clearMatchingContent(this);
-                pos = (runpath[runindex]);
-                tab.getTile(pos).addContent(this);*/
+
                 if (tab.getTile(pos).containsID(4)){
                     hunger += 10;
                     tab.getTile(pos).clearMatchingContent(4);
@@ -105,7 +101,7 @@ public class Monster extends Creature {
                     aux.setToNode(pos);
                     aux.moveDirection(j,1);
                     if (tab.checkPassable(aux)){
-                        dir_val[j] = mem.check(aux) + long_term.check(aux)*10;
+                        dir_val[j] = mem.check(aux) + longTerm.check(aux)*10;
                         if (dir_val[j]>value_max){
                             value_max = dir_val[j];
                             max = j;
@@ -383,7 +379,7 @@ public class Monster extends Creature {
             //if (!asleep) --stamina;
             lookAround(tab,8);
             if (current_action == 0){
-                long_term.add(pos);
+                longTerm.add(pos);
                 if (target==null){
                     if (stamina<25){
                         current_action = 3;
@@ -447,16 +443,6 @@ public class Monster extends Creature {
                 alive = false;
             }
         }
-    }
-    
-    /**
-     * Prints some relevant information from the creature.
-     * Used only for testing.
-     */
-    public void print() {
-        System.out.println("object ID: " + id);
-        System.out.println("position x = " + pos.getX() + " y = " + pos.getY());
-        System.out.println("Health: " + hunger + " Stamina: " + stamina);
     }
 
 }

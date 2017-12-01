@@ -14,6 +14,7 @@ import pathfinding.actor.Interactables.genericObject;
 import pathfinding.auxiliar.NodeData;
 import pathfinding.auxiliar.NodePair;
 import pathfinding.auxiliar.PairList;
+import pathfinding.auxiliar.Constants;
 
 /**
  * This class is used to make and work with a border made of tiles
@@ -23,19 +24,17 @@ public class Table {
     private final int TABLE_SIZE = 1000;
     private final int MAX_ATTEMPTS = 20;
     private static Terrain[] terrainArray;
-    /*private enum Edge {
-        none, NW, NE, SW, SE;
-    }*/
+    
     static {
         terrainArray = new Terrain[10];
         //String name, boolean passable, boolean opaque, int id, float range
-        terrainArray[0] = new Terrain("deepWater",false,false,100,0f);
-        terrainArray[1] = new Terrain("water",false,false,101,0.45f);
-        terrainArray[2] = new Terrain("shallowWater",true,false,102,0.475f);
-        terrainArray[3] = new Terrain("sand",true,false,103,0.5f);
-        terrainArray[4] = new Terrain("dirt",true,false,104,0.6f);
-        terrainArray[5] = new Terrain("grass",true,false,105,0.8f);
-        terrainArray[6] = new Terrain("rock",false,true,108,1f);
+        terrainArray[0] = new Terrain("deepWater",false,false,Constants.DEEP_WATER_ID,0f);
+        terrainArray[1] = new Terrain("water",false,false,Constants.WATER_ID,0.45f);
+        terrainArray[2] = new Terrain("shallowWater",true,false,Constants.SHALLOW_WATER_ID,0.475f);
+        terrainArray[3] = new Terrain("sand",true,false,Constants.SAND_ID,0.5f);
+        terrainArray[4] = new Terrain("dirt",true,false,Constants.BROWN_ID,0.6f);
+        terrainArray[5] = new Terrain("grass",true,false,Constants.GRASS_BASE_ID,0.8f);
+        terrainArray[6] = new Terrain("rock",false,true,Constants.ROCK_ID,1f);
     }
 
     /**
@@ -62,9 +61,7 @@ public class Table {
      * @return returns true if the node's coordinates are within a valid range in the table
      */
     public boolean valid(Node n){
-        if (n!=null){
-            return (n.getX() >= 0 & n.getX()<TABLE_SIZE & n.getY() >= 0 & n.getY()<TABLE_SIZE);
-        } else return false;
+        return valid(n.getX(),n.getY());
     }
 
     /**
@@ -79,14 +76,11 @@ public class Table {
 
     /**
      * Checks whether a node is passable or not
-     * @param n n is the node we want to check
+     * @param n the node we want to check
      * @return returns whether the node is passable or not
      */
     public boolean checkPassable(Node n){
-        if (valid(n)){
-            return (tab[n.getX()][n.getY()].isPassable());
-        }
-        else return false;
+        return checkPassable(n.getX(),n.getY());
     }
 
     /**
@@ -102,10 +96,7 @@ public class Table {
     }
     
     public boolean checkOpaque(Node n){
-        if (valid(n)){
-            return (tab[n.getX()][n.getY()].isOpaque());
-        }
-        else return false;
+        return checkPassable(n.getX(),n.getY());
     }
     
     public boolean checkOpaque(int x, int y){
@@ -157,6 +148,7 @@ public class Table {
      * @param y
      * @param obj
      */
+    @Deprecated
     public void add(int x, int y, Actor obj){
         if (valid(x,y)){
             if (tab[x][y].contains(obj)){
@@ -276,13 +268,7 @@ public class Table {
      * @return returns the ID of the position
      */
     public int getID(Node n){
-        if (valid(n)){
-            if (tab[n.getX()][n.getY()].getContentSize()!=0){
-                return tab[n.getX()][n.getY()].getID(0);
-            }
-            else return tab[n.getX()][n.getY()].getTerrainID();
-        }
-        else return -1;
+        return getID(n.getX(),n.getY());
     }
 
     /**
@@ -315,10 +301,7 @@ public class Table {
      * @return
      */
     public Tile getTile(Node n){
-        if (valid(n)){
-            return (tab[n.getX()][n.getY()]);
-        }
-        else return null;
+        return getTile(n.getX(),n.getY());
     }
 
     /**
@@ -353,10 +336,7 @@ public class Table {
      * @return
      */
     public Actor getActor(Node n){
-        if (valid(n)){
-            return getActor(n.getX(),n.getY());
-        }
-        else return null;
+        return getActor(n.getX(),n.getY());
     }
 
     /**

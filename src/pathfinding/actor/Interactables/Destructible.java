@@ -31,6 +31,4 @@ public class Destructible extends Interactable {
     @Override
     public void simulate(Table t) {}
 
-    @Override
-    public void print() {}
 }

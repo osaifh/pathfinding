@@ -1,12 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pathfinding.actor.Particles;
 
-import pathfinding.actor.Particles.Explosion;
-import pathfinding.actor.Particles.Bullet;
 import pathfinding.actor.Creatures.Creature;
 import pathfinding.Table.Table;
 import pathfinding.actor.Actor;

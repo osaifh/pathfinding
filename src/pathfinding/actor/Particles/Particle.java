@@ -1,6 +1,5 @@
 package pathfinding.actor.Particles;
 
-import pathfinding.Table.Table;
 import pathfinding.actor.Actor;
 import pathfinding.auxiliar.Node;
 

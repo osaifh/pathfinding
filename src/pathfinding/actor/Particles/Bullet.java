@@ -1,6 +1,5 @@
 package pathfinding.actor.Particles;
 
-import pathfinding.actor.Particles.Particle;
 import pathfinding.actor.Creatures.Creature;
 import pathfinding.Table.Table;
 import pathfinding.actor.Actor;
@@ -94,11 +93,6 @@ public class Bullet extends Particle {
                 alive = false;
             }
         }
-    }
-
-    @Override
-    public void print() {
-        System.out.println("This is a bullet");
     }
 
     @Override

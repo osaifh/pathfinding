@@ -12,6 +12,7 @@ import pathfinding.actor.Particles.*;
 import pathfinding.Table.*;
 import pathfinding.auxiliar.Node;
 import java.util.Random;
+import pathfinding.auxiliar.Constants;
 
 /**
  * This class is used to control all the parameters of the game environment like the map (table), the list of objects, the controllable character
@@ -20,12 +21,12 @@ import java.util.Random;
  */
 public class Controller {
     private boolean running, lights, lightsOn, paused;
+    private final int DAY_TIME = 2400;
     private Table tab;
     private Camera cam;
     private Player activePlayer;
     private ActorList objList, lightList;
     private int time, UIselected;
-    private int test;
     ActionListener taskPerformer = (ActionEvent e) -> {
         gameStep();
     };
@@ -38,7 +39,6 @@ public class Controller {
      * Default constructor for the controller class
      */
     public Controller() {
-        test = 0;
         running = true;
         tab = new Table();
         cam = new Camera(tab,this);
@@ -97,7 +97,7 @@ public class Controller {
      * @return returns true if it's daytime
      */
     public boolean isDay(){
-        return (time < 1200);
+        return (time < DAY_TIME/2);
     }
     
     /**
@@ -149,7 +149,7 @@ public class Controller {
         
         //updates the time value
         ++time;
-        if (time > 2400) time = 0;
+        if (time > DAY_TIME) time = 0;
     }
     
     /**
@@ -227,33 +227,33 @@ public class Controller {
             //Rule of thumb: If you're writing code over and over and over again then there's a better way to do it. ALWAYS
             switch (action) {
                 case KeyEvent.VK_LEFT:
-                    if (!cam.isLocked()) cam.getPos().moveDirection(3,1);
+                    if (!cam.isLocked()) cam.getPos().add(Constants.DIRECTIONS_WORD.get("W"));
                     break;
                 case KeyEvent.VK_RIGHT:
-                    if (!cam.isLocked()) cam.getPos().moveDirection(4,1);
+                    if (!cam.isLocked()) cam.getPos().add(Constants.DIRECTIONS_WORD.get("E"));
                     break;
                 case KeyEvent.VK_UP:
-                    if (!cam.isLocked()) cam.getPos().moveDirection(1,1);
+                    if (!cam.isLocked()) cam.getPos().add(Constants.DIRECTIONS_WORD.get("N"));
                     break;
                 case KeyEvent.VK_DOWN:
-                    if (!cam.isLocked()) cam.getPos().moveDirection(6,1);
+                    if (!cam.isLocked()) cam.getPos().add(Constants.DIRECTIONS_WORD.get("S"));
                     break;
                 case KeyEvent.VK_SPACE:
                     break;
                 case KeyEvent.VK_A:
-                    activePlayer.iMove(tab,3);
+                    activePlayer.iMove(tab,Constants.W);
                     if (cam.isLocked()) cam.updatePosition();
                     break;
                 case KeyEvent.VK_W:
-                    activePlayer.iMove(tab,1);
+                    activePlayer.iMove(tab,Constants.N);
                     if (cam.isLocked()) cam.updatePosition();
                     break;
                 case KeyEvent.VK_S:
-                    activePlayer.iMove(tab,6);
+                    activePlayer.iMove(tab,Constants.S);
                     if (cam.isLocked()) cam.updatePosition();
                     break;
                 case KeyEvent.VK_D:
-                    activePlayer.iMove(tab,4);
+                    activePlayer.iMove(tab,Constants.E);
                     if (cam.isLocked()) cam.updatePosition();
                     break;
                 case KeyEvent.VK_C:

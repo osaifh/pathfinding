@@ -3,6 +3,8 @@ package pathfinding.Table;
 import pathfinding.actor.Actor;
 import java.util.Random;
 import java.util.ArrayList;
+import pathfinding.auxiliar.Constants;
+
 /**
  * This class implements an object that contains information about an specific tile
  */
@@ -11,21 +13,7 @@ public class Tile {
     private boolean passable, opaque;
     private ArrayList<Actor> icontent;
     private Random gen = new Random();
-    
-    /**
-     * Default constructor
-     * Generates a random passable tile
-     * Has two different possible types
-     */
-    public Tile(){
-        if (gen.nextInt(2)==1) terrain_id = 0;
-        else terrain_id = 5;
-        passable = true;
-        opaque = false;
-        light_level = 100;
-        icontent = new ArrayList<>();
-    }
-    
+
     /**
      * Overloaded constructor
      * generates a new tile with an specific ID
@@ -35,7 +23,7 @@ public class Tile {
         this.terrain_id = terrain_id;
         passable = true;
         opaque = false;
-        light_level = 100;
+        light_level = Constants.MAX_LIGHT;
         icontent = new ArrayList<>();
     }
     
@@ -43,7 +31,7 @@ public class Tile {
         this.terrain_id = terrain.getId();
         this.passable = terrain.isPassable();
         this.opaque = terrain.isOpaque();
-        this.light_level = 100;
+        this.light_level = Constants.MAX_LIGHT;
         icontent = new ArrayList<>();
         if(terrain.getName().equals("grass")){
             Random random = new Random();

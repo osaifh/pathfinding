@@ -74,13 +74,4 @@ public class Memory {
         return size;
     }
     
-    /**
-     *
-     */
-    public void print(){
-        for (int i = 0; i < size; ++i){
-            System.out.println("Position " + i + " contains ");
-            content[i].print();
-        }
-    }
 }

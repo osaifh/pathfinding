@@ -8,14 +8,14 @@ import java.util.ArrayList;
  */
 public class ActorList {
     private ArrayList<Actor> list;
-    private ArrayList<Boolean> active_list;
+    private ArrayList<Boolean> activeList;
     
     /**
      *
      */
     public ActorList(){
         list = new ArrayList<>();
-        active_list = new ArrayList<>();
+        activeList = new ArrayList<>();
     }
     
     /**
@@ -66,7 +66,7 @@ public class ActorList {
      */
     public void add(Actor a, boolean active){
         list.add(a);
-        active_list.add(active);
+        activeList.add(active);
     }
     
     /**
@@ -75,18 +75,8 @@ public class ActorList {
      * @param t
      */
     public void remove(Actor a, Table t){
-        active_list.remove(list.indexOf(a));
+        activeList.remove(list.indexOf(a));
         list.remove(a);
-    }
-    
-    /**
-     *
-     */
-    public void print(){
-        for (int i = 0; i < list.size(); i++){
-            list.get(i).print();
-            //System.out.println(active_list.get(i));
-        }
     }
     
     /**
@@ -95,7 +85,7 @@ public class ActorList {
      */
     public void simulate(Table t){
         for (int i = 0; i < list.size(); i++){
-            if (i < active_list.size() && active_list.get(i) && list.get(i)!= null){
+            if (i < activeList.size() && activeList.get(i) && list.get(i)!= null){
                 if (!(list.get(i)).isAlive()){
                     if (list.get(i).getNode()!=null){
                         t.getTile(list.get(i).getNode()).clearMatchingContent(list.get(i));

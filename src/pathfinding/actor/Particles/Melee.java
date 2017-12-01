@@ -45,10 +45,5 @@ public class Melee extends Particle {
             if (done) alive = false;
         }
     }
-
-    @Override
-    public void print() {
-        System.out.println("melee");
-    }
     
 }

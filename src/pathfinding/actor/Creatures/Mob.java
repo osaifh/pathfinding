@@ -1,6 +1,5 @@
 package pathfinding.actor.Creatures;
 
-import pathfinding.actor.Creatures.Creature;
 import java.util.LinkedList;
 import java.util.Queue;
 import pathfinding.Table.Table;
@@ -16,8 +15,8 @@ import pathfinding.auxiliar.PairList;
 public class Mob extends Creature {
     private boolean move, asleep;
     private Node[] runpath;
-    private Memory mem, long_term;
-    private int runindex, current_action, hunger, stamina;
+    private Memory mem, longTerm;
+    private int runindex, currentAction, hunger, stamina;
     
     public Mob(int x, int y){
         id = 2;
@@ -25,9 +24,9 @@ public class Mob extends Creature {
         pos = new Node(x,y);
         move = asleep = false;
         runpath = null;
-        runindex = current_action = 0;
+        runindex = currentAction = 0;
         mem = new Memory();
-        long_term = new Memory();
+        longTerm = new Memory();
         hunger = stamina = 100;
         alive = true;
     }
@@ -94,7 +93,7 @@ public class Mob extends Creature {
                     aux.setToNode(pos);
                     aux.moveDirection(j,1);
                     if (tab.checkPassable(aux)){
-                        dir_val[j] = mem.check(aux) + long_term.check(aux)*10;
+                        dir_val[j] = mem.check(aux) + longTerm.check(aux)*10;
                         if (dir_val[j]>value_max){
                             value_max = dir_val[j];
                             max = j;
@@ -245,42 +244,42 @@ public class Mob extends Creature {
             --hunger;
             if (!asleep) --stamina;
 
-            if (current_action == 0){
-                long_term.add(pos);
+            if (currentAction == 0){
+                longTerm.add(pos);
                 if (stamina<25){
-                    current_action = 3;
+                    currentAction = 3;
                     asleep = true;
                 }
                 else if (hunger<75){
                     findID(4,tab,6);
                     if (move & runpath != null){
-                        current_action = 1;
+                        currentAction = 1;
                     } else {
                         runpath = runAway(tab);
                         if (runpath != null){
-                            current_action = 1;
+                            currentAction = 1;
                         }
                     }
                 }
                 else {
-                    current_action = 2;
+                    currentAction = 2;
                 }
             }
 
-            switch (current_action) {
+            switch (currentAction) {
                 case 1:
                     run(tab);
-                    if(!move) current_action = 0;
+                    if(!move) currentAction = 0;
                     break;
                 case 2:
                     idle(tab);
-                    if (hunger < 75 || stamina < 25) current_action = 0;
+                    if (hunger < 75 || stamina < 25) currentAction = 0;
                     break;
                 case 3:
                     sleep();
                     if (stamina >= 75){
                         asleep = false;
-                        current_action = 0;
+                        currentAction = 0;
                     }
                     break;
             }
@@ -292,13 +291,4 @@ public class Mob extends Creature {
         }
     }
     
-    /**
-     * Prints some relevant information from the creature.
-     * Used only for testing.
-     */
-    public void print() {
-        System.out.println("object ID: " + id);
-        System.out.println("position x = " + pos.getX() + " y = " + pos.getY());
-        System.out.println("Health: " + hunger + " Stamina: " + stamina);
-    }
 }

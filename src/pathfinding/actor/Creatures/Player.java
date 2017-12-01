@@ -110,9 +110,6 @@ public class Player extends Creature {
             }
         }
     }
-        
-    @Override
-    public void print(){}
     
     public void updateID(){
         switch (facing_direction) {
