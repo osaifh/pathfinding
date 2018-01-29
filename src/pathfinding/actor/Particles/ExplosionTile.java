@@ -39,7 +39,7 @@ public class ExplosionTile extends Particle {
                 ((Creature)obj).setHP(((Creature)obj).getHP()-100);
             }
         }
-        l = new LightSource(3,pos.getX(),pos.getY());
+        l = new LightSource(5,pos.getX(),pos.getY());
     }
 
     @Override

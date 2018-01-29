@@ -13,6 +13,7 @@ import pathfinding.auxiliar.Node;
  */
 public class Player extends Creature {
     private LightSource l;
+    private boolean lightToggle;
     
     public Player(int x, int y){
         id = 2;
@@ -22,6 +23,7 @@ public class Player extends Creature {
         maxHP = 100;
         hp = 100;
         l = new LightSource(6,pos.getX(),pos.getY());
+        lightToggle = true;
         sight_range = 30;
     }
     
@@ -98,10 +100,14 @@ public class Player extends Creature {
         }
     }
 
+    public void toggleLight(){
+        lightToggle = !lightToggle;
+    }
+    
     @Override
     public void simulate(Table t){
         tick_counter++;
-        l.cast_light(t);
+        if (lightToggle) l.cast_light(t);
         l.setNode(pos);
         if (tick_counter >= tick_max){
             tick_counter = 0;

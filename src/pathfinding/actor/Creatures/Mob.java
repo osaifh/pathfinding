@@ -21,6 +21,7 @@ public class Mob extends Creature {
     public Mob(int x, int y){
         id = 2;
         hp = 100;
+        maxHP = 100;
         pos = new Node(x,y);
         move = asleep = false;
         runpath = null;

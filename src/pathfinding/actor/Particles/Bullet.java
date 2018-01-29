@@ -17,8 +17,10 @@ public class Bullet extends Particle {
     private int facing_direction;
     private boolean complex;
     private Node target, origin;
-    private float m, n;
     private LightSource l;
+    // angle stuff
+    private double angle;
+    double d_x, d_y;
     
     public Bullet(Node n, int facing_direction, int speed){
         id = 4;
@@ -40,25 +42,43 @@ public class Bullet extends Particle {
         this.target = target.getNodeCopy();
         this.origin = pos;
         this.facing_direction = pos.relativeDirection(target);
-        float a = target.getX() - pos.getX();
-        float b = target.getY() - pos.getY();
-        System.out.println("a: " + a + " b: " + b);
+        //calculate the angle
+        double a = target.getY() - pos.getY();
+        double c = target.getX() - pos.getX();
+        double b = Math.sqrt(Math.abs(a*a + c*c));
+        
+        double beta =  Math.acos(
+                (a*a+c*c-b*b)
+                    /
+                (2*a*c));
+        double alpha = Math.asin(
+                (c * Math.sin(beta))
+                        /
+                (b));
+        
+        angle = alpha;
+        d_x = pos.getX();
+        d_y = pos.getY();
+        if (c == 0) angle = 0;
         if (a == 0){
-            a = 1;
+            if (c > 0)
+                angle = Math.toRadians(90);
+            else
+                angle = Math.toRadians(-90);
         }
-        m = b / a;
-        n = b - a * m;
-        System.out.println("m: " + m + " n: " + a);
+        if (a < 0) angle = Math.toRadians(180) - angle;
         l = new LightSource(3,pos.getX(),pos.getY());
     }
     
-    public void collision(Node n, Table t){
+    public boolean collision(Node n, Table t){
         if (t.valid(n) && !t.getTile(n).isEmpty()){
             Actor obj = t.getActor(n);
             if (obj instanceof Creature){
                 ((Creature)obj).setHP(((Creature)obj).getHP()-20);
+                return true;
             }
         }
+        return false;
     }
     
     @Override
@@ -71,26 +91,39 @@ public class Bullet extends Particle {
         if (tick_counter >= tick_max){
             tick_counter = 0;
             if (complex && alive){
-                int x = pos.getX()+1;
-                int y = (int) (m*x +n);
+                d_y += Math.cos(angle);
+                d_x += Math.sin(angle);
+                
+                int x = (int) Math.round(d_x);
+                int y = (int) Math.round(d_y);
                 Node next = new Node(x,y);
-                //System.out.println();
-                //pos.iMove(t, next);
-                facing_direction = pos.relativeDirection(next);
+                t.getTile(pos).clearMatchingContent(this);
+                if (collision(next, t)) alive = false;
+                if (pos.iMove(t, next)){
+                    t.getTile(pos).addContent(this);
+                    facing_direction = pos.relativeDirection(next);
+                }
+                else {
+                    collision(next,t);
+                    alive = false;
+                }
             }
-            Node npos = new Node(pos);
-            t.getTile(pos).clearMatchingContent(this);
-            if (facing_direction == -1){
-                collision(pos,t);
-                alive = false;
-            }
-            else
-            if (npos.iMove(t, facing_direction) && t.getTile(npos).isEmpty()){
-                pos.iMove(t, facing_direction);
-                //t.getTile(npos).addContent(this);
-            } else {
-                collision(npos,t);
-                alive = false;
+            else {
+                Node npos = new Node(pos);
+                if (facing_direction == -1){
+                    collision(pos,t);
+                    alive = false;
+                }
+                else
+                if (npos.iMove(t, facing_direction) && t.getTile(npos).isEmpty()){
+                     t.getTile(pos).clearMatchingContent(this);
+                    pos.iMove(t, facing_direction);
+                    t.getTile(pos).addContent(this);
+                } else {
+                    collision(npos,t);
+                    alive = false;
+                }
+
             }
         }
     }

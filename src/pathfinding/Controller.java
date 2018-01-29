@@ -146,7 +146,7 @@ public class Controller {
         lightList.simulate(tab);
         if (!paused) objList.simulate(tab);
         cam.update();
-        
+        time = 2000;
         //updates the time value
         ++time;
         if (time > DAY_TIME) time = 0;
@@ -162,7 +162,7 @@ public class Controller {
         Node pos = new Node(x,y);
         switch (UIselected) {
             case 1:
-                Bullet b = new Bullet(activePlayer.getNode().getNodeCopy(),8,pos);
+                Bullet b = new Bullet(activePlayer.getNode().getNodeCopy(),20,pos);
                 generateActor(b);
                 break;
             case 2:
@@ -201,6 +201,12 @@ public class Controller {
                 tab.generateSquareHouse(pos.getNodeCopy(), 10, 2, lightList);
                 break;
             }
+            case 9:
+            {
+                Explosion ex = new Explosion(activePlayer,pos,tab,objList,8);
+                generateActor(ex);
+                break;
+            }
         }
     }
     public void handleMouseHover(int x, int y){
@@ -210,7 +216,6 @@ public class Controller {
             activePlayer.updateID();
         }
     }
-    
     
     /**
      * Handles the keyboard input
@@ -271,6 +276,9 @@ public class Controller {
                             ((Interactable)tab.getTile(cam.getPos()).getContent(i)).interact(tab);
                         }
                     }
+                    break;
+                case KeyEvent.VK_E:
+                   activePlayer.toggleLight();
                     break;
                 case KeyEvent.VK_P:
                     paused = !paused;

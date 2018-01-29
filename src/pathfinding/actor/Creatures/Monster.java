@@ -29,6 +29,7 @@ public class Monster extends Creature {
     public Monster(Node pos, ActorList objList, Controller controller){
         id = 2;
         hp = 100;
+        maxHP = 100;
         this.pos = pos.getNodeCopy();
         move = asleep = false;
         runpath = null;

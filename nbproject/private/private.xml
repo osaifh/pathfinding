@@ -2,18 +2,18 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="4">
         <file>
-            <url>src/pathfinding/Memory.java</url>
-            <bookmark id="4">
-                <name/>
-                <line>0</line>
-                <key/>
-            </bookmark>
-        </file>
-        <file>
             <url>src/pathfinding/Pathfinding.java</url>
             <bookmark id="1">
                 <name/>
                 <line>7</line>
+                <key/>
+            </bookmark>
+        </file>
+        <file>
+            <url>src/pathfinding/Memory.java</url>
+            <bookmark id="4">
+                <name/>
+                <line>0</line>
                 <key/>
             </bookmark>
         </file>
@@ -44,6 +44,17 @@
             <file>file:/D:/pathfinding/src/pathfinding/auxiliar/Memory.java</file>
             <file>file:/D:/pathfinding/src/pathfinding/auxiliar/Node.java</file>
         </group>
-        <group/>
+        <group>
+            <file>file:/D:/pathfinding/src/pathfinding/Controller.java</file>
+            <file>file:/D:/pathfinding/src/pathfinding/actor/Creatures/Mob.java</file>
+            <file>file:/D:/pathfinding/src/pathfinding/actor/Creatures/Player.java</file>
+            <file>file:/D:/pathfinding/src/pathfinding/actor/Particles/Bullet.java</file>
+            <file>file:/D:/pathfinding/src/pathfinding/actor/Particles/ExplosionTile.java</file>
+            <file>file:/D:/pathfinding/src/pathfinding/Table/Camera.java</file>
+            <file>file:/D:/pathfinding/src/pathfinding/actor/Particles/Explosion.java</file>
+            <file>file:/D:/pathfinding/src/pathfinding/actor/Creatures/Monster.java</file>
+            <file>file:/D:/pathfinding/src/pathfinding/Table/Table.java</file>
+            <file>file:/D:/pathfinding/src/pathfinding/actor/LightSource.java</file>
+        </group>
     </open-files>
 </project-private>

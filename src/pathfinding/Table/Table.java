@@ -96,7 +96,7 @@ public class Table {
     }
     
     public boolean checkOpaque(Node n){
-        return checkPassable(n.getX(),n.getY());
+        return checkOpaque(n.getX(),n.getY());
     }
     
     public boolean checkOpaque(int x, int y){
