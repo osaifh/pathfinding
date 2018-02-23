@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.Random;
+import pathfinding.Controller;
 import pathfinding.auxiliar.Node;
 import pathfinding.actor.Actor;
 import pathfinding.actor.ActorList;
@@ -515,6 +516,63 @@ public class Table {
         if (!target.equals(current)) return null;
         else{
             Node[] path = visitats.tracePath(current_par);
+            return path;
+        }
+    }
+    
+    public Node[] mark_iBFS (Node act_pos, Node target, Controller controller) {
+        if (!valid(target) || !getTile(target).isPassable()) return null; //early exit
+        PriorityQueue qpath = new PriorityQueue(11,node_comparator);
+        PairList visitats = new PairList();
+        Node source = act_pos;
+        Node current = act_pos;
+        NodePair current_par = new NodePair(current);
+        visitats.add(current_par);
+        NodeData current_data = new NodeData(current_par,source,target);
+        qpath.add(current_data);
+        int limit = 10000;
+        boolean first = true;
+        while (!qpath.isEmpty() & limit > 0){
+            tab[current.getX()][current.getY()].setID(Constants.SHALLOW_WATER_ID);
+            controller.gameStep();
+            try {
+                Thread.sleep(100);
+            }
+            catch (Exception ex){
+                
+            }
+            tab[current.getX()][current.getY()].setID(2);
+            if(!first){
+                current_data = (NodeData)qpath.poll();
+                current_par = current_data.getNodePar();
+                current = current_data.getNode();
+            } else first = false;
+            if (current.equals(target)) break;
+            else {
+                for (int i = -1; i < 2; ++i){
+                for (int j = -1; j < 2; ++j){
+                    if (!(i==0 & j==0) && checkPassable(current.getX() + i,current.getY() + j)){
+                        Node temp = new Node();
+                        temp.set(current.getX() + i, current.getY() + j);
+                        if (!visitats.findNode(temp)){
+                            NodePair new_par = new NodePair(temp);
+                            new_par.setSource(current_par);
+                            NodeData new_data = new NodeData(new_par,source,target);
+                            qpath.add(new_data);
+                            visitats.add(new_par);
+                        }
+                    }
+                }
+                }
+            }
+            --limit;
+        }
+        if (!target.equals(current)) return null;
+        else{
+            Node[] path = visitats.tracePath(current_par);
+            for (int i = 0; i < path.length; i++){
+                tab[path[i].getX()][path[i].getY()].setID(Constants.BLACK_ID);
+            }
             return path;
         }
     }

@@ -195,10 +195,10 @@ public class Mob extends Creature {
 
     private Node[] iFindID(Node act_pos, int id, Table tab, int distance){
         Queue qpath = new LinkedList();
-        PairList visitats = new PairList();
+        PairList visited = new PairList();
         Node current = act_pos;
         NodePair current_par = new NodePair(current);
-        visitats.add(current_par);
+        visited.add(current_par);
         qpath.add(current_par);
         int limit = 10000;
         boolean first = true;
@@ -214,11 +214,11 @@ public class Mob extends Creature {
                     Node temp = new Node();
                     temp.set(current.getX() + i, current.getY() + j);
                     if (!(i==0 & j==0) && tab.checkPassable(temp)){
-                        if (!visitats.findNode(temp)){
+                        if (!visited.findNode(temp)){
                             NodePair new_par = new NodePair(temp);
                             new_par.setSource(current_par);
                             qpath.add(new_par);
-                            visitats.add(new_par);
+                            visited.add(new_par);
                         }
                     }
                 }
@@ -228,7 +228,7 @@ public class Mob extends Creature {
         }
         if (!(tab.getID(current) == id)) return null;
         else{
-            Node[] path = visitats.tracePath(current_par);
+            Node[] path = visited.tracePath(current_par);
             return path;
         }
     }

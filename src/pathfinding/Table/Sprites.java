@@ -39,6 +39,11 @@ public class Sprites {
         SPRITE_MAP.put(Constants.GHOST_N_ID,FilePaths.ghostN);
         SPRITE_MAP.put(Constants.GHOST_E_ID,FilePaths.ghostE);
         SPRITE_MAP.put(Constants.GHOST_W_ID,FilePaths.ghostW);
+        SPRITE_MAP.put(Constants.RED_PLAYER_ID,FilePaths.oldPlayer_red);
+        SPRITE_MAP.put(Constants.BLUE_PLAYER_ID,FilePaths.oldPlayer_blue);
+        SPRITE_MAP.put(Constants.GREEN_PLAYER_ID,FilePaths.oldPlayer_green);
+        SPRITE_MAP.put(Constants.HIGHLIGHT,FilePaths.highlight);
+        
         UI_MAP = new HashMap<>();
         UI_MAP.put(0,FilePaths.blank);
         UI_MAP.put(1,FilePaths.day);

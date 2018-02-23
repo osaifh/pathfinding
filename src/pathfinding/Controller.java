@@ -4,6 +4,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
 import javax.swing.Timer;
 import pathfinding.actor.*;
 import pathfinding.actor.Creatures.*;
@@ -33,7 +34,10 @@ public class Controller {
     Timer timer = new Timer(10,taskPerformer);
     private Random rng = new Random();
     protected Controller controller = this;
-    
+    // delete this too btw
+    boolean timeStop = true;
+    //actually delete this one for sure
+    ArrayList<Rune> runeList;
 
     /**
      * Default constructor for the controller class
@@ -49,6 +53,7 @@ public class Controller {
         objList = new ActorList();
         lightList = new ActorList();
         lights = lightsOn = false;
+        runeList = new ArrayList<Rune>();
     }
     
     /**
@@ -64,7 +69,7 @@ public class Controller {
         generateActor(activePlayer);
         cam.setActivePlayer(activePlayer);
         cam.setPos(activePlayer.getNode());
-        //some temporal code, just meant to test some things
+        //some temporary code, just meant to test some things
         //will be removed later
         //for (int i = 0; i < 10; ++i) tab.generateSquareHouse(10, 1, lightList);
         //tab.generateTown(new Node(playerPos.getX()-1,playerPos.getY()-1), lightList);
@@ -146,10 +151,25 @@ public class Controller {
         lightList.simulate(tab);
         if (!paused) objList.simulate(tab);
         cam.update();
-        time = 2000;
         //updates the time value
-        ++time;
+        if(!timeStop) ++time;
         if (time > DAY_TIME) time = 0;
+    }
+    
+    //delete this function or move it eventually it's suposed to go elsewhere
+    public void primeRunes(Node n){
+        for (Rune rune : runeList) {
+            rune.Merge(tab);
+            //bullet rune
+            if (rune.getType() == 1){
+                Bullet bullet = new Bullet(rune.getNode(),20,n.getNodeCopy());
+                generateActor(bullet);
+                
+                tab.getTile(rune.getNode()).clearMatchingContent(rune);
+                objList.remove(rune, tab);
+            }
+        }
+        runeList.clear();
     }
     
     /**
@@ -162,15 +182,24 @@ public class Controller {
         Node pos = new Node(x,y);
         switch (UIselected) {
             case 1:
+                ShotSource shotSource = new ShotSource(activePlayer.getNode().getNodeCopy(),pos,tab,objList);
+                //primeRunes(pos);
+                /*testing left click to move
+                    activePlayer.BFS(pos.getX(), pos.getY(), tab, this);
+                */
+                /*
                 Bullet b = new Bullet(activePlayer.getNode().getNodeCopy(),20,pos);
                 generateActor(b);
+                */
                 break;
             case 2:
                 tab.getTile(pos).setWall();
                 break;
             case 3:
-                Door d = new Door(pos.getX(),pos.getY(), tab);
-                tab.add(d);
+                Rune rune = new Rune(pos);
+                runeList.add(rune);
+                generateActor(rune);
+                //Bullet b = new Bullet(activePlayer.getNode().getNodeCopy(),20,pos);
                 break;
             case 4:
             {
@@ -192,8 +221,8 @@ public class Controller {
             }
             case 7:
             {
-                Monster n = new Monster(pos,objList,controller);
-                generateActor(n);
+                Guard guard = new Guard(pos,objList,controller);
+                generateActor(guard);
                 break;
             }
             case 8:
@@ -285,6 +314,15 @@ public class Controller {
                     break;
                 case KeyEvent.VK_M:
                     cam.toggleShowMap();
+                    break;
+                case KeyEvent.VK_N:
+                    if(timeStop) timeStop = false;
+                    if (time<1200){
+                        time = 1000;
+                    }
+                    else {
+                        time = 2200;
+                    }
                     break;
                 case KeyEvent.VK_1:
                     UIselected = 1;

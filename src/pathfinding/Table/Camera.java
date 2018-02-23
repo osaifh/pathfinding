@@ -13,6 +13,7 @@ import javax.swing.SwingUtilities;
 import pathfinding.Controller;
 import pathfinding.auxiliar.Node;
 import pathfinding.actor.Creatures.Creature;
+import pathfinding.auxiliar.Constants;
 
 /**
  * This class is used to render what the camera currently shows.
@@ -61,9 +62,9 @@ public class Camera extends JFrame {
         this.t = t;
         panelWidth = (int) this.getBounds().getWidth();
         panelHeight = (int) this.getBounds().getHeight();
-        cameraSize = panelHeight / 32;
+        cameraSize = panelHeight / TILE_SIZE;
         visibilityTable = new boolean[cameraSize][cameraSize];
-        leftMargin = (panelWidth - cameraSize * 32) / 2;
+        leftMargin = (panelWidth - cameraSize * TILE_SIZE) / 2;
         inputTable = new JLabel[cameraSize][cameraSize];
         int x, y;
         //this just places labels over the screen to be able to handle the mouse input
@@ -71,8 +72,8 @@ public class Camera extends JFrame {
             for (int j = 0; j < cameraSize; j++) {
                 //don't do this at home kids
                 inputTable[i][j] = new JLabel();
-                x = j * 32 + leftMargin;
-                y = i * 32 - 32;
+                x = j * TILE_SIZE + leftMargin;
+                y = i * TILE_SIZE - TILE_SIZE;
                 inputTable[i][j].setBounds(x, y, TILE_SIZE, TILE_SIZE);
                 inputTable[i][j].setHorizontalAlignment(JLabel.RIGHT);
 
@@ -273,8 +274,8 @@ public class Camera extends JFrame {
                 x = i + (position.getX() - (cameraSize / 2));
                 y = j + (position.getY() - (cameraSize / 2));
                 //drawX and drawY are the coordinates in which we draw the tiles
-                drawX = j * 32 + leftMargin;
-                drawY = i * 32;
+                drawX = j * TILE_SIZE + leftMargin;
+                drawY = i * TILE_SIZE;
                 if (t.valid(x, y)) {
                     tile = t.getTile(x, y);
                     if (visibilityTable[i][j]) {
@@ -326,7 +327,7 @@ public class Camera extends JFrame {
         Graphics2D g = (Graphics2D) bs.getDrawGraphics();
         initializeUI(g);
         int drawX, drawY;
-        drawX = leftMargin + cameraSize * 32;
+        drawX = leftMargin + cameraSize * TILE_SIZE;
         //turns out for some reason this drawY is unaligned by 4 pixels
         //it just works man
         drawY = TILE_SIZE - 4;
@@ -339,7 +340,7 @@ public class Camera extends JFrame {
                     aux = 6;
                 }
                 g.drawImage(Sprites.UI_MAP.get(aux).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
-                drawY += 32;
+                drawY += TILE_SIZE;
             }
         } //if not, set the vertical coordinate to the proper value
         else {
@@ -351,24 +352,16 @@ public class Camera extends JFrame {
             aux = 2;
         }
         g.drawImage(Sprites.UI_MAP.get(aux).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
-        drawY += 32;
+        drawY += TILE_SIZE;
         if (parentController.lightsOn()) {
             aux = 3;
         } else {
             aux = 4;
         }
         g.drawImage(Sprites.UI_MAP.get(aux).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
-        drawY += 32;
-        /*
-        for (int i = 0; i < left_UI.length; ++i){
-            if (i == (parentController.getSelected()-1)){
-                left_UI[i][0].setIcon(UI_MAP.get(5));
-            }
-            else {
-                left_UI[i][0].setIcon(null);
-            }
-        }
-         */
+        drawY += TILE_SIZE;
+        
+        //draw the left UI sometime please
         g.dispose();
         bs.show();
     }
@@ -385,7 +378,7 @@ public class Camera extends JFrame {
         for (int i = 0; i < cameraSize; ++i) {
             g.drawImage(Sprites.UI_MAP.get(0).getImage(), leftX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
             g.drawImage(Sprites.UI_MAP.get(0).getImage(), rightX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
-            drawY += 32;
+            drawY += TILE_SIZE;
         }
     }
 

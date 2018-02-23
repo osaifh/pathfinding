@@ -60,5 +60,9 @@ public class FilePaths {
     
     //old sprites
     public static ImageIcon oldPlayer = new ImageIcon(RESOURCE_PATH+"PlayerOld.png");
+    public static ImageIcon oldPlayer_red = new ImageIcon(RESOURCE_PATH+"PlayerOld_red.png");
+    public static ImageIcon oldPlayer_blue = new ImageIcon(RESOURCE_PATH+"PlayerOld_blue.png");
+    public static ImageIcon oldPlayer_green = new ImageIcon(RESOURCE_PATH+"PlayerOld_green.png");
+    public static ImageIcon highlight = new ImageIcon(RESOURCE_PATH+"highlight.png");
     
 }

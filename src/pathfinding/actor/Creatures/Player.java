@@ -1,6 +1,6 @@
 package pathfinding.actor.Creatures;
 
-import pathfinding.actor.Creatures.Creature;
+import pathfinding.Controller;
 import pathfinding.Table.Camera;
 import pathfinding.Table.Table;
 import pathfinding.actor.Actor;
@@ -14,6 +14,10 @@ import pathfinding.auxiliar.Node;
 public class Player extends Creature {
     private LightSource l;
     private boolean lightToggle;
+    //temp stuff
+    private boolean running;
+    private int runindex;
+    private Node[] runpath;
     
     public Player(int x, int y){
         id = 2;
@@ -104,12 +108,40 @@ public class Player extends Creature {
         lightToggle = !lightToggle;
     }
     
+    public void BFS(int x, int y, Table tab, Controller controller){
+        Node[] path = tab.mark_iBFS(pos, new Node(x,y), controller);
+        if (path!= null){
+            runpath = path;
+            running = true;
+            runindex = 1;
+        } else {
+            runpath = null;
+        }
+    }
+    
+    public void run(Table tab){
+        if (running && runpath.length > 0 && runindex < runpath.length){
+            if (tab.getTile(runpath[runindex]).isPassable()){
+                iMove(tab,runpath[runindex]);
+
+                if (tab.getTile(pos).containsID(4)){
+                    tab.getTile(pos).clearMatchingContent(4);
+                }
+                if (runindex == runpath.length-1) running = false;
+                else ++runindex;
+            } else {
+                running = false;
+            }
+        }
+    }
+    
     @Override
     public void simulate(Table t){
-        tick_counter++;
+        tick_counter+=3;
         if (lightToggle) l.cast_light(t);
         l.setNode(pos);
         if (tick_counter >= tick_max){
+            run(t);
             tick_counter = 0;
             if (hp <= 0){
                 alive = false;

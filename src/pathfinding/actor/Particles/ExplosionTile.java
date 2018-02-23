@@ -14,8 +14,8 @@ import pathfinding.auxiliar.Node;
  */
 public class ExplosionTile extends Particle {
     private int tick_counter = 0;
-    private final int tick_max = 10;
-    private int life = 20;
+    private final int tick_max = 5;
+    private int life = 10;
     private ArrayList<Node> t_list;
     private Explosion source;
     private ExplosionTile previous;
@@ -39,7 +39,7 @@ public class ExplosionTile extends Particle {
                 ((Creature)obj).setHP(((Creature)obj).getHP()-100);
             }
         }
-        l = new LightSource(5,pos.getX(),pos.getY());
+        l = new LightSource(3,pos.getX(),pos.getY());
     }
 
     @Override

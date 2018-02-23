@@ -51,7 +51,7 @@ public class LightSource implements Actor {
      * @param x
      */
     public void set_intensity(int x){
-        intensity += x;
+        intensity = x;
     }
     
     /**

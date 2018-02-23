@@ -1,8 +1,5 @@
 package pathfinding.actor.Creatures;
 
-import pathfinding.actor.Creatures.Player;
-import pathfinding.actor.Creatures.Creature;
-import java.util.ArrayList;
 import pathfinding.Table.Table;
 import pathfinding.actor.Actor;
 import pathfinding.actor.ActorList;

@@ -6,27 +6,26 @@ import pathfinding.Controller;
 import pathfinding.Table.Table;
 import pathfinding.actor.Actor;
 import pathfinding.actor.ActorList;
+import pathfinding.actor.Particles.Highlight;
 import pathfinding.actor.Particles.Melee;
+import pathfinding.actor.Particles.ShotSource;
 import pathfinding.auxiliar.Memory;
 import pathfinding.auxiliar.Node;
 import pathfinding.auxiliar.NodePair;
 import pathfinding.auxiliar.PairList;
 import pathfinding.auxiliar.Constants;
-/**
- *
- * @author Alumne
- */
-public class Monster extends Creature {
+
+public class Guard extends Creature {
     private boolean move, asleep;
     private Node[] runpath;
     private Memory mem, longTerm;
-    private int runindex, current_action, hunger, stamina;
+    private int runindex, current_action, hunger, stamina, aggroRange;
     private Actor target;
     private ActorList objList;
     private final int tick_max = 15;
     private Controller controller;
     
-    public Monster(Node pos, ActorList objList, Controller controller){
+    public Guard(Node pos, ActorList objList, Controller controller){
         id = 2;
         hp = 100;
         maxHP = 100;
@@ -40,6 +39,8 @@ public class Monster extends Creature {
         alive = true;
         this.objList = objList;
         this.controller = controller;
+        sight_range = 30;
+        aggroRange = 10;
     }
     
     /**
@@ -65,7 +66,7 @@ public class Monster extends Creature {
      */
     public void run(Table tab){
         if (move && runpath.length > 0 && runindex < runpath.length){
-            if (tab.getTile(runpath[runindex]).isPassable()){
+            if (tab.getTile(runpath[runindex]).isPassable() && tab.getTile(runpath[runindex]).getLight()>=20){
                 iMove(tab,runpath[runindex]);
 
                 if (tab.getTile(pos).containsID(4)){
@@ -134,19 +135,10 @@ public class Monster extends Creature {
      */
     private void idle(Table tab){
         int decision = randint.nextInt(2);
-        if (decision == 0){
-            iMove(tab,randint.nextInt(8));
-            /*
-            Node next_step = new Node();
-            do {
-                decision = randint.nextInt(8);
-                next_step.setToNode(pos);
-                next_step.moveDirection(decision,1);
-            } while (!tab.checkPassable(next_step));
-            tab.getTile(pos).clearMatchingContent(this);
-            pos = next_step;
-            tab.getTile(pos).addContent(this);
-            */
+        Node next = pos.getNodeCopy();
+        next.add(Constants.DIRECTIONS.get(randint.nextInt(8)));
+        if (tab.getTile(next).getLight()>=20){
+            iMove(tab,next);
         }
     }
     
@@ -277,6 +269,11 @@ public class Monster extends Creature {
                 
                 Node delta = new Node(currentX,currentY);
                 if (Node.distance(pos,delta) <= range  && tab.getTile(delta).getLight()>=20){
+                    //DELETE THIS ONE
+                    /*Highlight highlight = new Highlight(delta);
+                    tab.add(highlight);
+                    objList.add(highlight, true);*/
+                    //wow this is so bad actually
                     if (tab.getTile(delta).getContentSize()!=0){
                         for (int i = 0; i < tab.getTile(delta).getContentSize() && target == null; ++i){
                             Actor obj = tab.getTile(delta).getContent(i);
@@ -307,12 +304,8 @@ public class Monster extends Creature {
     }
     
     private void attackTarget(Table tab){
-        facing_direction = pos.relativeDirection(target.getNode());
-        if (facing_direction != -1){
-            Melee m = new Melee(2,1,this,objList,tab);
-            objList.add(m, true);
-            tab.add(m);
-        }
+        ShotSource shotSource = new ShotSource(pos.getNodeCopy(),target.getNode().getNodeCopy(),tab,objList);
+        
     }
     
     private void chaseTarget(Table tab){
@@ -373,15 +366,16 @@ public class Monster extends Creature {
      */
     @Override
     public void simulate(Table tab) {
-        tick_counter ++;
+        tick_counter++;
         if (tick_counter >= tick_max){
             tick_counter = 0;
             --hunger;
             //if (!asleep) --stamina;
-            lookAround(tab,8);
+            lookAround(tab,sight_range);
             if (current_action == 0){
                 longTerm.add(pos);
                 if (target==null){
+                    /*
                     if (stamina<25){
                         current_action = 3;
                         asleep = true;
@@ -390,10 +384,13 @@ public class Monster extends Creature {
                         findID(4,tab,6);
                         if (move & runpath != null) current_action = 1;
                         else {
-                            runpath = runAway(tab);
-                            if (runpath != null) current_action = 1;
+                            //runpath = runAway(tab);
+                            current_action = 4;
+                            //if (runpath != null) current_action = 1;
                         }
-                    } else current_action = 4;
+                    } 
+                    else */
+                        current_action = 4;
                 }
                 else {
                     if (!move) current_action = 2;
@@ -402,30 +399,33 @@ public class Monster extends Creature {
             }
 
             switch (current_action) {
+                //chase
                 case 1:
-                    if (target!= null && !controller.isDay() && Node.ManhattanDistance(pos, target.getNode())<=2){
-                        move = false;
-                        current_action = 2;
-                    } else {
+                    id = Constants.BLUE_PLAYER_ID;
+                    if (move){
                         run(tab);
-                        if(!move) current_action = 0;
+                    }
+                    if (target != null && Node.ManhattanDistance(pos, target.getNode()) <= aggroRange) {
+                            move = false;
+                            current_action = 2;
+                    }
+                    else if (!move){
+                        current_action = 4;
                     }
                     break;
+                //attack
                 case 2:
-                    if (controller.isDay()){
-                        runpath = runAwayFromTarget(tab);
-                        if (runpath!= null) current_action = 1;
+                    id = Constants.RED_PLAYER_ID;
+                    if (target != null && Node.ManhattanDistance(pos, target.getNode()) <= aggroRange){
+                        attackTarget(tab);
                     } else {
-                        if (target != null && Node.ManhattanDistance(pos, target.getNode())<= 2){
-                            attackTarget(tab);
-                        } else {
-                            chaseTarget(tab);
-                            current_action = 1;
-                        }
-                        target = null;
-                        if (hunger < 75 || stamina < 25) current_action = 0;
+                        chaseTarget(tab);
+                        current_action = 1;
                     }
+                    target = null;
+                    if (hunger < 75 || stamina < 25) current_action = 0;
                     break;
+                //sleep
                 case 3:
                     sleep();
                     if (stamina >= 75){
@@ -433,7 +433,9 @@ public class Monster extends Creature {
                         current_action = 0;
                     }
                     break;
+                //idle
                 case 4:
+                    id = Constants.GREEN_PLAYER_ID;
                     idle(tab);
                     current_action = 0;
                     break;
@@ -445,5 +447,5 @@ public class Monster extends Creature {
             }
         }
     }
-
+    
 }
