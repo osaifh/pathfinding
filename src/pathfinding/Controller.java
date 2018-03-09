@@ -173,6 +173,9 @@ public class Controller {
         runeList.clear();
     }
     
+    //used only for testing, will be deleted later
+    ArrayList<Guard> guardList = new ArrayList();
+    
     /**
      * Handles the mouse input for certain given coordinates.
      * It's called every time the user clicks a valid tile
@@ -199,15 +202,25 @@ public class Controller {
                 tab.getTile(pos).setWall();
                 break;
             case 3:
+                Node patrolNode = pos.getNodeCopy();
+                for(Guard guard : guardList){
+                    guard.addPatrolPoint(pos);
+                }
+                /*
                 Rune rune = new Rune(pos);
                 runeList.add(rune);
                 generateActor(rune);
+                */
                 //Bullet b = new Bullet(activePlayer.getNode().getNodeCopy(),20,pos);
                 break;
             case 4:
             {
+                Door door = new Door(pos.getX(),pos.getY(),tab);
+                generateActor(door);
+                /*
                 LightSource ln = new LightSource(5,pos.getX(),pos.getY());
                 lightList.add(ln,true);
+                */
                 break;
             }
             case 5:
@@ -226,6 +239,7 @@ public class Controller {
             {
                 Guard guard = new Guard(pos,objList,controller);
                 generateActor(guard);
+                guardList.add(guard);
                 break;
             }
             case 8:

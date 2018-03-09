@@ -53,13 +53,17 @@ public class ShotSource {
 
             int x = (int) Math.round(d_x);
             int y = (int) Math.round(d_y);
-            next = new Node(x,y);
-            if (table.checkPassable(next)){
-                //I definetely should stop passing the actorList around
-                ShotTile shotTile = new ShotTile(next, actorList);
-                table.add(shotTile);
-                actorList.add(shotTile, true);
-                shotTile.Collision(table);
+            
+            
+            if (next.getX() != x || next.getY() != y){
+                next = new Node(x,y);
+                if (table.checkPassable(next)){
+                    //I definetely should stop passing the actorList around
+                    ShotTile shotTile = new ShotTile(next, actorList);
+                    table.add(shotTile);
+                    actorList.add(shotTile, true);
+                    shotTile.Collision(table);
+                }
             }
         }
     }

@@ -446,9 +446,11 @@ public class Table {
         int light_level = 0;
         if (time >=0 && time<1000){
             light_level=100;
-        } else if (time>=1000 && time <= 1200){
+        } 
+        else if (time>=1000 && time <= 1200){
             light_level=100-((time/10-100)*5);
-        } else if (time>=2200 && time <= 2400){
+        } 
+        else if (time>=2200 && time <= 2400){
             light_level=(time/10-220)*5;
         }
         for (int i = 0; i < TABLE_SIZE; ++i){
@@ -520,6 +522,7 @@ public class Table {
         }
     }
     
+    //used only for testing, will be removed later
     public Node[] mark_iBFS (Node act_pos, Node target, Controller controller) {
         if (!valid(target) || !getTile(target).isPassable()) return null; //early exit
         PriorityQueue qpath = new PriorityQueue(11,node_comparator);

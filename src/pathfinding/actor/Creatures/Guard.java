@@ -1,5 +1,6 @@
 package pathfinding.actor.Creatures;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import pathfinding.Controller;
@@ -24,7 +25,8 @@ public class Guard extends Creature {
     private ActorList objList;
     private final int tick_max = 15;
     private Controller controller;
-    
+    private ArrayList<Node> patrolPoints;
+    private int currentPoint;
     
     public Guard(Node pos, ActorList objList, Controller controller){
         id = 2;
@@ -34,7 +36,7 @@ public class Guard extends Creature {
         move = asleep = false;
         runpath = null;
         runindex = 0;
-                current_action =0;
+        current_action = 0;
         mem = new Memory();
         longTerm = new Memory();
         hunger = stamina = 100;
@@ -43,6 +45,7 @@ public class Guard extends Creature {
         this.controller = controller;
         sight_range = 30;
         aggroRange = 10;
+        patrolPoints = new ArrayList();
     }
     
     /**
@@ -61,6 +64,18 @@ public class Guard extends Creature {
         return asleep;
     }
 
+    /**
+     * Returns the patrol points of a guard
+     * @return the patrol points
+     */
+    public ArrayList<Node> getPatrolPoints(){
+        return patrolPoints;
+    }
+    
+    public void addPatrolPoint(Node node){
+        if (patrolPoints.isEmpty()) currentPoint = 0;
+        patrolPoints.add(node);
+    }
     
     /**
      * Performs a single step from the planned path
@@ -271,11 +286,10 @@ public class Guard extends Creature {
                 
                 Node delta = new Node(currentX,currentY);
                 if (Node.distance(pos,delta) <= range  && tab.getTile(delta).getLight()>=20){
-                    //DELETE THIS ONE
                     if (tab.getTile(delta).getContentSize()!=0){
                         for (int i = 0; i < tab.getTile(delta).getContentSize() && target == null; ++i){
                             Actor obj = tab.getTile(delta).getContent(i);
-                            if (obj instanceof Creature){
+                            if (obj instanceof Player){
                                 target = obj;
                                 lastKnownNode = target.getNode().getNodeCopy();
                                 //tab.getTile(lastKnownNode).setID(Constants.RED_ID);
@@ -323,7 +337,6 @@ public class Guard extends Creature {
     }
     
     private Node[] runAwayFromTarget(Table tab){
-        move = true;
         runindex = 0;
         int length = 5 + randint.nextInt(6);
         Node[] newpath = new Node[length];
@@ -350,7 +363,9 @@ public class Guard extends Creature {
                 newpath[i] = npos;
             }
             else {
-                if (i == 0) return null;
+                if (i == 0){
+                    return null;
+                }
                 else {
                     Node [] resized_path = new Node[i];
                     for (int j = 0; j < i; ++j) resized_path[j] = newpath[j];
@@ -377,25 +392,30 @@ public class Guard extends Creature {
             --hunger;
             //if (!asleep) --stamina;
             lookAround(tab,sight_range);
-            
-            if (current_action == 0){
-                longTerm.add(pos);
-                if (target==null){
-                    if (lastKnownNode != null){
-                        current_action = 1;
-                    }
-                    else {
-                        current_action = 4;
-                    }
-                }
-                else {
-                    if (!move) current_action = 2;
-                    else current_action = 1;
-                }
-            }
-            
+          
 
             switch (current_action) {
+                case 0:
+                    longTerm.add(pos);
+                    if (hp < 50){
+                        current_action = 1;
+                    }
+                    else 
+                    if (target==null){
+                        if (lastKnownNode != null){
+                            current_action = 1;
+                        }
+                        else {
+                            current_action = 4;
+                        }
+                    }
+                    else {
+                        if (Node.ManhattanDistance(pos, target.getNode()) <= aggroRange){
+                            current_action = 2;
+                            move = false;
+                        }
+                        else current_action = 1;
+                    }
                 //chase
                 case 1:
                     id = Constants.BLUE_PLAYER_ID;
@@ -419,8 +439,16 @@ public class Guard extends Creature {
                 //attack
                 case 2:
                     id = Constants.RED_PLAYER_ID;
-                    if (target != null && Node.ManhattanDistance(pos, target.getNode()) <= aggroRange){
+                    if (hp < 50){
+                        runpath = runAwayFromTarget(tab);
+                        if (runpath != null){
+                            current_action = 1;
+                            move = true;
+                        }
+                    }
+                    else if (target != null && Node.ManhattanDistance(pos, target.getNode()) <= aggroRange){
                         attackTarget(tab);
+                        lastKnownNode = target.getNode().getNodeCopy();
                     } else {
                         chaseTarget(tab);
                         current_action = 1;
@@ -436,10 +464,22 @@ public class Guard extends Creature {
                         current_action = 0;
                     }
                     break;
-                //idle
+                //patrol
                 case 4:
                     id = Constants.GREEN_PLAYER_ID;
-                    idle(tab);
+                    //idle(tab);
+                    if (!patrolPoints.isEmpty()){
+                        if (currentPoint >= patrolPoints.size()){
+                            currentPoint = 0;
+                        }
+                        Node currentNode = patrolPoints.get(currentPoint);
+                        BFS(currentNode.getX(),currentNode.getY(),tab);
+                        if (move) ++currentPoint;
+                        else idle(tab);
+                    }
+                    else {
+                        idle(tab);
+                    }
                     current_action = 1;
                     break;
             }
