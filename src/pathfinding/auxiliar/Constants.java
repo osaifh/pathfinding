@@ -89,4 +89,6 @@ public class Constants {
     public static final int ROCK_ID = 108;
     public static final int GROUND_ID = 109;
     
+    //indicators
+    public static final int DAMAGE_INDICATOR = 1000;
 }

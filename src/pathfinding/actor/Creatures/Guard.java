@@ -25,6 +25,7 @@ public class Guard extends Creature {
     private final int tick_max = 15;
     private Controller controller;
     
+    
     public Guard(Node pos, ActorList objList, Controller controller){
         id = 2;
         hp = 100;
@@ -32,7 +33,8 @@ public class Guard extends Creature {
         this.pos = pos.getNodeCopy();
         move = asleep = false;
         runpath = null;
-        runindex = current_action = 0;
+        runindex = 0;
+                current_action =0;
         mem = new Memory();
         longTerm = new Memory();
         hunger = stamina = 100;
@@ -270,15 +272,14 @@ public class Guard extends Creature {
                 Node delta = new Node(currentX,currentY);
                 if (Node.distance(pos,delta) <= range  && tab.getTile(delta).getLight()>=20){
                     //DELETE THIS ONE
-                    /*Highlight highlight = new Highlight(delta);
-                    tab.add(highlight);
-                    objList.add(highlight, true);*/
-                    //wow this is so bad actually
                     if (tab.getTile(delta).getContentSize()!=0){
                         for (int i = 0; i < tab.getTile(delta).getContentSize() && target == null; ++i){
                             Actor obj = tab.getTile(delta).getContent(i);
                             if (obj instanceof Creature){
                                 target = obj;
+                                lastKnownNode = target.getNode().getNodeCopy();
+                                //tab.getTile(lastKnownNode).setID(Constants.RED_ID);
+                                current_action = 0;
                             }
                         }
                     }
@@ -360,6 +361,8 @@ public class Guard extends Creature {
         return newpath;
     }
     
+    private Node lastKnownNode;
+    
      /**
      * simulates a single step for a creature
      * @param tab
@@ -367,36 +370,30 @@ public class Guard extends Creature {
     @Override
     public void simulate(Table tab) {
         tick_counter++;
+        
+            
         if (tick_counter >= tick_max){
             tick_counter = 0;
             --hunger;
             //if (!asleep) --stamina;
             lookAround(tab,sight_range);
+            
             if (current_action == 0){
                 longTerm.add(pos);
                 if (target==null){
-                    /*
-                    if (stamina<25){
-                        current_action = 3;
-                        asleep = true;
+                    if (lastKnownNode != null){
+                        current_action = 1;
                     }
-                    else if (hunger<75){
-                        findID(4,tab,6);
-                        if (move & runpath != null) current_action = 1;
-                        else {
-                            //runpath = runAway(tab);
-                            current_action = 4;
-                            //if (runpath != null) current_action = 1;
-                        }
-                    } 
-                    else */
+                    else {
                         current_action = 4;
+                    }
                 }
                 else {
                     if (!move) current_action = 2;
                     else current_action = 1;
                 }
             }
+            
 
             switch (current_action) {
                 //chase
@@ -405,11 +402,17 @@ public class Guard extends Creature {
                     if (move){
                         run(tab);
                     }
-                    if (target != null && Node.ManhattanDistance(pos, target.getNode()) <= aggroRange) {
+                    else if (target != null && Node.ManhattanDistance(pos, target.getNode()) <= aggroRange) {
                             move = false;
                             current_action = 2;
                     }
-                    else if (!move){
+                    else if (target == null && lastKnownNode != null){
+                        //go to last known node
+                        BFS(lastKnownNode.getX(),lastKnownNode.getY(),tab);
+                        lastKnownNode = null;
+                        current_action = 1;
+                    }
+                    else {
                         current_action = 4;
                     }
                     break;
@@ -437,7 +440,7 @@ public class Guard extends Creature {
                 case 4:
                     id = Constants.GREEN_PLAYER_ID;
                     idle(tab);
-                    current_action = 0;
+                    current_action = 1;
                     break;
             }
 

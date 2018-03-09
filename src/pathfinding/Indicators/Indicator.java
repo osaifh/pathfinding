@@ -1,19 +1,17 @@
-package pathfinding.actor.Interactables;
+package pathfinding.Indicators;
 
-import pathfinding.Table.Camera;
-import pathfinding.Table.Table;
 import pathfinding.actor.Actor;
 import pathfinding.auxiliar.Node;
 
 /**
- *
- * @author Alumne
+ * Generic indicator abstract class that all indicators must extend
  */
-public abstract class Interactable implements Actor {
+abstract class Indicator implements Actor {
     Node pos;
     int id;
     boolean alive;
-    
+    final int tick_max = 15;
+    int tick_counter = 0;
     
     public Actor getActor(){
         return this;
@@ -39,10 +37,7 @@ public abstract class Interactable implements Actor {
         return pos.equals(x.getNode());
     };
     
-    public abstract void interact(Table t);    
-
     public boolean isAlive(){
         return alive;
     }
-    
 }

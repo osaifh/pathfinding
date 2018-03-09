@@ -13,6 +13,7 @@ import pathfinding.actor.Particles.*;
 import pathfinding.Table.*;
 import pathfinding.auxiliar.Node;
 import java.util.Random;
+import pathfinding.Indicators.DamageIndicator;
 import pathfinding.auxiliar.Constants;
 
 /**
@@ -183,10 +184,12 @@ public class Controller {
         switch (UIselected) {
             case 1:
                 ShotSource shotSource = new ShotSource(activePlayer.getNode().getNodeCopy(),pos,tab,objList);
+                
+                //generateActor(new DamageIndicator(100,pos));
                 //primeRunes(pos);
-                /*testing left click to move
-                    activePlayer.BFS(pos.getX(), pos.getY(), tab, this);
-                */
+                //testing left click to move
+                //activePlayer.BFS(pos.getX(), pos.getY(), tab, this);
+                
                 /*
                 Bullet b = new Bullet(activePlayer.getNode().getNodeCopy(),20,pos);
                 generateActor(b);
@@ -238,6 +241,7 @@ public class Controller {
             }
         }
     }
+    
     public void handleMouseHover(int x, int y){
         if (activePlayer!=null){
             Node pos = new Node(x,y);

@@ -2,6 +2,7 @@ package pathfinding.Table;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferStrategy;
 import java.awt.event.MouseAdapter;
@@ -11,6 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import pathfinding.Controller;
+import pathfinding.Indicators.DamageIndicator;
 import pathfinding.auxiliar.Node;
 import pathfinding.actor.Creatures.Creature;
 import pathfinding.auxiliar.Constants;
@@ -34,7 +36,6 @@ public class Camera extends JFrame {
     private JLabel[][] inputTable;
     private boolean[][] visibilityTable;
 
-    //temporal stuff: this will be changed later
     private boolean showMap = false;
 
     /**
@@ -281,9 +282,28 @@ public class Camera extends JFrame {
                     if (visibilityTable[i][j]) {
                         g.drawImage(Sprites.TERRAIN_MAP.get(tile.getTerrainID()).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
                         if (t.getActor(x, y) != null) {
+                            //draws every object in a tile
                             for (int k = 0; k < tile.getContentSize(); ++k) {
                                 if (tile.getContent(k) != null && Sprites.SPRITE_MAP.get(tile.getContent(k).getID()) != null) {
                                     g.drawImage(Sprites.SPRITE_MAP.get(tile.getContent(k).getID()).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
+                                    //SOMEONE give me a better alternative to using instaceof PLEASE
+                                    if (tile.getContent(k) instanceof Creature) {
+                                        g.setColor(Color.red);
+                                        g.fillRect(drawX, drawY, TILE_SIZE-2, 2);
+                                        g.setColor(Color.green);
+                                        int bar =  (((Creature)tile.getContent(k)).getHP() / 20) * (TILE_SIZE /5);
+                                        g.fillRect(drawX, drawY, bar, 2);
+                                    }
+                                }
+                                //draws an indicator in a tile
+                                //this is actually pretty bad and I hope there's a better way to do it
+                                if (tile.getContent(k) != null && tile.getContent(k).getID() >= Constants.DAMAGE_INDICATOR){
+                                    g.setColor(Color.BLACK);
+                                    Font font = new Font("Impact",Font.BOLD,20);
+                                    g.setFont(font);
+                                    DamageIndicator damageIndicator = (DamageIndicator)tile.getContent(k);
+                                    //why 6? because it just works
+                                    g.drawString(damageIndicator.getDamage()+"", drawX+(TILE_SIZE/6), drawY+(TILE_SIZE/2)-damageIndicator.getTicks()/2);
                                 }
                             }
                         }
@@ -295,12 +315,14 @@ public class Camera extends JFrame {
                             g.setColor(new Color(0, 0, 0, alpha));
                             g.fillRect(drawX, drawY, TILE_SIZE, TILE_SIZE);
                         }
-                    } //the coordinate is not visible to the controllable actor
+                    }
+                    //the coordinate is not visible to the controllable actor
                     else {
                         g.setColor(Color.black);
                         g.fillRect(drawX, drawY, TILE_SIZE, TILE_SIZE);
                     }
-                } //the coordinate is outside of the table
+                }
+                //the coordinate is outside of the table
                 else {
                     g.setColor(Color.black);
                     g.fillRect(drawX, drawY, TILE_SIZE, TILE_SIZE);
@@ -342,7 +364,8 @@ public class Camera extends JFrame {
                 g.drawImage(Sprites.UI_MAP.get(aux).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
                 drawY += TILE_SIZE;
             }
-        } //if not, set the vertical coordinate to the proper value
+        } 
+        //if not, set the vertical coordinate to the proper value
         else {
             drawY = TILE_SIZE * 6 - 2;
         }

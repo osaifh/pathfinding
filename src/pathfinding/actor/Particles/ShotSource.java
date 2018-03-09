@@ -55,7 +55,8 @@ public class ShotSource {
             int y = (int) Math.round(d_y);
             next = new Node(x,y);
             if (table.checkPassable(next)){
-                ShotTile shotTile = new ShotTile(next);
+                //I definetely should stop passing the actorList around
+                ShotTile shotTile = new ShotTile(next, actorList);
                 table.add(shotTile);
                 actorList.add(shotTile, true);
                 shotTile.Collision(table);
