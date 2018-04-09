@@ -24,11 +24,10 @@ public class Guard extends Creature {
     private Actor target;
     private ActorList objList;
     private final int tick_max = 15;
-    private Controller controller;
     private ArrayList<Node> patrolPoints;
     private int currentPoint;
     
-    public Guard(Node pos, ActorList objList, Controller controller){
+    public Guard(Node pos, ActorList objList){
         id = 2;
         hp = 100;
         maxHP = 100;
@@ -42,7 +41,6 @@ public class Guard extends Creature {
         hunger = stamina = 100;
         alive = true;
         this.objList = objList;
-        this.controller = controller;
         sight_range = 30;
         aggroRange = 10;
         patrolPoints = new ArrayList();

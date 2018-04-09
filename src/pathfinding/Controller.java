@@ -10,6 +10,7 @@ import pathfinding.actor.*;
 import pathfinding.actor.Creatures.*;
 import pathfinding.actor.Interactables.*;
 import pathfinding.actor.Particles.*;
+import pathfinding.actor.Skills.*;
 import pathfinding.Table.*;
 import pathfinding.auxiliar.Node;
 import java.util.Random;
@@ -41,6 +42,12 @@ public class Controller {
     //actually delete this one for sure
     ArrayList<Rune> runeList;
     private Mob trackingMob;
+    //TODO: move this into the player and each creature
+    private ArrayList<Skill> skillList;
+    
+    public ArrayList<Skill> getSkillList(){
+        return skillList;
+    }
 
     /**
      * Default constructor for the controller class
@@ -56,6 +63,9 @@ public class Controller {
         objList = new ActorList();
         lightList = new ActorList();
         lights = lightsOn = false;
+        
+        skillList = new ArrayList<Skill>();
+        skillList.add(new CreateGuardSkill());
         runeList = new ArrayList<Rune>();
     }
     
@@ -109,12 +119,14 @@ public class Controller {
         campController.getExternalNodes().forEach((node)->{
             Node ext = node.getNodeCopy();
             ext.add(1, 1);
-            Guard guard = new Guard(ext,objList,controller);
+            Guard guard = new Guard(ext,objList);
             generateActor(guard);
             campController.addGuard(guard);
         });
+        //for testing purposes only
         n.add(-1,-1);
         activePlayer.iMove(tab, n);
+        cam.updatePosition();
     }
     
     /**
@@ -192,9 +204,6 @@ public class Controller {
         runeList.clear();
     }
     
-    //used only for testing, will be deleted later
-    ArrayList<Guard> guardList = new ArrayList();
-    
     /**
      * Handles the mouse input for certain given coordinates.
      * It's called every time the user clicks a valid tile
@@ -205,6 +214,22 @@ public class Controller {
         Node pos = new Node(x,y);
         switch (UIselected) {
             case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+                if (UIselected - 1 < skillList.size()){
+                    skillList.get(UIselected-1).activate(activePlayer.getNode(), pos.getNodeCopy(), tab, objList);
+                }
+            break;
+            
+            /*
+            case 1:
                 ShotSource shotSource = new ShotSource(activePlayer.getNode().getNodeCopy(),pos,tab,objList);
                 //System.out.println(tab.getTile(pos).getTerrainID());
                 //generateActor(new DamageIndicator(100,pos));
@@ -212,34 +237,30 @@ public class Controller {
                 //testing left click to move
                // activePlayer.BFS(pos.getX(), pos.getY(), tab, this);
                 
-                /*
-                Bullet b = new Bullet(activePlayer.getNode().getNodeCopy(),20,pos);
-                generateActor(b);
-                */
+                
+                //Bullet b = new Bullet(activePlayer.getNode().getNodeCopy(),20,pos);
+                //generateActor(b);
+                
                 break;
             case 2:
                 tab.getTile(pos).setWall();
                 break;
             case 3:
-                Node patrolNode = pos.getNodeCopy();
-                for(Guard guard : guardList){
-                    guard.addPatrolPoint(pos);
-                }
-                /*
-                Rune rune = new Rune(pos);
-                runeList.add(rune);
-                generateActor(rune);
-                */
+                
+                //Rune rune = new Rune(pos);
+                //runeList.add(rune);
+                //generateActor(rune);
+                
                 //Bullet b = new Bullet(activePlayer.getNode().getNodeCopy(),20,pos);
                 break;
             case 4:
             {
                 Door door = new Door(pos.getX(),pos.getY(),tab);
                 generateActor(door);
-                /*
-                LightSource ln = new LightSource(5,pos.getX(),pos.getY());
-                lightList.add(ln,true);
-                */
+                
+                //LightSource ln = new LightSource(5,pos.getX(),pos.getY());
+                //lightList.add(ln,true);
+                
                 break;
             }
             case 5:
@@ -256,9 +277,8 @@ public class Controller {
             }
             case 7:
             {
-                Guard guard = new Guard(pos,objList,controller);
+                Guard guard = new Guard(pos,objList);
                 generateActor(guard);
-                guardList.add(guard);
                 break;
             }
             case 8:
@@ -279,6 +299,7 @@ public class Controller {
                 generateActor(ex);
                 break;
             }
+            */
         }
     }
     
@@ -370,34 +391,54 @@ public class Controller {
                     }
                     break;
                 case KeyEvent.VK_1:
-                    UIselected = 1;
+                    if (skillList.size()>0){
+                        UIselected = 1;
+                    }
                     break;
                 case KeyEvent.VK_2:
-                    UIselected = 2;
+                    if (skillList.size()>1){
+                        UIselected = 2;
+                    }
                     break;
                 case KeyEvent.VK_3:
-                    UIselected = 3;
+                    if (skillList.size()>2){
+                        UIselected = 3;
+                    }
                     break;
                 case KeyEvent.VK_4:
-                    UIselected = 4;
+                    if (skillList.size()>3){
+                        UIselected = 4;
+                    }
                     break;
                 case KeyEvent.VK_5:
-                    UIselected = 5;
+                    if (skillList.size()>4){
+                        UIselected = 5;
+                    }
                     break;
                 case KeyEvent.VK_6:
-                    UIselected = 6;
+                    if (skillList.size()>5){
+                        UIselected = 6;
+                    }
                     break;
                 case KeyEvent.VK_7:
-                    UIselected = 7;
+                    if (skillList.size()>6){
+                        UIselected = 7;
+                    }
                     break;
                 case KeyEvent.VK_8:
-                    UIselected = 8;
+                    if (skillList.size()>7){
+                        UIselected = 8;
+                    }
                     break;
                 case KeyEvent.VK_9:
-                    UIselected = 9;
+                    if (skillList.size()>8){
+                        UIselected = 9;
+                    }
                     break;
                 case KeyEvent.VK_0:
-                    UIselected = 10;
+                    if (skillList.size()>9){
+                        UIselected = 10;
+                    }
                     break;
                 default:
                     break;

@@ -28,7 +28,7 @@ public class Camera extends JFrame {
     private static int cameraSize;
     private static int cameraWidth, cameraHeight;
     private int panelWidth, panelHeight, leftMargin;
-    private Table t;
+    private Table table;
     private Node position;
     private boolean cameraLock;
     private JPanel jpanel = new JPanel();
@@ -49,7 +49,7 @@ public class Camera extends JFrame {
         //A lot of these values should probably be passed into the camera constructor. 
         //What if later down the line you want to make another camera with a different size or cameraLock off?
         //The best practice here is to overload your constructor so you can pass in arguments for these items if you'd like
-        //but have defaults when you don't need to change them. 
+        //but have defaults when you don'table need to change them. 
         this.parentController = parentController;
         cameraLock = true;
         position = new Node();
@@ -61,7 +61,7 @@ public class Camera extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setTitle("Simulation");
         setVisible(true);
-        this.t = t;
+        this.table = t;
         panelWidth = (int) this.getBounds().getWidth();
         panelHeight = (int) this.getBounds().getHeight();
         cameraSize = panelHeight / TILE_SIZE;
@@ -75,7 +75,7 @@ public class Camera extends JFrame {
         //this just places labels over the screen to be able to handle the mouse input
         for (int i = 0; i < cameraHeight; i++) {
             for (int j = 0; j < cameraWidth; j++) {
-                //don't do this at home kids
+                //don'table do this at home kids
                 inputTable[i][j] = new JLabel();
                 x = j * TILE_SIZE + leftMargin + TILE_SIZE;
                 y = i * TILE_SIZE - TILE_SIZE;
@@ -221,7 +221,7 @@ public class Camera extends JFrame {
     }
 
     /**
-     * Sets a tile of the visilibty table to b
+     * Sets a tile of the visibility table to b
      *
      * @param x the horizontal coordinate
      * @param y the vertical coordinate
@@ -236,7 +236,7 @@ public class Camera extends JFrame {
     }
 
     /**
-     * Sets a tile of the visilibty table to b
+     * Sets a tile of the visibility table to b
      *
      * @param n the node of the tile to set
      * @param b the boolean value to set the tile
@@ -281,11 +281,11 @@ public class Camera extends JFrame {
                 //drawX and drawY are the coordinates in which we draw the tiles
                 drawX = j * TILE_SIZE + leftMargin + TILE_SIZE;
                 drawY = i * TILE_SIZE;
-                if (t.valid(x, y)) {
-                    tile = t.getTile(x, y);
+                if (table.valid(x, y)) {
+                    tile = table.getTile(x, y);
                     if (visibilityTable[i][j]) {
                         g.drawImage(Sprites.TERRAIN_MAP.get(tile.getTerrainID()).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
-                        if (t.getActor(x, y) != null) {
+                        if (table.getActor(x, y) != null) {
                             //draws every object in a tile
                             for (int k = 0; k < tile.getContentSize(); ++k) {
                                 if (tile.getContent(k) != null && Sprites.SPRITE_MAP.get(tile.getContent(k).getID()) != null) {
@@ -313,8 +313,8 @@ public class Camera extends JFrame {
                                 }
                             }
                         }
-                        //only draw a rectangle if the light value isn't max
-                        //this shouldn't be needed I'm just trying to optimize I guess
+                        //only draw a rectangle if the light value isn'table max
+                        //this shouldn'table be needed I'm just trying to optimize I guess
                         if (tile.getLight() < 100) {
                             float alpha = 100 - tile.getLight();
                             alpha /= 100;
@@ -353,44 +353,11 @@ public class Camera extends JFrame {
             return;
         }
         Graphics2D g = (Graphics2D) bs.getDrawGraphics();
-        initializeUI(g);
-        int drawX, drawY;
-        drawX = leftMargin + cameraWidth * TILE_SIZE + TILE_SIZE;
-        //turns out for some reason this drawY is unaligned by 4 pixels
-        //it just works man
-        drawY = TILE_SIZE - 4;
-        int aux;
-        if (activePlayer != null && activePlayer.isAlive()) {
-            for (int i = 0; i < 5; ++i) {
-                if ((activePlayer.getHP() * 100) / activePlayer.getmaxHP() > (5 - (i + 1)) * 20) {
-                    aux = 7;
-                } else {
-                    aux = 6;
-                }
-                g.drawImage(Sprites.UI_MAP.get(aux).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
-                drawY += TILE_SIZE;
-            }
-        } 
-        //if not, set the vertical coordinate to the proper value
-        else {
-            drawY = TILE_SIZE * 6 - 2;
-        }
-        if (parentController.isDay()) {
-            aux = 1;
-        } else {
-            aux = 2;
-        }
-        g.drawImage(Sprites.UI_MAP.get(aux).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
-        drawY += TILE_SIZE;
-        if (parentController.lightsOn()) {
-            aux = 3;
-        } else {
-            aux = 4;
-        }
-        g.drawImage(Sprites.UI_MAP.get(aux).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
-        drawY += TILE_SIZE;
         
-        //draw the left UI sometime please
+        initializeUI(g);
+        drawLeftUI(g);
+        drawRightUI(g);
+        
         g.dispose();
         bs.show();
     }
@@ -410,31 +377,89 @@ public class Camera extends JFrame {
             drawY += TILE_SIZE;
         }
     }
+    
+    private void drawLeftUI(Graphics2D g){
+        int drawX, drawY;
+        drawX = leftMargin;
+        //turns out for some reason this drawY is unaligned by 4 pixels
+        //it just works man
+        drawY = TILE_SIZE - 4;
+        int aux;
+        for (int i = 0; i < parentController.getSkillList().size(); i++){
+            g.drawImage(Sprites.SPRITE_MAP.get(parentController.getSkillList().get(i).getIcon()).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
+            if (parentController.getSelected()-1 == i){
+                g.drawImage(Sprites.UI_MAP.get(5).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
+            }
+            drawY += TILE_SIZE;
+        }
+    }
+    
+    private void drawRightUI(Graphics2D g){
+        int drawX, drawY;
+        drawX = leftMargin + cameraWidth * TILE_SIZE + TILE_SIZE;
+        //turns out for some reason this drawY is unaligned by 4 pixels
+        //it just works man
+        drawY = TILE_SIZE - 4;
+        int aux;
+        if (activePlayer != null && activePlayer.isAlive()) {
+            for (int i = 0; i < 5; ++i) {
+                if ((activePlayer.getHP() * 100) / activePlayer.getmaxHP() > (5 - (i + 1)) * 20) {
+                    aux = 7;
+                } else {
+                    aux = 6;
+                }
+                g.drawImage(Sprites.UI_MAP.get(aux).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
+                drawY += TILE_SIZE;
+            }
+        } 
+        //if not, set the vertical coordinate to the proper value
+        else {
+            drawY = TILE_SIZE * 6 - 2; //where did these numbers come from?
+        }
+        if (parentController.isDay()) {
+            aux = 1;
+        } else {
+            aux = 2;
+        }
+        g.drawImage(Sprites.UI_MAP.get(aux).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
+        drawY += TILE_SIZE;
+        if (parentController.lightsOn()) {
+            aux = 3;
+        } else {
+            aux = 4;
+        }
+        g.drawImage(Sprites.UI_MAP.get(aux).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
+        drawY += TILE_SIZE;
+    }
 
+    
+    
     /**
      * Draws the minimap, which shows the global map
      *
-     * @param g an instace of Graphics2D used to draw
+     * @param g an instance of Graphics2D used to draw
      */
     private void drawMap(Graphics2D g) {
-        int size = t.getSize();
+        int size = table.getSize();
         int drawX, drawY;
         final int drawSize = 2;
         g.setColor(Color.black);
-        int camSize = TILE_SIZE * cameraSize;
-        int mapMargin = (camSize - 1000 / drawSize) / 2;
-        g.fillRect(leftMargin + mapMargin - 8, mapMargin - 8, (camSize - mapMargin * 2) + 16, (camSize - mapMargin * 2) + 16);
-        for (int i = 0; i < 1000; i += 2) {
-            for (int j = 0; j < 1000; j += 2) {
-                drawX = (j / 2) + leftMargin + mapMargin;
-                drawY = (i / 2) + mapMargin;
-                Tile tile = t.getTile(i, j);
+        int camWidth = TILE_SIZE * cameraWidth;
+        int camHeight = TILE_SIZE * cameraHeight;
+        int mapLeftMargin = (camWidth - table.getSize() / drawSize) / 2;
+        int mapTopMargin = (camHeight - table.getSize() / drawSize) / 2;
+        g.fillRect(leftMargin + mapLeftMargin - 8, mapTopMargin - 8, (camHeight - mapTopMargin * 2) + 16, (camWidth - mapLeftMargin * 2) + 16);
+        for (int i = 0; i < table.getSize(); i += 2) {
+            for (int j = 0; j < table.getSize(); j += 2) {
+                drawX = (j / 2) + leftMargin + mapLeftMargin;
+                drawY = (i / 2) + mapTopMargin;
+                Tile tile = table.getTile(i, j);
                 g.drawImage(Sprites.TERRAIN_MAP.get(tile.getTerrainID()).getImage(), drawX, drawY, 2, 2, rootPane);
             }
         }
         g.setPaint(Color.red);
         if (activePlayer != null) {
-            g.fillOval((activePlayer.getNode().getY() / 2 + leftMargin + mapMargin) - 2, (activePlayer.getNode().getX() / 2 + mapMargin) - 4, 8, 8);
+            g.fillOval((activePlayer.getNode().getY() / 2 + leftMargin + mapLeftMargin) - 2, (activePlayer.getNode().getX() / 2 + mapTopMargin) - 4, 8, 8);
         }
     }
 

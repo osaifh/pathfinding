@@ -1,10 +1,12 @@
 package pathfinding.actor.Creatures;
 
+import java.util.ArrayList;
 import pathfinding.Controller;
 import pathfinding.Table.Camera;
 import pathfinding.Table.Table;
 import pathfinding.actor.Actor;
 import pathfinding.actor.LightSource;
+import pathfinding.actor.Skills.Skill;
 import pathfinding.auxiliar.Node;
 
 /**
@@ -14,6 +16,9 @@ import pathfinding.auxiliar.Node;
 public class Player extends Creature {
     private LightSource l;
     private boolean lightToggle;
+    //testing
+    private ArrayList<Skill> skillList;
+    //TODO: add a list with cooldowns for each skill, add an "add" function that also adds an entry to the cooldown list, make simulate reduce the cooldown for each skill
     //temp stuff
     private boolean running;
     private int runindex;
@@ -31,14 +36,8 @@ public class Player extends Creature {
         sight_range = 30;
     }
     
-    @Override
-    public boolean equalNode(Actor x){
-        return pos.equals(x.getNode());
-    }
-
-    @Override
-    public boolean isAlive() {
-        return alive;
+    public ArrayList<Skill> getSkillList(){
+        return skillList;
     }
     
     /**
