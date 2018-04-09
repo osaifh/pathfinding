@@ -17,6 +17,7 @@ public class Mob extends Creature {
     private Node[] runpath;
     private Memory mem, longTerm;
     private int runindex, currentAction, hunger, stamina;
+    private Mob trackingMob;
     
     public Mob(int x, int y){
         id = 2;
@@ -48,6 +49,10 @@ public class Mob extends Creature {
         return asleep;
     }
 
+    public void setTracking(Mob mob){
+        this.trackingMob = mob;
+    }
+    
     
     /**
      * Performs a single step from the planned path
@@ -55,7 +60,9 @@ public class Mob extends Creature {
      */
     public void run(Table tab){
         if (move && runpath.length > 0 && runindex < runpath.length){
-            if (tab.getTile(runpath[runindex]).isPassable()){
+            //this disallows mobs from moving on tiles that are occupied by other creatures, and it seems to work so I might use it
+            //in other types of creatures in the future
+            if (tab.getTile(runpath[runindex]).isPassable() && tab.getTile(runpath[runindex]).isEmpty()){
                 tab.getTile(pos).clearMatchingContent(this);
                 //eating
                 if (tab.getTile(runpath[runindex]).containsID(4)){
@@ -64,11 +71,14 @@ public class Mob extends Creature {
                 }
                 pos = (runpath[runindex]);
                 tab.getTile(pos).addContent(this);
-                if (runindex == runpath.length-1) move = false;
-                else ++runindex;
+                if (runindex >= runpath.length) move = false;
+                ++runindex;
             } else {
                 move = false;
             }
+        }
+        else {
+            move = false;
         }
     }
     
@@ -244,33 +254,43 @@ public class Mob extends Creature {
             tick_counter = 0;
             --hunger;
             if (!asleep) --stamina;
-
             if (currentAction == 0){
                 longTerm.add(pos);
-                if (stamina<25){
-                    currentAction = 3;
-                    asleep = true;
-                }
-                else if (hunger<75){
-                    findID(4,tab,6);
+                if (trackingMob != null){
+                    
+                    BFS(trackingMob.getNode().getX(), trackingMob.getNode().getY(), tab);
                     if (move & runpath != null){
                         currentAction = 1;
-                    } else {
-                        runpath = runAway(tab);
-                        if (runpath != null){
-                            currentAction = 1;
-                        }
                     }
                 }
-                else {
-                    currentAction = 2;
+                if (currentAction != 1){
+                    if (stamina<25){
+                        currentAction = 3;
+                        asleep = true;
+                    }
+                    else if (hunger<75){
+                        findID(4,tab,6);
+                        if (move & runpath != null){
+                            currentAction = 1;
+                        } else {
+                            runpath = runAway(tab);
+                            if (runpath != null){
+                                currentAction = 1;
+                            }
+                        }
+                    }
+                    else {
+                        currentAction = 2;
+                    }
                 }
             }
 
             switch (currentAction) {
                 case 1:
                     run(tab);
-                    if(!move) currentAction = 0;
+                    if(!move) {
+                        currentAction = 0;
+                    }
                     break;
                 case 2:
                     idle(tab);

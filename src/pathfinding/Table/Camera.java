@@ -26,6 +26,7 @@ public class Camera extends JFrame {
 
     private final static int TILE_SIZE = 32;
     private static int cameraSize;
+    private static int cameraWidth, cameraHeight;
     private int panelWidth, panelHeight, leftMargin;
     private Table t;
     private Node position;
@@ -64,16 +65,19 @@ public class Camera extends JFrame {
         panelWidth = (int) this.getBounds().getWidth();
         panelHeight = (int) this.getBounds().getHeight();
         cameraSize = panelHeight / TILE_SIZE;
-        visibilityTable = new boolean[cameraSize][cameraSize];
-        leftMargin = (panelWidth - cameraSize * TILE_SIZE) / 2;
-        inputTable = new JLabel[cameraSize][cameraSize];
+        cameraHeight = panelHeight / TILE_SIZE;
+        cameraWidth = (panelWidth - TILE_SIZE * 2) / TILE_SIZE - 1;
+        leftMargin = ((panelWidth - TILE_SIZE * 2) % TILE_SIZE)/2 + TILE_SIZE/2;
+        visibilityTable = new boolean[cameraHeight][cameraWidth];
+        //leftMargin = (panelWidth - cameraSize * TILE_SIZE) / 2;
+        inputTable = new JLabel[cameraHeight][cameraWidth];
         int x, y;
         //this just places labels over the screen to be able to handle the mouse input
-        for (int i = 0; i < cameraSize; i++) {
-            for (int j = 0; j < cameraSize; j++) {
+        for (int i = 0; i < cameraHeight; i++) {
+            for (int j = 0; j < cameraWidth; j++) {
                 //don't do this at home kids
                 inputTable[i][j] = new JLabel();
-                x = j * TILE_SIZE + leftMargin;
+                x = j * TILE_SIZE + leftMargin + TILE_SIZE;
                 y = i * TILE_SIZE - TILE_SIZE;
                 inputTable[i][j].setBounds(x, y, TILE_SIZE, TILE_SIZE);
                 inputTable[i][j].setHorizontalAlignment(JLabel.RIGHT);
@@ -87,16 +91,16 @@ public class Camera extends JFrame {
                     @Override
                     public void mouseClicked(MouseEvent e) {
                         if (SwingUtilities.isLeftMouseButton(e)) {
-                            x = a + (position.getX() - (cameraSize / 2));
-                            y = b + (position.getY() - (cameraSize / 2));
+                            x = a + (position.getX() - (cameraHeight / 2));
+                            y = b + (position.getY() - (cameraWidth / 2));
                             parentController.handleMouseInput(x, y);
                         }
                     }
 
                     @Override
                     public void mouseEntered(MouseEvent e) {
-                        x = a + (position.getX() - (cameraSize / 2));
-                        y = b + (position.getY() - (cameraSize / 2));
+                        x = a + (position.getX() - (cameraHeight / 2));
+                        y = b + (position.getY() - (cameraWidth / 2));
                         parentController.handleMouseHover(x, y);
                     }
                 };
@@ -210,7 +214,7 @@ public class Camera extends JFrame {
      */
     public void fillVisibilityTable(boolean b) {
         for (int i = 0; i < visibilityTable.length; ++i) {
-            for (int j = 0; j < visibilityTable.length; ++j) {
+            for (int j = 0; j < visibilityTable[0].length; ++j) {
                 visibilityTable[i][j] = b;
             }
         }
@@ -224,9 +228,9 @@ public class Camera extends JFrame {
      * @param b the boolean value to set the tile
      */
     public void setVisibilityTable(int x, int y, boolean b) {
-        x += cameraSize / 2;
-        y += cameraSize / 2;
-        if (x >= 0 && x < cameraSize && y >= 0 && y < cameraSize) {
+        x += cameraHeight / 2;
+        y += cameraWidth / 2;
+        if (x >= 0 && x < cameraHeight && y >= 0 && y < cameraWidth) {
             visibilityTable[x][y] = b;
         }
     }
@@ -238,9 +242,9 @@ public class Camera extends JFrame {
      * @param b the boolean value to set the tile
      */
     public void setVisibilityTable(Node n, boolean b) {
-        int x = n.getX() + cameraSize / 2;
-        int y = n.getY() + cameraSize / 2;
-        if (x >= 0 && x < cameraSize && y >= 0 && y < cameraSize) {
+        int x = n.getX() + cameraHeight / 2;
+        int y = n.getY() + cameraWidth / 2;
+        if (x >= 0 && x < cameraHeight && y >= 0 && y < cameraWidth) {
             visibilityTable[x][y] = b;
         }
     }
@@ -269,13 +273,13 @@ public class Camera extends JFrame {
         Graphics2D g = (Graphics2D) bs.getDrawGraphics();
 
         //this draws the stuff we see
-        for (int i = 0; i < cameraSize; ++i) {
-            for (int j = 0; j < cameraSize; ++j) {
+        for (int i = 0; i < cameraHeight; ++i) {
+            for (int j = 0; j < cameraWidth; ++j) {
                 //x and y are the coordinates of the matching tiles of the table
-                x = i + (position.getX() - (cameraSize / 2));
-                y = j + (position.getY() - (cameraSize / 2));
+                x = i + (position.getX() - (cameraHeight / 2));
+                y = j + (position.getY() - (cameraWidth / 2));
                 //drawX and drawY are the coordinates in which we draw the tiles
-                drawX = j * TILE_SIZE + leftMargin;
+                drawX = j * TILE_SIZE + leftMargin + TILE_SIZE;
                 drawY = i * TILE_SIZE;
                 if (t.valid(x, y)) {
                     tile = t.getTile(x, y);
@@ -287,11 +291,13 @@ public class Camera extends JFrame {
                                 if (tile.getContent(k) != null && Sprites.SPRITE_MAP.get(tile.getContent(k).getID()) != null) {
                                     g.drawImage(Sprites.SPRITE_MAP.get(tile.getContent(k).getID()).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
                                     //SOMEONE give me a better alternative to using instaceof PLEASE
-                                    if (tile.getContent(k) instanceof Creature) {
+                                    if (tile.getContent(k) instanceof Creature && ((Creature)tile.getContent(k)).isAlive()) {
                                         g.setColor(Color.red);
                                         g.fillRect(drawX, drawY, TILE_SIZE-2, 2);
                                         g.setColor(Color.green);
-                                        int bar =  (((Creature)tile.getContent(k)).getHP() / 20) * (TILE_SIZE /5);
+                                        double max = ((Creature)tile.getContent(k)).getmaxHP();
+                                        double current = ((Creature)tile.getContent(k)).getHP();
+                                        int bar = (int) Math.round((current / max) * (TILE_SIZE));
                                         g.fillRect(drawX, drawY, bar, 2);
                                     }
                                 }
@@ -349,7 +355,7 @@ public class Camera extends JFrame {
         Graphics2D g = (Graphics2D) bs.getDrawGraphics();
         initializeUI(g);
         int drawX, drawY;
-        drawX = leftMargin + cameraSize * TILE_SIZE;
+        drawX = leftMargin + cameraWidth * TILE_SIZE + TILE_SIZE;
         //turns out for some reason this drawY is unaligned by 4 pixels
         //it just works man
         drawY = TILE_SIZE - 4;
@@ -395,10 +401,10 @@ public class Camera extends JFrame {
      * @param g an instace of Graphics2D used to draw
      */
     private void initializeUI(Graphics2D g) {
-        int rightX = leftMargin + cameraSize * TILE_SIZE;
-        int leftX = leftMargin - TILE_SIZE;
+        int rightX = leftMargin + cameraWidth * TILE_SIZE + TILE_SIZE;
+        int leftX = leftMargin;
         int drawY = TILE_SIZE - 4;
-        for (int i = 0; i < cameraSize; ++i) {
+        for (int i = 0; i < cameraHeight; ++i) {
             g.drawImage(Sprites.UI_MAP.get(0).getImage(), leftX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
             g.drawImage(Sprites.UI_MAP.get(0).getImage(), rightX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
             drawY += TILE_SIZE;

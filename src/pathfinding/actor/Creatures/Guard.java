@@ -83,7 +83,8 @@ public class Guard extends Creature {
      */
     public void run(Table tab){
         if (move && runpath.length > 0 && runindex < runpath.length){
-            if (tab.getTile(runpath[runindex]).isPassable() && tab.getTile(runpath[runindex]).getLight()>=20){
+            //tab.getTile(runpath[runindex]).isPassable() && a
+            if (tab.getTile(runpath[runindex]).getLight()>=20){
                 iMove(tab,runpath[runindex]);
 
                 if (tab.getTile(pos).containsID(4)){
@@ -183,7 +184,8 @@ public class Guard extends Creature {
      * @param tab
      */
     private void BFS(int x, int y, Table tab){
-        Node[] path = tab.iBFS(pos, new Node(x,y));
+        Node[] path = tab.iBFS(pos, new Node(x,y), false,true);
+        
         if (path!= null){
             runpath = path;
             move = true;
@@ -474,8 +476,9 @@ public class Guard extends Creature {
                         }
                         Node currentNode = patrolPoints.get(currentPoint);
                         BFS(currentNode.getX(),currentNode.getY(),tab);
-                        if (move) ++currentPoint;
-                        else idle(tab);
+                        //if (move) 
+                        ++currentPoint;
+                        if (!move) idle(tab);
                     }
                     else {
                         idle(tab);

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.Random;
 import pathfinding.Controller;
+import pathfinding.Controllers.CampController;
 import pathfinding.auxiliar.Node;
 import pathfinding.actor.Actor;
 import pathfinding.actor.ActorList;
@@ -476,8 +477,12 @@ public class Table {
         else if (n1.getTotal() < n2.getTotal()) return -1;
         else return 0;
     };
-            
+    
     public Node[] iBFS (Node act_pos, Node target) {
+        return iBFS(act_pos, target, true, false);
+    }
+            
+    public Node[] iBFS (Node act_pos, Node target, boolean allowDiagonal, boolean allowDoors) {
         if (!valid(target) || !getTile(target).isPassable()) return null; //early exit
         PriorityQueue qpath = new PriorityQueue(11,node_comparator);
         PairList visitats = new PairList();
@@ -499,7 +504,21 @@ public class Table {
             else {
                 for (int i = -1; i < 2; ++i){
                 for (int j = -1; j < 2; ++j){
-                    if (!(i==0 & j==0) && checkPassable(current.getX() + i,current.getY() + j)){
+                    if (!(i==0 & j==0) &&
+                        //is passable or is a door if doors are allowed
+                        (
+                        checkPassable(current.getX() + i,current.getY() + j)
+
+                        || (allowDoors && (
+                            (tab[current.getX()+i][current.getY()+j].getContent() != null)
+                            &&
+                            (tab[current.getX()+i][current.getY()+j].getContent() instanceof Door)
+                            )
+                        )
+                        //isn't a diagonal if diagonals are not allowed
+                        && (!allowDiagonal | (i != 0 && j != 0)))
+                        ){
+                        
                         Node temp = new Node();
                         temp.set(current.getX() + i, current.getY() + j);
                         if (!visitats.findNode(temp)){
@@ -575,9 +594,184 @@ public class Table {
             Node[] path = visitats.tracePath(current_par);
             for (int i = 0; i < path.length; i++){
                 tab[path[i].getX()][path[i].getY()].setID(Constants.BLACK_ID);
-            }
+            }  
             return path;
         }
+    }
+    
+    public Node generateCamp(CampController campController){
+        int campSize = 50;
+        Node node = new Node();
+        boolean valid;
+        //used to remember which nodes we have already checked and are not valid so we can skip some of the cases when looking for a valid node
+        boolean[][] checkTable = new boolean[TABLE_SIZE][TABLE_SIZE];
+        do {
+            node.generate(TABLE_SIZE);
+            //if the node isn't in the table of the nodes we have already checked AND isn't too close to the border
+            valid = (!checkTable[node.getX()][node.getY()] 
+                    && node.getX()<(TABLE_SIZE - campSize)
+                    && node.getY()<(TABLE_SIZE - campSize));
+            if (valid){
+                for (int i = node.getX(); i < node.getX() + campSize && valid; i++){
+                    for (int j = node.getY(); j < node.getY() + campSize && valid; j++){
+                        if (!tab[i][j].isPassable()){
+                            valid = false;
+                            //sets all the nodes that can't be valid due to having a non-passable terrain to true so we don't have to check them again
+                            for (int ii = i; ii >= i - campSize && ii >= 0; ii--){
+                                for (int jj = j; jj >= j - campSize && jj >= 0; jj--){
+                                    checkTable[ii][jj] = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } while (!valid);
+        generateCamp(node.getX(),node.getY(),campController);
+        return node;
+    }
+    
+    //put this shit in another class
+    public void generateCamp(int x, int y, CampController campController){
+        int campSize = 50;
+        int squareSize = 10;
+        boolean valid;
+        Node start = new Node(x,y);
+        int towerSize = 4;
+        
+        //generates the towers
+        //NW
+        Node auxNode = new Node(start);
+        generateSquare(towerSize, auxNode.getX(), auxNode.getY(),1);
+        auxNode.add(towerSize/2, towerSize/2);
+        campController.addExternalNode(auxNode);
+        
+        //NE
+        auxNode = new Node(start.getX()+(campSize - towerSize),start.getY());
+        generateSquare(towerSize, auxNode.getX(), auxNode.getY(),2);
+        auxNode.add(towerSize/2, towerSize/2);
+        campController.addExternalNode(auxNode);
+        
+        //SE
+        auxNode = new Node(start.getX()+(campSize - towerSize), start.getY()+(campSize - towerSize));
+        generateSquare(towerSize,auxNode.getX(), auxNode.getY() ,4);
+        auxNode.add(towerSize/2, towerSize/2);
+        campController.addExternalNode(auxNode);
+        
+        //SW
+        auxNode = new Node(start.getX(), start.getY()+(campSize - towerSize));
+        generateSquare(towerSize, auxNode.getX(), auxNode.getY() ,3);
+        auxNode.add(towerSize/2, towerSize/2);
+        campController.addExternalNode(auxNode);
+        
+        
+
+        int[][] campCenter = generateCampCenter();
+        
+        for (int i = 0; i < campCenter.length; i++){
+            for (int j = 0; j < campCenter.length; j++){
+                int id = campCenter[i][j];
+                if (id != 0){
+                    int xSquare = start.getX() + squareSize + 1 + i * 11;
+                    int ySquare = start.getY() + squareSize + 1 + j * 11;
+                    
+                    switch (id) {
+                        case 1:
+                            int HQSize = 10;
+                            generateSquare(HQSize,xSquare,ySquare,0);
+                            break;
+                        case 2:
+                            int dormSize = 5;
+                            generateSquare(dormSize,xSquare,ySquare,0);
+                            break;
+                        case 3:
+                            int kitchenSize = 5;
+                            generateSquare(kitchenSize,xSquare,ySquare,0);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+    }
+    
+    public void generateSquare(int size, int x, int y, int orientation){
+        for (int i = 0; i <= size; i++){
+            tab[x+i][y].setWall();
+            tab[x+i][y+size].setWall();
+            tab[x][y+i].setWall();
+            tab[x+size][y+i].setWall();
+        }
+        for (int i = 1; i < size; i++){
+            for (int j = 1; j < size; j++){
+                tab[x+i][y+j].setID(Constants.GROUND_ID);
+            }
+        }
+        if (orientation != 0){
+            int xx, yy;
+            switch (orientation) {
+                case 1:
+                    xx = x + (size - 1);
+                    yy = y + size;
+                    break;
+                case 2:
+                    xx = x + 1;
+                    yy = y + size;
+                    break;
+                case 3:
+                    xx = x + (size - 1);
+                    yy = y;
+                    break;
+                case 4:
+                    xx = x + 1;
+                    yy = y;
+                    break;
+                default:
+                    xx = x;
+                    yy = y;
+                    break;
+            }
+            Door door = new Door(xx,yy, this);
+            tab[xx][yy].addContent(door);
+            tab[xx][yy].setID(Constants.GROUND_ID);
+            //door.interact(this);
+        }
+    }
+    
+    public int[][] generateCampCenter(){
+        int[][] campCenter = new int[3][3];
+        int HQ = 1;
+        int dorms = 2;
+        int kitchen = 3;
+        Random random = new Random();
+        int x, y;
+        do {
+            x = random.nextInt(3);
+            y = random.nextInt(3);
+        } while (!(x==1 || y==1));
+        campCenter[x][y] = HQ;
+        boolean valid;
+        for (int id = 2; id <= 3; id++){ 
+            do {
+                valid = true;
+                x = random.nextInt(3);
+                y = random.nextInt(3);
+                for (int i = -1; i < 2 && valid; i++){
+                    for (int j = -1; j < 2 && valid; j++){
+                        if (!((i!=0) && (j!=0))){
+                           int xx = x + i;
+                           int yy = y + j;
+                           if (xx >= 0 && xx <=2 && yy >= 0 && yy <= 2){
+                               if (campCenter[xx][yy]!=0) valid = false;
+                           }
+                        }
+                    }
+                }
+            } while (!valid);
+            campCenter[x][y] = id;
+        }
+        return campCenter;
     }
     
     public void generateSquareHouse(int size, int ndoors, ActorList lightList){

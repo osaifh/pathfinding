@@ -13,6 +13,7 @@ import pathfinding.actor.Particles.*;
 import pathfinding.Table.*;
 import pathfinding.auxiliar.Node;
 import java.util.Random;
+import pathfinding.Controllers.CampController;
 import pathfinding.Indicators.DamageIndicator;
 import pathfinding.auxiliar.Constants;
 
@@ -39,6 +40,7 @@ public class Controller {
     boolean timeStop = true;
     //actually delete this one for sure
     ArrayList<Rune> runeList;
+    private Mob trackingMob;
 
     /**
      * Default constructor for the controller class
@@ -66,10 +68,13 @@ public class Controller {
         do {
             playerPos.generate(tab.getSize());
         } while ((!tab.valid(playerPos) || !tab.checkPassable(playerPos)));
+        
         activePlayer = new Player(playerPos.getX(),playerPos.getY());
         generateActor(activePlayer);
         cam.setActivePlayer(activePlayer);
         cam.setPos(activePlayer.getNode());
+        
+        generateCamp();
         //some temporary code, just meant to test some things
         //will be removed later
         //for (int i = 0; i < 10; ++i) tab.generateSquareHouse(10, 1, lightList);
@@ -96,6 +101,20 @@ public class Controller {
     public void generateActor(Actor actor){
         tab.add(actor);
         objList.add(actor, true);
+    }
+    
+    public void generateCamp(){
+        CampController campController = new CampController();
+        Node n = tab.generateCamp(campController);
+        campController.getExternalNodes().forEach((node)->{
+            Node ext = node.getNodeCopy();
+            ext.add(1, 1);
+            Guard guard = new Guard(ext,objList,controller);
+            generateActor(guard);
+            campController.addGuard(guard);
+        });
+        n.add(-1,-1);
+        activePlayer.iMove(tab, n);
     }
     
     /**
@@ -187,11 +206,11 @@ public class Controller {
         switch (UIselected) {
             case 1:
                 ShotSource shotSource = new ShotSource(activePlayer.getNode().getNodeCopy(),pos,tab,objList);
-                
+                //System.out.println(tab.getTile(pos).getTerrainID());
                 //generateActor(new DamageIndicator(100,pos));
                 //primeRunes(pos);
                 //testing left click to move
-                //activePlayer.BFS(pos.getX(), pos.getY(), tab, this);
+               // activePlayer.BFS(pos.getX(), pos.getY(), tab, this);
                 
                 /*
                 Bullet b = new Bullet(activePlayer.getNode().getNodeCopy(),20,pos);
@@ -244,7 +263,14 @@ public class Controller {
             }
             case 8:
             {
-                tab.generateSquareHouse(pos.getNodeCopy(), 10, 2, lightList);
+                Mob mob = new Mob(pos.getX(),pos.getY());
+                if (trackingMob == null) trackingMob = mob;
+                else {
+                    mob.setTracking(trackingMob);
+                    trackingMob = mob;
+                }
+                generateActor(mob);
+                //tab.generateSquareHouse(pos.getNodeCopy(), 10, 2, lightList);
                 break;
             }
             case 9:
@@ -309,6 +335,7 @@ public class Controller {
                     if (cam.isLocked()) cam.updatePosition();
                     break;
                 case KeyEvent.VK_C:
+                    //check cast
                     cam.toggleLocked((Creature)tab.getTile(cam.getPos()).getContent());
                     break;
                 case KeyEvent.VK_L:

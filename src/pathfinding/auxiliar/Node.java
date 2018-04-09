@@ -116,6 +116,11 @@ public class Node {
         this.y += n.y;
     }
     
+    public void add(int x, int y){
+        this.x += x;
+        this.y += y;
+    }
+    
     /**
      *
      * @param one
