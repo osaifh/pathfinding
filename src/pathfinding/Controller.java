@@ -66,6 +66,9 @@ public class Controller {
         
         skillList = new ArrayList<Skill>();
         skillList.add(new CreateGuardSkill());
+        skillList.add(new ShootSkill());
+        skillList.add(new CreateWallSkill());
+        skillList.add(new CreateExplosionSkill());
         runeList = new ArrayList<Rune>();
     }
     
@@ -115,7 +118,7 @@ public class Controller {
     
     public void generateCamp(){
         CampController campController = new CampController();
-        Node n = tab.generateCamp(campController);
+        Node n = tab.generateCamp(campController,lightList);
         campController.getExternalNodes().forEach((node)->{
             Node ext = node.getNodeCopy();
             ext.add(1, 1);
@@ -186,6 +189,12 @@ public class Controller {
         //updates the time value
         if(!timeStop) ++time;
         if (time > DAY_TIME) time = 0;
+        
+        skillList.forEach((skill)->{
+            if (skill.getMaxCooldown()!=0 && skill.getCurrentCooldown() > 0){
+                skill.addCurrentCooldown(-1);
+            }
+        });
     }
     
     //delete this function or move it eventually it's suposed to go elsewhere
@@ -204,6 +213,25 @@ public class Controller {
         runeList.clear();
     }
     
+    
+    private Skill activatedSkill;
+    private boolean skillToggle;
+    
+    public void handleMouseRelease(int x, int y){
+        skillToggle = false;
+    }
+    
+    public void handleMouseHover(int x, int y){
+        Node pos = new Node(x,y);
+        if (activePlayer!=null){
+            activePlayer.setFacingDirection(activePlayer.getNode().relativeDirection(pos));
+            activePlayer.updateID();
+        }
+        if (skillToggle){
+            activatedSkill.activate(activePlayer.getNode(), pos, tab, objList);
+        }
+    }
+     
     /**
      * Handles the mouse input for certain given coordinates.
      * It's called every time the user clicks a valid tile
@@ -212,23 +240,17 @@ public class Controller {
      */
     public void handleMouseInput(int x, int y){
         Node pos = new Node(x,y);
-        switch (UIselected) {
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-            case 6:
-            case 7:
-            case 8:
-            case 9:
-            case 10:
-                if (UIselected - 1 < skillList.size()){
-                    skillList.get(UIselected-1).activate(activePlayer.getNode(), pos.getNodeCopy(), tab, objList);
+        if (UIselected - 1 < skillList.size()){
+            Skill skill = skillList.get(UIselected-1);
+            if (skill.getCurrentCooldown() == 0){
+                if (skill.isToggle()){
+                    activatedSkill = skill;
+                    skillToggle = true;
                 }
-            break;
-            
-            /*
+                skill.activate(activePlayer.getNode(), pos.getNodeCopy(), tab, objList);
+            }
+        }
+        /*
             case 1:
                 ShotSource shotSource = new ShotSource(activePlayer.getNode().getNodeCopy(),pos,tab,objList);
                 //System.out.println(tab.getTile(pos).getTerrainID());
@@ -299,17 +321,11 @@ public class Controller {
                 generateActor(ex);
                 break;
             }
-            */
+            
         }
+        */
     }
     
-    public void handleMouseHover(int x, int y){
-        if (activePlayer!=null){
-            Node pos = new Node(x,y);
-            activePlayer.setFacingDirection(activePlayer.getNode().relativeDirection(pos));
-            activePlayer.updateID();
-        }
-    }
     
     /**
      * Handles the keyboard input
@@ -356,7 +372,7 @@ public class Controller {
                     if (cam.isLocked()) cam.updatePosition();
                     break;
                 case KeyEvent.VK_C:
-                    //check cast
+                    //TODO: check before casting
                     cam.toggleLocked((Creature)tab.getTile(cam.getPos()).getContent());
                     break;
                 case KeyEvent.VK_L:

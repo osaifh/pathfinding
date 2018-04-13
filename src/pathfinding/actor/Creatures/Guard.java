@@ -392,7 +392,9 @@ public class Guard extends Creature {
             --hunger;
             //if (!asleep) --stamina;
             lookAround(tab,sight_range);
-          
+            if (move && target != null){
+                current_action = 0;
+            }
 
             switch (current_action) {
                 case 0:

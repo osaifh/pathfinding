@@ -77,7 +77,7 @@ public class Constants {
     //terrain
     public static final int BLACK_ID = -1;
     public static final int WALL_ID = 1;
-    public static final int RED_ID = 2;
+    public static final int RED_ID = 3;
     public static final int DEEP_WATER_ID = 100;
     public static final int WATER_ID = 101;
     public static final int SHALLOW_WATER_ID = 102;

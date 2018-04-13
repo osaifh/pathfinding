@@ -15,6 +15,7 @@ import pathfinding.Controller;
 import pathfinding.Indicators.DamageIndicator;
 import pathfinding.auxiliar.Node;
 import pathfinding.actor.Creatures.Creature;
+import pathfinding.actor.Skills.Skill;
 import pathfinding.auxiliar.Constants;
 
 /**
@@ -75,7 +76,7 @@ public class Camera extends JFrame {
         //this just places labels over the screen to be able to handle the mouse input
         for (int i = 0; i < cameraHeight; i++) {
             for (int j = 0; j < cameraWidth; j++) {
-                //don'table do this at home kids
+                //don't do this at home kids
                 inputTable[i][j] = new JLabel();
                 x = j * TILE_SIZE + leftMargin + TILE_SIZE;
                 y = i * TILE_SIZE - TILE_SIZE;
@@ -89,7 +90,7 @@ public class Camera extends JFrame {
                     int x, y;
 
                     @Override
-                    public void mouseClicked(MouseEvent e) {
+                    public void mousePressed(MouseEvent e) {
                         if (SwingUtilities.isLeftMouseButton(e)) {
                             x = a + (position.getX() - (cameraHeight / 2));
                             y = b + (position.getY() - (cameraWidth / 2));
@@ -103,6 +104,14 @@ public class Camera extends JFrame {
                         y = b + (position.getY() - (cameraWidth / 2));
                         parentController.handleMouseHover(x, y);
                     }
+                    
+                    @Override
+                    public void mouseReleased(MouseEvent e){
+                        x = a + (position.getX() - (cameraHeight / 2));
+                        y = b + (position.getY() - (cameraWidth / 2));
+                        parentController.handleMouseRelease(x, y);
+                    }
+                    
                 };
                 inputTable[i][j].addMouseListener(mAdapter);
                 this.add(inputTable[i][j]);
@@ -284,7 +293,7 @@ public class Camera extends JFrame {
                 if (table.valid(x, y)) {
                     tile = table.getTile(x, y);
                     if (visibilityTable[i][j]) {
-                        g.drawImage(Sprites.TERRAIN_MAP.get(tile.getTerrainID()).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
+                        g.drawImage(Sprites.SPRITE_MAP.get(tile.getTerrainID()).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
                         if (table.getActor(x, y) != null) {
                             //draws every object in a tile
                             for (int k = 0; k < tile.getContentSize(); ++k) {
@@ -386,10 +395,18 @@ public class Camera extends JFrame {
         drawY = TILE_SIZE - 4;
         int aux;
         for (int i = 0; i < parentController.getSkillList().size(); i++){
-            g.drawImage(Sprites.SPRITE_MAP.get(parentController.getSkillList().get(i).getIcon()).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
+            Skill skill = parentController.getSkillList().get(i);
+            g.drawImage(Sprites.SPRITE_MAP.get(skill.getIcon()).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
+            if (skill.getMaxCooldown() != 0 && skill.getCurrentCooldown() != 0){
+                float alpha = 0.5f;
+                g.setColor(new Color(0, 0, 0, alpha));
+                int height = skill.getCurrentCooldown() * TILE_SIZE / skill.getMaxCooldown();
+                g.fillRect(drawX, drawY + (TILE_SIZE - height), TILE_SIZE , height);
+            }
             if (parentController.getSelected()-1 == i){
                 g.drawImage(Sprites.UI_MAP.get(5).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
             }
+            
             drawY += TILE_SIZE;
         }
     }
@@ -401,7 +418,8 @@ public class Camera extends JFrame {
         //it just works man
         drawY = TILE_SIZE - 4;
         int aux;
-        if (activePlayer != null && activePlayer.isAlive()) {
+        // && activePlayer.isAlive()
+        if (activePlayer != null) {
             for (int i = 0; i < 5; ++i) {
                 if ((activePlayer.getHP() * 100) / activePlayer.getmaxHP() > (5 - (i + 1)) * 20) {
                     aux = 7;
@@ -454,7 +472,7 @@ public class Camera extends JFrame {
                 drawX = (j / 2) + leftMargin + mapLeftMargin;
                 drawY = (i / 2) + mapTopMargin;
                 Tile tile = table.getTile(i, j);
-                g.drawImage(Sprites.TERRAIN_MAP.get(tile.getTerrainID()).getImage(), drawX, drawY, 2, 2, rootPane);
+                g.drawImage(Sprites.SPRITE_MAP.get(tile.getTerrainID()).getImage(), drawX, drawY, 2, 2, rootPane);
             }
         }
         g.setPaint(Color.red);

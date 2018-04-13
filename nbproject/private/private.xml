@@ -46,16 +46,14 @@
         </group>
         <group>
             <file>file:/D:/pathfinding/src/pathfinding/Controller.java</file>
-            <file>file:/D:/pathfinding/src/pathfinding/actor/Creatures/Mob.java</file>
             <file>file:/D:/pathfinding/src/pathfinding/auxiliar/Constants.java</file>
-            <file>file:/D:/pathfinding/src/pathfinding/Controllers/CampController.java</file>
-            <file>file:/D:/pathfinding/src/pathfinding/actor/Creatures/Player.java</file>
-            <file>file:/D:/pathfinding/src/pathfinding/Table/Sprites.java</file>
+            <file>file:/D:/pathfinding/src/pathfinding/actor/Skills/CreateGuardSkill.java</file>
             <file>file:/D:/pathfinding/src/pathfinding/Table/Camera.java</file>
-            <file>file:/D:/pathfinding/src/pathfinding/actor/Creatures/Monster.java</file>
+            <file>file:/D:/pathfinding/src/pathfinding/Table/Tile.java</file>
+            <file>file:/D:/pathfinding/src/pathfinding/Pathfinding.java</file>
             <file>file:/D:/pathfinding/src/pathfinding/Table/Table.java</file>
             <file>file:/D:/pathfinding/src/pathfinding/actor/Creatures/Guard.java</file>
-            <file>file:/D:/pathfinding/src/pathfinding/auxiliar/Node.java</file>
+            <file>file:/D:/pathfinding/src/pathfinding/actor/Skills/ShootSkill.java</file>
         </group>
     </open-files>
 </project-private>

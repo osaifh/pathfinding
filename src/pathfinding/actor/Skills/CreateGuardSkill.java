@@ -10,6 +10,7 @@ public class CreateGuardSkill extends Skill {
     
     public CreateGuardSkill(){
         this.icon = Constants.RED_PLAYER_ID;
+        this.toggle = false;
     }
 
     @Override

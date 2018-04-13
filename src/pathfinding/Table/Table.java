@@ -599,12 +599,13 @@ public class Table {
         }
     }
     
-    public Node generateCamp(CampController campController){
+    public Node generateCamp(CampController campController, ActorList lightList){
         int campSize = 50;
         Node node = new Node();
         boolean valid;
         //used to remember which nodes we have already checked and are not valid so we can skip some of the cases when looking for a valid node
         boolean[][] checkTable = new boolean[TABLE_SIZE][TABLE_SIZE];
+        //TODO: limit the amount of tries because it could technically loop forever if there were no valid positions for a camp
         do {
             node.generate(TABLE_SIZE);
             //if the node isn't in the table of the nodes we have already checked AND isn't too close to the border
@@ -627,12 +628,12 @@ public class Table {
                 }
             }
         } while (!valid);
-        generateCamp(node.getX(),node.getY(),campController);
+        generateCamp(node.getX(),node.getY(),campController,lightList);
         return node;
     }
     
     //put this shit in another class
-    public void generateCamp(int x, int y, CampController campController){
+    public void generateCamp(int x, int y, CampController campController, ActorList lightList){
         int campSize = 50;
         int squareSize = 10;
         boolean valid;
@@ -645,27 +646,29 @@ public class Table {
         generateSquare(towerSize, auxNode.getX(), auxNode.getY(),1);
         auxNode.add(towerSize/2, towerSize/2);
         campController.addExternalNode(auxNode);
+        lightList.add(new LightSource(towerSize*3,auxNode.getX(),auxNode.getY()), true);
         
         //NE
         auxNode = new Node(start.getX()+(campSize - towerSize),start.getY());
         generateSquare(towerSize, auxNode.getX(), auxNode.getY(),2);
         auxNode.add(towerSize/2, towerSize/2);
         campController.addExternalNode(auxNode);
+        lightList.add(new LightSource(towerSize*3,auxNode.getX(),auxNode.getY()), true);
         
         //SE
         auxNode = new Node(start.getX()+(campSize - towerSize), start.getY()+(campSize - towerSize));
         generateSquare(towerSize,auxNode.getX(), auxNode.getY() ,4);
         auxNode.add(towerSize/2, towerSize/2);
         campController.addExternalNode(auxNode);
+        lightList.add(new LightSource(towerSize*3,auxNode.getX(),auxNode.getY()), true);
         
         //SW
         auxNode = new Node(start.getX(), start.getY()+(campSize - towerSize));
         generateSquare(towerSize, auxNode.getX(), auxNode.getY() ,3);
         auxNode.add(towerSize/2, towerSize/2);
         campController.addExternalNode(auxNode);
+        lightList.add(new LightSource(towerSize*3,auxNode.getX(),auxNode.getY()), true);
         
-        
-
         int[][] campCenter = generateCampCenter();
         
         for (int i = 0; i < campCenter.length; i++){
