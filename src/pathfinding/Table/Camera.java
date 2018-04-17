@@ -382,7 +382,9 @@ public class Camera extends JFrame {
         int drawY = TILE_SIZE - 4;
         for (int i = 0; i < cameraHeight; ++i) {
             g.drawImage(Sprites.UI_MAP.get(0).getImage(), leftX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
-            g.drawImage(Sprites.UI_MAP.get(0).getImage(), rightX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
+            if (i > 4){
+                g.drawImage(Sprites.UI_MAP.get(0).getImage(), rightX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
+            }
             drawY += TILE_SIZE;
         }
     }
@@ -411,29 +413,60 @@ public class Camera extends JFrame {
         }
     }
     
+    //testing some stuff
+    private float lastPer = -1;
+    private final int BAR_SIZE = TILE_SIZE * 5;
+    private final float FADE_RATE = 0.005f;
+    private final int TOP_MARGIN = 4;
+    private final int BAR_MARGIN = 2;
+    private final int BAR_WIDTH = TILE_SIZE - 4;
+    
     private void drawRightUI(Graphics2D g){
         int drawX, drawY;
         drawX = leftMargin + cameraWidth * TILE_SIZE + TILE_SIZE;
-        //turns out for some reason this drawY is unaligned by 4 pixels
-        //it just works man
-        drawY = TILE_SIZE - 4;
-        int aux;
-        // && activePlayer.isAlive()
+        drawY = TILE_SIZE - TOP_MARGIN;
+        
         if (activePlayer != null) {
-            for (int i = 0; i < 5; ++i) {
-                if ((activePlayer.getHP() * 100) / activePlayer.getmaxHP() > (5 - (i + 1)) * 20) {
-                    aux = 7;
-                } else {
-                    aux = 6;
+            //draws the black background for the bar
+            g.setColor(Color.BLACK);
+            g.fillRect(drawX, drawY, TILE_SIZE, BAR_SIZE);
+            
+            float currentPer = (float)activePlayer.getHP()/(float)activePlayer.getmaxHP();
+            if (currentPer > 0){
+                int currentHeight = (int)Math.round(currentPer*BAR_SIZE);
+                int hpBarHeight = BAR_SIZE - currentHeight;
+                
+                //draws the life bar
+                g.setColor(Color.GREEN);
+                g.fillRect(drawX+BAR_MARGIN, drawY + hpBarHeight, BAR_WIDTH, currentHeight);
+                
+                if (lastPer != -1){
+                    if (lastPer > currentPer){
+                        float diffPer = lastPer - currentPer;
+                        int currHeight = (int)Math.round(diffPer*BAR_SIZE);
+                        int yOffset = BAR_SIZE - currentHeight - currHeight;
+                        
+                        //draws a fading grey bar whenever the hitpoints are reduced
+                        g.setColor(Color.GRAY);
+                        g.fillRect(drawX+BAR_MARGIN, drawY + yOffset, BAR_WIDTH, currHeight);
+                        
+                        //reduces the size of the bar by reducing the percentage by a certain fade rate
+                        lastPer -= FADE_RATE;
+                        
+                        if (lastPer < currentPer) lastPer = currentPer;
+                    }
+                    else {
+                        lastPer = currentPer;
+                    }
                 }
-                g.drawImage(Sprites.UI_MAP.get(aux).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
-                drawY += TILE_SIZE;
+                else {
+                    lastPer = currentPer;
+                }
             }
         } 
-        //if not, set the vertical coordinate to the proper value
-        else {
-            drawY = TILE_SIZE * 6 - 2; //where did these numbers come from?
-        }
+        
+        drawY+= BAR_SIZE;
+        int aux;
         if (parentController.isDay()) {
             aux = 1;
         } else {
