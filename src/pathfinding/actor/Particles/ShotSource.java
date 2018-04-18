@@ -39,8 +39,10 @@ public class ShotSource {
         }
         if (a < 0) angle = Math.toRadians(180) - angle;
         //random stuff delete this later or something
+        /*
         if (Constants.RANDOM.nextInt(10)<5)
             angle += Math.toRadians(Constants.RANDOM.nextInt(31) - 15);
+            */
         TraceShot(table,actorList);
     }
     

@@ -432,13 +432,15 @@ public class Camera extends JFrame {
             g.fillRect(drawX, drawY, TILE_SIZE, BAR_SIZE);
             
             float currentPer = (float)activePlayer.getHP()/(float)activePlayer.getmaxHP();
-            if (currentPer > 0){
+            //if (currentPer > 0){
                 int currentHeight = (int)Math.round(currentPer*BAR_SIZE);
                 int hpBarHeight = BAR_SIZE - currentHeight;
                 
                 //draws the life bar
-                g.setColor(Color.GREEN);
-                g.fillRect(drawX+BAR_MARGIN, drawY + hpBarHeight, BAR_WIDTH, currentHeight);
+                if (currentHeight > 0){
+                    g.setColor(Color.GREEN);
+                    g.fillRect(drawX+BAR_MARGIN, drawY + hpBarHeight, BAR_WIDTH, currentHeight);
+                }
                 
                 if (lastPer != -1){
                     if (lastPer > currentPer){
@@ -447,9 +449,10 @@ public class Camera extends JFrame {
                         int yOffset = BAR_SIZE - currentHeight - currHeight;
                         
                         //draws a fading grey bar whenever the hitpoints are reduced
-                        g.setColor(Color.GRAY);
-                        g.fillRect(drawX+BAR_MARGIN, drawY + yOffset, BAR_WIDTH, currHeight);
-                        
+                        if (currHeight > 0 && yOffset < BAR_SIZE){
+                            g.setColor(Color.GRAY);
+                            g.fillRect(drawX+BAR_MARGIN, drawY + yOffset, BAR_WIDTH, currHeight);
+                        }
                         //reduces the size of the bar by reducing the percentage by a certain fade rate
                         lastPer -= FADE_RATE;
                         
@@ -462,7 +465,7 @@ public class Camera extends JFrame {
                 else {
                     lastPer = currentPer;
                 }
-            }
+            //}
         } 
         
         drawY+= BAR_SIZE;
