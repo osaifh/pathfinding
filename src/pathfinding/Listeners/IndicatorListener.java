@@ -1,14 +1,22 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pathfinding.Listeners;
 
-/**
- *
- * @author Alumne
- */
+import pathfinding.Indicators.DamageIndicator;
+import pathfinding.Table.Table;
+import pathfinding.actor.ActorList;
+import pathfinding.auxiliar.Node;
+
 public class IndicatorListener {
+    private ActorList actorList;
+    private Table table;
+            
+    public IndicatorListener(ActorList actorList, Table table){
+        this.actorList = actorList;
+        this.table = table;
+    }
     
+    public void notifyCreateIndicator(Node node, int damage){
+        DamageIndicator damageIndicator = new DamageIndicator(damage, node.getNodeCopy());
+        table.getTile(node).addContent(damageIndicator);
+        actorList.add(damageIndicator, true);
+    }
 }

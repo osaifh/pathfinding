@@ -8,14 +8,10 @@ import pathfinding.actor.ActorList;
 import pathfinding.actor.LightSource;
 import pathfinding.auxiliar.Node;
 
-/**
- *
- * @author Alumne
- */
 public class ExplosionTile extends Particle {
     private int tick_counter = 0;
     private final int tick_max = 5;
-    private int life = 10;
+    private int remainingTime = 10;
     private ArrayList<Node> t_list;
     private Explosion source;
     private ExplosionTile previous;
@@ -23,6 +19,8 @@ public class ExplosionTile extends Particle {
     private boolean done;
     private ActorList objlist;
     private LightSource l;
+    private final int DAMAGE = 50;
+    private final int LIGHT_INTENSITY = 3;
     
     public ExplosionTile(Explosion source, Table t, ActorList objlist, Node pos, int count){
         t_list = new ArrayList<>();
@@ -36,18 +34,18 @@ public class ExplosionTile extends Particle {
         for (int i = 0; i < t.getTile(pos).getContentSize(); ++i){
             Actor obj = t.getTile(pos).getContent(i);
             if (obj instanceof Creature){
-                ((Creature)obj).setHP(((Creature)obj).getHP()-100);
+                ((Creature)obj).addHP(-DAMAGE);
             }
         }
-        l = new LightSource(3,pos.getX(),pos.getY());
+        l = new LightSource(LIGHT_INTENSITY,pos.getX(),pos.getY());
     }
 
     @Override
     public void simulate(Table t) {
         tick_counter++;
-        --life;
+        --remainingTime;
         l.cast_light(t);
-        if (life <= 0){
+        if (remainingTime <= 0){
             alive = false;
             l = null;
         }

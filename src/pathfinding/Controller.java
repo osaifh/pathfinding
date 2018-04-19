@@ -16,6 +16,7 @@ import pathfinding.auxiliar.Node;
 import java.util.Random;
 import pathfinding.Controllers.CampController;
 import pathfinding.Indicators.DamageIndicator;
+import pathfinding.Listeners.IndicatorListener;
 import pathfinding.auxiliar.Constants;
 
 /**
@@ -39,8 +40,6 @@ public class Controller {
     protected Controller controller = this;
     // delete this too btw
     boolean timeStop = true;
-    //actually delete this one for sure
-    ArrayList<Rune> runeList;
     private Mob trackingMob;
     //TODO: move this into the player and each creature
     private ArrayList<Skill> skillList;
@@ -66,10 +65,9 @@ public class Controller {
         
         skillList = new ArrayList<Skill>();
         skillList.add(new CreateGuardSkill());
-        skillList.add(new ShootSkill());
+        skillList.add(new ShootSkill(10));
         skillList.add(new CreateWallSkill());
         skillList.add(new CreateExplosionSkill());
-        runeList = new ArrayList<Rune>();
     }
     
     /**
@@ -84,6 +82,7 @@ public class Controller {
         
         activePlayer = new Player(playerPos.getX(),playerPos.getY());
         generateActor(activePlayer);
+        activePlayer.addIndicatorListener(new IndicatorListener(objList, tab));
         cam.setActivePlayer(activePlayer);
         cam.setPos(activePlayer.getNode());
         
@@ -123,6 +122,7 @@ public class Controller {
             Node ext = node.getNodeCopy();
             ext.add(1, 1);
             Guard guard = new Guard(ext,objList);
+            guard.addIndicatorListener(new IndicatorListener(objList,tab));
             generateActor(guard);
             campController.addGuard(guard);
         });
@@ -196,23 +196,6 @@ public class Controller {
             }
         });
     }
-    
-    //delete this function or move it eventually it's suposed to go elsewhere
-    public void primeRunes(Node n){
-        for (Rune rune : runeList) {
-            rune.Merge(tab);
-            //bullet rune
-            if (rune.getType() == 1){
-                Bullet bullet = new Bullet(rune.getNode(),20,n.getNodeCopy());
-                generateActor(bullet);
-                
-                tab.getTile(rune.getNode()).clearMatchingContent(rune);
-                objList.remove(rune, tab);
-            }
-        }
-        runeList.clear();
-    }
-    
     
     private Skill activatedSkill;
     private boolean skillToggle;

@@ -9,8 +9,10 @@ public class ShotSource {
     private Node origin, target;
     private double angle;
     private double d_x, d_y;
+    private final int DAMAGE;
     
-    public ShotSource(Node origin, Node target, Table table, ActorList actorList){
+    public ShotSource(Node origin, Node target, Table table, ActorList actorList, int damage){
+        this.DAMAGE = damage;
         //calculate the angle
         this.target = target;
         this.origin = origin;
@@ -61,7 +63,7 @@ public class ShotSource {
                 next = new Node(x,y);
                 if (table.checkPassable(next)){
                     //I definetely should stop passing the actorList around
-                    ShotTile shotTile = new ShotTile(next, actorList);
+                    ShotTile shotTile = new ShotTile(next, actorList, DAMAGE);
                     table.add(shotTile);
                     actorList.add(shotTile, true);
                     shotTile.Collision(table);

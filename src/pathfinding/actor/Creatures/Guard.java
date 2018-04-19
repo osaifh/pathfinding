@@ -26,6 +26,7 @@ public class Guard extends Creature {
     private final int tick_max = 15;
     private ArrayList<Node> patrolPoints;
     private int currentPoint;
+    private final int AGGRO_RANGE = 15;
     
     public Guard(Node pos, ActorList objList){
         id = 2;
@@ -42,7 +43,7 @@ public class Guard extends Creature {
         alive = true;
         this.objList = objList;
         sight_range = 30;
-        aggroRange = 10;
+        aggroRange = AGGRO_RANGE;
         patrolPoints = new ArrayList();
     }
     
@@ -84,11 +85,7 @@ public class Guard extends Creature {
             //tab.getTile(runpath[runindex]).isPassable() && a
             if (tab.getTile(runpath[runindex]).getLight()>=20){
                 iMove(tab,runpath[runindex]);
-
-                if (tab.getTile(pos).containsID(4)){
-                    hunger += 10;
-                    tab.getTile(pos).clearMatchingContent(4);
-                }
+                
                 if (runindex == runpath.length-1) move = false;
                 else ++runindex;
             } else {
@@ -319,7 +316,7 @@ public class Guard extends Creature {
     }
     
     private void attackTarget(Table tab){
-        ShotSource shotSource = new ShotSource(pos.getNodeCopy(),target.getNode().getNodeCopy(),tab,objList);
+        ShotSource shotSource = new ShotSource(pos.getNodeCopy(),target.getNode().getNodeCopy(),tab, objList, 10);
         
     }
     
@@ -399,7 +396,7 @@ public class Guard extends Creature {
             switch (current_action) {
                 case 0:
                     longTerm.add(pos);
-                    if (hp < 50){
+                    if (hp < 50 && Node.ManhattanDistance(pos, target.getNode())>5){
                         current_action = 1;
                     }
                     else 

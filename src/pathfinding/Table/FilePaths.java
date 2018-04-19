@@ -40,6 +40,7 @@ public class FilePaths {
     public static ImageIcon selected = new ImageIcon(RESOURCE_PATH+"UI\\Selected.png");
     public static ImageIcon UIblack = new ImageIcon(RESOURCE_PATH+"UI\\Black.png");
     public static ImageIcon blue = new ImageIcon(RESOURCE_PATH+"UI\\Blue.png");
+    public static ImageIcon explosionIcon = new ImageIcon(RESOURCE_PATH+"UI\\explosion_icon.png");
     
     //player test
     public static ImageIcon playerS = new ImageIcon(RESOURCE_PATH+"player\\playerS.png");

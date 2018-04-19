@@ -3,6 +3,7 @@ package pathfinding.actor.Creatures;
 import pathfinding.auxiliar.Node;
 import pathfinding.Table.Table;
 import java.util.Random;
+import pathfinding.Listeners.IndicatorListener;
 import pathfinding.Table.Camera;
 import pathfinding.actor.Actor;
 import pathfinding.actor.Interactables.Interactable;
@@ -22,6 +23,7 @@ public abstract class Creature implements Actor {
     int id;
     int hp, maxHP;
     Camera camera;
+    IndicatorListener indicatorListener;
     
     /**
      * Gets the sight range
@@ -80,6 +82,14 @@ public abstract class Creature implements Actor {
     
     public void setHP(int hp){
         this.hp = hp;
+    }
+    
+    public void addHP(int hp){
+        this.hp += hp;
+        //Notifies the indicator listener if the hp change is damaging
+        if (indicatorListener != null){
+            indicatorListener.notifyCreateIndicator(pos, hp);
+        }
     }
     
     @Override
@@ -142,6 +152,10 @@ public abstract class Creature implements Actor {
     
     public void setFacingDirection(int d){
         facing_direction = d;
+    }
+    
+    public void addIndicatorListener(IndicatorListener indicatorListener){
+        this.indicatorListener = indicatorListener;
     }
     
 }

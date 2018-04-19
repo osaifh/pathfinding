@@ -9,7 +9,7 @@ import pathfinding.auxiliar.Node;
 public class CreateExplosionSkill extends Skill {
 
     public CreateExplosionSkill(){
-        this.icon = Constants.RED_ID;
+        this.icon = Constants.EXPLOSION_ID;
         maxCooldown = 200;
         currentCooldown = 0;
     }

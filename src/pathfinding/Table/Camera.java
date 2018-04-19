@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import pathfinding.Controller;
 import pathfinding.Indicators.DamageIndicator;
+import static pathfinding.Table.Sprites.COLOR_MAP;
 import pathfinding.auxiliar.Node;
 import pathfinding.actor.Creatures.Creature;
 import pathfinding.actor.Skills.Skill;
@@ -43,10 +44,10 @@ public class Camera extends JFrame {
     /**
      * Constructor class for camera
      *
-     * @param t indicates the source table
+     * @param table indicates the source table
      * @param parentController
      */
-    public Camera(Table t, Controller parentController) {
+    public Camera(Table table, Controller parentController) {
         //A lot of these values should probably be passed into the camera constructor. 
         //What if later down the line you want to make another camera with a different size or cameraLock off?
         //The best practice here is to overload your constructor so you can pass in arguments for these items if you'd like
@@ -57,18 +58,20 @@ public class Camera extends JFrame {
 
         jpanel.setLayout(null);
         jpanel.setBackground(Color.black);
-        jpanel.setPreferredSize(new Dimension(640, 640));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setTitle("Simulation");
         setVisible(true);
-        this.table = t;
+        this.table = table;
         panelWidth = (int) this.getBounds().getWidth();
         panelHeight = (int) this.getBounds().getHeight();
+        
         cameraSize = panelHeight / TILE_SIZE;
         cameraHeight = panelHeight / TILE_SIZE;
-        cameraWidth = (panelWidth - TILE_SIZE * 2) / TILE_SIZE - 1;
-        leftMargin = ((panelWidth - TILE_SIZE * 2) % TILE_SIZE)/2 + TILE_SIZE/2;
+        final int UI_MARGIN = TILE_SIZE;
+        
+        cameraWidth = (panelWidth - UI_MARGIN * 2) / TILE_SIZE - 1;
+        leftMargin = ((panelWidth - UI_MARGIN * 2) % TILE_SIZE)/2 + TILE_SIZE/2;
         visibilityTable = new boolean[cameraHeight][cameraWidth];
         //leftMargin = (panelWidth - cameraSize * TILE_SIZE) / 2;
         inputTable = new JLabel[cameraHeight][cameraWidth];
@@ -379,7 +382,7 @@ public class Camera extends JFrame {
     private void initializeUI(Graphics2D g) {
         int rightX = leftMargin + cameraWidth * TILE_SIZE + TILE_SIZE;
         int leftX = leftMargin;
-        int drawY = TILE_SIZE - 4;
+        int drawY = TILE_SIZE - TOP_MARGIN;
         for (int i = 0; i < cameraHeight; ++i) {
             g.drawImage(Sprites.UI_MAP.get(0).getImage(), leftX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
             if (i > 4){
@@ -394,7 +397,7 @@ public class Camera extends JFrame {
         drawX = leftMargin;
         //turns out for some reason this drawY is unaligned by 4 pixels
         //it just works man
-        drawY = TILE_SIZE - 4;
+        drawY = TILE_SIZE - TOP_MARGIN;
         int aux;
         for (int i = 0; i < parentController.getSkillList().size(); i++){
             Skill skill = parentController.getSkillList().get(i);
@@ -502,13 +505,15 @@ public class Camera extends JFrame {
         int camHeight = TILE_SIZE * cameraHeight;
         int mapLeftMargin = (camWidth - table.getSize() / drawSize) / 2;
         int mapTopMargin = (camHeight - table.getSize() / drawSize) / 2;
+        //TODO: fix the magic numbers
         g.fillRect(leftMargin + mapLeftMargin - 8, mapTopMargin - 8, (camHeight - mapTopMargin * 2) + 16, (camWidth - mapLeftMargin * 2) + 16);
-        for (int i = 0; i < table.getSize(); i += 2) {
-            for (int j = 0; j < table.getSize(); j += 2) {
-                drawX = (j / 2) + leftMargin + mapLeftMargin;
-                drawY = (i / 2) + mapTopMargin;
+        for (int i = 0; i < table.getSize(); i += drawSize) {
+            for (int j = 0; j < table.getSize(); j += drawSize) {
+                drawX = (j / drawSize) + leftMargin + mapLeftMargin;
+                drawY = (i / drawSize) + mapTopMargin;
                 Tile tile = table.getTile(i, j);
-                g.drawImage(Sprites.SPRITE_MAP.get(tile.getTerrainID()).getImage(), drawX, drawY, 2, 2, rootPane);
+                g.setColor(COLOR_MAP.get(tile.getTerrainID()));
+                g.fillRect(drawX, drawY, drawSize, drawSize);
             }
         }
         g.setPaint(Color.red);
