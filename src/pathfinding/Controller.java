@@ -68,6 +68,7 @@ public class Controller {
         skillList.add(new ShootSkill(10));
         skillList.add(new CreateWallSkill());
         skillList.add(new CreateExplosionSkill());
+        skillList.add(new CreateLightSkill());
     }
     
     /**

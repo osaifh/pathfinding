@@ -44,6 +44,7 @@ public class Sprites {
         SPRITE_MAP.put(Constants.GREEN_PLAYER_ID,FilePaths.oldPlayer_green);
         SPRITE_MAP.put(Constants.HIGHLIGHT,FilePaths.highlight);
         SPRITE_MAP.put(Constants.EXPLOSION_ID, FilePaths.explosionIcon);
+        SPRITE_MAP.put(Constants.LIGHT_ICON_ID, FilePaths.lightsOn);
         
         COLOR_MAP = new HashMap<>();
         COLOR_MAP.put(Constants.BLACK_ID, Color.BLACK);

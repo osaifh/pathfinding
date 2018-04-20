@@ -68,6 +68,7 @@ public class Constants {
     public static final int GHOST_E_ID = 12;
     public static final int GHOST_W_ID = 13;
     public static final int EXPLOSION_ID = 21;
+    public static final int LIGHT_ICON_ID = 22;
     
     public static final int RED_PLAYER_ID = 30;
     public static final int BLUE_PLAYER_ID = 31;
