@@ -9,6 +9,8 @@ public class CampController {
     private ArrayList<Node> internalNodes;
     private ArrayList<Guard> guards;
     
+    //TODO: improve the intelligence of the controller so it can make the guards patrol the unpopulated areas of the camp in order to maximize the covered terrain
+    
     public CampController(){
         externalNodes = new ArrayList();
         internalNodes = new ArrayList();

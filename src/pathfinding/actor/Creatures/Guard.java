@@ -10,6 +10,8 @@ import pathfinding.actor.ActorList;
 import pathfinding.actor.Particles.Highlight;
 import pathfinding.actor.Particles.Melee;
 import pathfinding.actor.Particles.ShotSource;
+import pathfinding.actor.Skills.ShootSkill;
+import pathfinding.actor.Skills.Skill;
 import pathfinding.auxiliar.Memory;
 import pathfinding.auxiliar.Node;
 import pathfinding.auxiliar.NodePair;
@@ -27,6 +29,8 @@ public class Guard extends Creature {
     private ArrayList<Node> patrolPoints;
     private int currentPoint;
     private final int AGGRO_RANGE = 15;
+    //some more testing to do shit properly
+    private final int SHOOT_SKILL_INDEX; 
     
     public Guard(Node pos, ActorList objList){
         id = 2;
@@ -45,6 +49,9 @@ public class Guard extends Creature {
         sight_range = 30;
         aggroRange = AGGRO_RANGE;
         patrolPoints = new ArrayList();
+        skillList = new ArrayList<Skill>();
+        skillList.add(new ShootSkill(10));
+        SHOOT_SKILL_INDEX = 0;
     }
     
     /**
@@ -150,7 +157,7 @@ public class Guard extends Creature {
         int decision = randint.nextInt(2);
         Node next = pos.getNodeCopy();
         next.add(Constants.DIRECTIONS.get(randint.nextInt(8)));
-        if (tab.getTile(next).getLight()>=20){
+        if (tab.valid(next) && tab.getTile(next).getLight()>=20){
             iMove(tab,next);
         }
     }
@@ -162,7 +169,7 @@ public class Guard extends Creature {
         stamina += 10;
     }
     
-        /**
+    /**
      * Adds a certain amount to the hunger value
      * The amount can be negative
      * @param x the value of hunger to add
@@ -316,8 +323,8 @@ public class Guard extends Creature {
     }
     
     private void attackTarget(Table tab){
-        ShotSource shotSource = new ShotSource(pos.getNodeCopy(),target.getNode().getNodeCopy(),tab, objList, 10);
-        
+        skillList.get(SHOOT_SKILL_INDEX).activate(pos.getNodeCopy(),target.getNode().getNodeCopy(),tab, objList);
+        //ShotSource shotSource = new ShotSource(pos.getNodeCopy(),target.getNode().getNodeCopy(),tab, objList, 10);
     }
     
     private void chaseTarget(Table tab){

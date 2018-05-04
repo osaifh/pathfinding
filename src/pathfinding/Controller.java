@@ -42,10 +42,9 @@ public class Controller {
     boolean timeStop = true;
     private Mob trackingMob;
     //TODO: move this into the player and each creature
-    private ArrayList<Skill> skillList;
     
     public ArrayList<Skill> getSkillList(){
-        return skillList;
+       return activePlayer.getSkillList();
     }
 
     /**
@@ -63,12 +62,6 @@ public class Controller {
         lightList = new ActorList();
         lights = lightsOn = false;
         
-        skillList = new ArrayList<Skill>();
-        skillList.add(new CreateGuardSkill());
-        skillList.add(new ShootSkill(10));
-        skillList.add(new CreateWallSkill());
-        skillList.add(new CreateExplosionSkill());
-        skillList.add(new CreateLightSkill());
     }
     
     /**
@@ -191,7 +184,7 @@ public class Controller {
         if(!timeStop) ++time;
         if (time > DAY_TIME) time = 0;
         
-        skillList.forEach((skill)->{
+        activePlayer.getSkillList().forEach((skill)->{
             if (skill.getMaxCooldown()!=0 && skill.getCurrentCooldown() > 0){
                 skill.addCurrentCooldown(-1);
             }
@@ -224,8 +217,8 @@ public class Controller {
      */
     public void handleMouseInput(int x, int y){
         Node pos = new Node(x,y);
-        if (UIselected - 1 < skillList.size()){
-            Skill skill = skillList.get(UIselected-1);
+        if (UIselected - 1 < activePlayer.getSkillList().size()){
+            Skill skill = activePlayer.getSkillList().get(UIselected-1);
             if (skill.getCurrentCooldown() == 0){
                 if (skill.isToggle()){
                     activatedSkill = skill;
@@ -296,7 +289,6 @@ public class Controller {
                     trackingMob = mob;
                 }
                 generateActor(mob);
-                //tab.generateSquareHouse(pos.getNodeCopy(), 10, 2, lightList);
                 break;
             }
             case 9:
@@ -391,52 +383,52 @@ public class Controller {
                     }
                     break;
                 case KeyEvent.VK_1:
-                    if (skillList.size()>0){
+                    if (activePlayer.getSkillList().size()>0){
                         UIselected = 1;
                     }
                     break;
                 case KeyEvent.VK_2:
-                    if (skillList.size()>1){
+                    if (activePlayer.getSkillList().size()>1){
                         UIselected = 2;
                     }
                     break;
                 case KeyEvent.VK_3:
-                    if (skillList.size()>2){
+                    if (activePlayer.getSkillList().size()>2){
                         UIselected = 3;
                     }
                     break;
                 case KeyEvent.VK_4:
-                    if (skillList.size()>3){
+                    if (activePlayer.getSkillList().size()>3){
                         UIselected = 4;
                     }
                     break;
                 case KeyEvent.VK_5:
-                    if (skillList.size()>4){
+                    if (activePlayer.getSkillList().size()>4){
                         UIselected = 5;
                     }
                     break;
                 case KeyEvent.VK_6:
-                    if (skillList.size()>5){
+                    if (activePlayer.getSkillList().size()>5){
                         UIselected = 6;
                     }
                     break;
                 case KeyEvent.VK_7:
-                    if (skillList.size()>6){
+                    if (activePlayer.getSkillList().size()>6){
                         UIselected = 7;
                     }
                     break;
                 case KeyEvent.VK_8:
-                    if (skillList.size()>7){
+                    if (activePlayer.getSkillList().size()>7){
                         UIselected = 8;
                     }
                     break;
                 case KeyEvent.VK_9:
-                    if (skillList.size()>8){
+                    if (activePlayer.getSkillList().size()>8){
                         UIselected = 9;
                     }
                     break;
                 case KeyEvent.VK_0:
-                    if (skillList.size()>9){
+                    if (activePlayer.getSkillList().size()>9){
                         UIselected = 10;
                     }
                     break;

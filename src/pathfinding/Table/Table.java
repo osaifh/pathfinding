@@ -445,12 +445,15 @@ public class Table {
      */
     public void dark(int time){
         int light_level = 0;
+        //daytime
         if (time >=0 && time<1000){
             light_level=100;
         } 
+        //dawn
         else if (time>=1000 && time <= 1200){
             light_level=100-((time/10-100)*5);
         } 
+        //dusk
         else if (time>=2200 && time <= 2400){
             light_level=(time/10-220)*5;
         }
@@ -508,7 +511,7 @@ public class Table {
                         //is passable or is a door if doors are allowed
                         (
                         checkPassable(current.getX() + i,current.getY() + j)
-
+                        //TODO: check valid (can cause crashes, oops)
                         || (allowDoors && (
                             (tab[current.getX()+i][current.getY()+j].getContent() != null)
                             &&
@@ -638,15 +641,23 @@ public class Table {
         int squareSize = 10;
         boolean valid;
         Node start = new Node(x,y);
+        Node auxNode;
         int towerSize = 4;
         
         //generates the towers
         //NW
-        Node auxNode = new Node(start);
+        auxNode = new Node(start);
         generateSquare(towerSize, auxNode.getX(), auxNode.getY(),1);
         auxNode.add(towerSize/2, towerSize/2);
         campController.addExternalNode(auxNode);
         lightList.add(new LightSource(towerSize*3,auxNode.getX(),auxNode.getY()), true);
+        
+        //left to right lights upper part
+        auxNode.add(0,-(towerSize/2 + 1));
+        for (int i = 0; i < 3; i++){
+            auxNode.add(0, campSize/4 + 1);
+            lightList.add(new LightSource(towerSize*2 + 1,auxNode.getX(),auxNode.getY()), true);
+        }
         
         //NE
         auxNode = new Node(start.getX()+(campSize - towerSize),start.getY());
@@ -655,6 +666,13 @@ public class Table {
         campController.addExternalNode(auxNode);
         lightList.add(new LightSource(towerSize*3,auxNode.getX(),auxNode.getY()), true);
         
+        //up to down left
+        auxNode.add((towerSize/2 + 1), 0);
+        for (int i = 0; i < 3; i++){
+            auxNode.add(-(campSize/4 + 1), 0);
+            lightList.add(new LightSource(towerSize*2 + 1,auxNode.getX(),auxNode.getY()), true);
+        }
+        
         //SE
         auxNode = new Node(start.getX()+(campSize - towerSize), start.getY()+(campSize - towerSize));
         generateSquare(towerSize,auxNode.getX(), auxNode.getY() ,4);
@@ -662,12 +680,28 @@ public class Table {
         campController.addExternalNode(auxNode);
         lightList.add(new LightSource(towerSize*3,auxNode.getX(),auxNode.getY()), true);
         
+        //up to down right
+        auxNode.add((towerSize/2 + 1), 0);
+        for (int i = 0; i < 3; i++){
+            auxNode.add(-(campSize/4 + 1), 0);
+            lightList.add(new LightSource(towerSize*2 + 1,auxNode.getX(),auxNode.getY()), true);
+        }
+        
         //SW
         auxNode = new Node(start.getX(), start.getY()+(campSize - towerSize));
         generateSquare(towerSize, auxNode.getX(), auxNode.getY() ,3);
         auxNode.add(towerSize/2, towerSize/2);
         campController.addExternalNode(auxNode);
         lightList.add(new LightSource(towerSize*3,auxNode.getX(),auxNode.getY()), true);
+        
+        //WHAT!?
+        //left to right lights lower part
+        auxNode.add(0,-(towerSize/2 + 1));
+        auxNode.add((campSize - towerSize), -(campSize - towerSize)); //dirty fix, should probably find a better way to do this
+        for (int i = 0; i < 3; i++){
+            auxNode.add(0, campSize/4 + 1);
+            lightList.add(new LightSource(towerSize*2 + 1,auxNode.getX(),auxNode.getY()), true);
+        }
         
         int[][] campCenter = generateCampCenter();
         

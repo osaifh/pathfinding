@@ -1,5 +1,6 @@
 package pathfinding.actor.Creatures;
 
+import java.util.ArrayList;
 import pathfinding.auxiliar.Node;
 import pathfinding.Table.Table;
 import java.util.Random;
@@ -7,6 +8,7 @@ import pathfinding.Listeners.IndicatorListener;
 import pathfinding.Table.Camera;
 import pathfinding.actor.Actor;
 import pathfinding.actor.Interactables.Interactable;
+import pathfinding.actor.Skills.Skill;
 
 /**
  *
@@ -24,6 +26,7 @@ public abstract class Creature implements Actor {
     int hp, maxHP;
     Camera camera;
     IndicatorListener indicatorListener;
+    ArrayList<Skill> skillList;
     
     /**
      * Gets the sight range
@@ -86,6 +89,8 @@ public abstract class Creature implements Actor {
     
     public void addHP(int hp){
         this.hp += hp;
+        //if hp is negative, reset it
+        if (this.hp < 0) this.hp = 0;
         //Notifies the indicator listener if the hp change is damaging
         if (indicatorListener != null){
             indicatorListener.notifyCreateIndicator(pos, hp);

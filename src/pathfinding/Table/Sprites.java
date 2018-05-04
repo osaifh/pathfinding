@@ -5,10 +5,6 @@ import java.util.HashMap;
 import javax.swing.ImageIcon;
 import pathfinding.auxiliar.Constants;
 
-/**
- *
- * @author Alumne
- */
 public class Sprites {
     public static final HashMap<Integer,ImageIcon> SPRITE_MAP;
     public static final HashMap<Integer,ImageIcon> UI_MAP;

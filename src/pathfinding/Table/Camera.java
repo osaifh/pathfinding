@@ -13,11 +13,11 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import pathfinding.Controller;
 import pathfinding.Indicators.DamageIndicator;
-import static pathfinding.Table.Sprites.COLOR_MAP;
 import pathfinding.auxiliar.Node;
 import pathfinding.actor.Creatures.Creature;
 import pathfinding.actor.Skills.Skill;
 import pathfinding.auxiliar.Constants;
+import static pathfinding.Table.Sprites.COLOR_MAP;
 
 /**
  * This class is used to render what the camera currently shows.
@@ -40,6 +40,9 @@ public class Camera extends JFrame {
     private boolean[][] visibilityTable;
 
     private boolean showMap = false;
+    
+    
+    private SkillMenu skillMenu;
 
     /**
      * Constructor class for camera
@@ -120,6 +123,9 @@ public class Camera extends JFrame {
                 this.add(inputTable[i][j]);
             }
         }
+        
+        
+        skillMenu = new SkillMenu(cameraHeight, cameraWidth, TILE_SIZE);
     }
 
     /**
@@ -265,8 +271,19 @@ public class Camera extends JFrame {
      * Updates the picture that the camera currently displays
      */
     public void update() {
+        /*
         updateUI();
         updateTable();
+        */
+        BufferStrategy bs = this.getBufferStrategy();
+        if (bs == null) {
+            this.createBufferStrategy(3);
+            return;
+        }
+        Graphics2D g = (Graphics2D) bs.getDrawGraphics();
+        skillMenu.draw(g, parentController.getSkillList(), rootPane);
+        g.dispose();
+        bs.show();
     }
 
     /**
@@ -309,7 +326,7 @@ public class Camera extends JFrame {
                                         g.setColor(Color.green);
                                         double max = ((Creature)tile.getContent(k)).getmaxHP();
                                         double current = ((Creature)tile.getContent(k)).getHP();
-                                        int bar = (int) Math.round((current / max) * (TILE_SIZE));
+                                        int bar = (int) Math.round((current / max) * (TILE_SIZE-2));
                                         g.fillRect(drawX, drawY, bar, 2);
                                     }
                                 }

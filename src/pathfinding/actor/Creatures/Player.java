@@ -6,7 +6,7 @@ import pathfinding.Table.Camera;
 import pathfinding.Table.Table;
 import pathfinding.actor.Actor;
 import pathfinding.actor.LightSource;
-import pathfinding.actor.Skills.Skill;
+import pathfinding.actor.Skills.*;
 import pathfinding.auxiliar.Node;
 
 /**
@@ -17,12 +17,12 @@ public class Player extends Creature {
     private LightSource l;
     private boolean lightToggle;
     //testing
-    private ArrayList<Skill> skillList;
     //TODO: add a list with cooldowns for each skill, add an "add" function that also adds an entry to the cooldown list, make simulate reduce the cooldown for each skill
     //temp stuff
     private boolean running;
     private int runindex;
     private Node[] runpath;
+    
     
     public Player(int x, int y){
         id = 2;
@@ -34,6 +34,15 @@ public class Player extends Creature {
         l = new LightSource(6,pos.getX(),pos.getY());
         lightToggle = true;
         sight_range = 30;
+        
+        skillList = new ArrayList<Skill>();
+        skillList.add(new ShootSkill(10));
+        skillList.add(new CreateGuardSkill());
+        skillList.add(new CreateWallSkill());
+        skillList.add(new CreateExplosionSkill());
+        skillList.add(new CreateLightSkill());
+        skillList.add(new CreateMobSkill());
+        skillList.add(new CreateFoodSkill());
     }
     
     public ArrayList<Skill> getSkillList(){

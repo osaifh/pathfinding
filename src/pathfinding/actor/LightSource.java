@@ -70,6 +70,8 @@ public class LightSource implements Actor {
             }
     }
     
+    //light doesn't stack as it should in the direct diagonals of the light source
+    //this is a feature
     private void i_cast_light(Table tab, int row, float start, float end, int xx, int xy, int yx, int yy, int range){
         float newStart = 0.0f;
         if (start < end){
