@@ -271,10 +271,10 @@ public class Camera extends JFrame {
      * Updates the picture that the camera currently displays
      */
     public void update() {
-        /*
+        
         updateUI();
         updateTable();
-        */
+        /*
         BufferStrategy bs = this.getBufferStrategy();
         if (bs == null) {
             this.createBufferStrategy(3);
@@ -284,6 +284,7 @@ public class Camera extends JFrame {
         skillMenu.draw(g, parentController.getSkillList(), rootPane);
         g.dispose();
         bs.show();
+        */
     }
 
     /**

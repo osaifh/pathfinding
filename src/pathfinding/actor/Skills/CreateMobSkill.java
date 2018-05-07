@@ -9,6 +9,7 @@ import pathfinding.auxiliar.Node;
 import pathfinding.auxiliar.Constants;
 
 public class CreateMobSkill extends Skill {
+    private Mob trackingMob;
     
     public CreateMobSkill(){
         this.icon = Constants.BLUE_PLAYER_ID;
@@ -20,6 +21,12 @@ public class CreateMobSkill extends Skill {
         Mob mob = new Mob(target.getX(),target.getY());
         table.add(mob);
         actorList.add(mob, true);
+        if (trackingMob == null){
+            trackingMob = mob;
+        }
+        else {
+            mob.setTracking(trackingMob);
+        }
     }
 
 }

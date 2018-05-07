@@ -3,6 +3,8 @@ package pathfinding.actor.Creatures;
 import java.util.LinkedList;
 import java.util.Queue;
 import pathfinding.Table.Table;
+import pathfinding.actor.Interactables.Interactable;
+import pathfinding.auxiliar.Constants;
 import pathfinding.auxiliar.Memory;
 import pathfinding.auxiliar.Node;
 import pathfinding.auxiliar.NodePair;
@@ -62,17 +64,26 @@ public class Mob extends Creature {
         if (move && runpath.length > 0 && runindex < runpath.length){
             //this disallows mobs from moving on tiles that are occupied by other creatures, and it seems to work so I might use it
             //in other types of creatures in the future
-            if (tab.getTile(runpath[runindex]).isPassable() && tab.getTile(runpath[runindex]).isEmpty()){
-                tab.getTile(pos).clearMatchingContent(this);
-                //eating
-                if (tab.getTile(runpath[runindex]).containsID(4)){
-                    hunger += 10;
-                    tab.getTile(runpath[runindex]).clearMatchingContent(4);
+            //&& tab.getTile(runpath[runindex]).isEmpty()
+            if (tab.getTile(runpath[runindex]).isPassable()){
+                if (tab.getTile(runpath[runindex]).isEmpty()){
+                    tab.getTile(pos).clearMatchingContent(this);
+                    
+                    pos = (runpath[runindex]);
+                    tab.getTile(pos).addContent(this);
+                    if (runindex >= runpath.length) move = false;
+                    ++runindex;
+                } else {
+                    if (tab.getTile(runpath[runindex]).getContent() instanceof Interactable){
+                        ((Interactable)tab.getTile(runpath[runindex]).getContent()).interact(tab);
+                    }
+                    //eating
+                    if (tab.getTile(runpath[runindex]).containsID(Constants.FOOD_ID)){
+                        hunger += 10;
+                        tab.getTile(runpath[runindex]).clearMatchingContent(Constants.FOOD_ID);
+                    }
+                    move = false;
                 }
-                pos = (runpath[runindex]);
-                tab.getTile(pos).addContent(this);
-                if (runindex >= runpath.length) move = false;
-                ++runindex;
             } else {
                 move = false;
             }
@@ -264,11 +275,13 @@ public class Mob extends Creature {
                     }
                 }
                 if (currentAction != 1){
+                    /*
                     if (stamina<25){
                         currentAction = 3;
                         asleep = true;
                     }
-                    else if (hunger<75){
+                    else */
+                    if (hunger<100){
                         findID(4,tab,6);
                         if (move & runpath != null){
                             currentAction = 1;
@@ -294,7 +307,7 @@ public class Mob extends Creature {
                     break;
                 case 2:
                     idle(tab);
-                    if (hunger < 75 || stamina < 25) currentAction = 0;
+                    if (hunger < 100 || stamina < 25) currentAction = 0;
                     break;
                 case 3:
                     sleep();
@@ -304,11 +317,12 @@ public class Mob extends Creature {
                     }
                     break;
             }
-
+            /*
             if (hunger <= 0 || stamina <= 0 || hp <= 0){
                 tab.getTile(pos).clearContent();
                 alive = false;
             }
+            */
         }
     }
     
