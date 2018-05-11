@@ -6,10 +6,6 @@ import pathfinding.actor.ActorList;
 import pathfinding.actor.Particles.Bullet;
 import pathfinding.auxiliar.Node;
 
-/**
- *
- * @author Alumne
- */
 public class Turret extends Creature {
     private Actor target;
     private int tick_max = 30;
@@ -98,11 +94,9 @@ public class Turret extends Creature {
     public void simulate(Table t) {
         tick_counter++;
         if (tick_counter >= tick_max){
-            System.out.println("turret simulate " + (target==null));
             tick_counter = 0;
             if (target == null){
                 lookAround(t,8);
-                System.out.println("looking around");
             }
             else {
                 shootBullet(t,target,4);

@@ -41,7 +41,6 @@ public class Controller {
     // delete this too btw
     boolean timeStop = true;
     private Mob trackingMob;
-    //TODO: move this into the player and each creature
     
     public ArrayList<Skill> getSkillList(){
        return activePlayer.getSkillList();
