@@ -14,6 +14,8 @@ import pathfinding.actor.Skills.*;
 import pathfinding.Table.*;
 import pathfinding.auxiliar.Node;
 import java.util.Random;
+import pathfinding.Audio.AudioEngine;
+import pathfinding.Audio.AudioConstants;
 import pathfinding.Controllers.CampController;
 import pathfinding.Indicators.DamageIndicator;
 import pathfinding.Listeners.IndicatorListener;
@@ -42,6 +44,8 @@ public class Controller {
     boolean timeStop = true;
     private Mob trackingMob;
     
+    private AudioEngine audioEngine;
+    
     public ArrayList<Skill> getSkillList(){
        return activePlayer.getSkillList();
     }
@@ -60,7 +64,7 @@ public class Controller {
         objList = new ActorList();
         lightList = new ActorList();
         lights = lightsOn = false;
-        
+        audioEngine = new AudioEngine();
     }
     
     /**

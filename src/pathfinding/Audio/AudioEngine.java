@@ -1,27 +1,23 @@
 package pathfinding.Audio;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.lwjgl.openal.*;
-import org.lwjgl.system.*;
-
-import java.nio.*;
-
-import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.openal.ALC10.*;
-import static org.lwjgl.stb.STBVorbis.*;
-import static org.lwjgl.system.MemoryStack.*;
-import static org.lwjgl.system.libc.LibCStdlib.*;
 
 public class AudioEngine {
     private long device;
     private long context;
+    private static final int SOURCE_NUMBER = 32;
     
-    private ArrayList<Integer> bufferPointers = new ArrayList<Integer>();
-    private ArrayList<Integer> sourcePointers = new ArrayList<Integer>();
+    private HashMap<Integer, LocalBuffer> buffers = new HashMap<>();
+    private final LocalSource[] sources = new LocalSource[SOURCE_NUMBER];
     
     public AudioEngine(){
         init();
+        initSources();
+        loadSounds();
     }
     
     /**
@@ -42,74 +38,78 @@ public class AudioEngine {
         ALCapabilities alCapabilities = AL.createCapabilities(alcCapabilities);
     }
     
-    /**
-     * Buffers a sound file
-     * @param filename the name of the sound file
-     * @return the pointer of the buffered sound
-     */
-    private int bufferSound(String filename){
-        ShortBuffer rawAudioBuffer;
-        
-        int channels;
-        int sampleRate;
-        
-        try (MemoryStack stack = stackPush()) {
-            //Allocate space to store return information from the function
-            IntBuffer channelsBuffer = stack.mallocInt(1);
-            IntBuffer sampleRateBuffer = stack.mallocInt(1);
-            
-            rawAudioBuffer = stb_vorbis_decode_filename(filename, channelsBuffer, sampleRateBuffer);
-            
-            //Retrieve the extra information that was stored in the buffers by the function
-            channels = channelsBuffer.get(0);
-            sampleRate = sampleRateBuffer.get(0);
+    private void initSources(){
+        for (int i = 0; i < SOURCE_NUMBER; i++){
+            sources[i] = new LocalSource();
         }
-        
-        //Find the correct openAL format
-        int format = -1;
-        if (channels == 1){
-            format = AL_FORMAT_MONO16;
-        }
-        else if (channels == 2){
-            format = AL_FORMAT_STEREO16;
-        }
-        
-        //request space for the buffer
-        int bufferPointer = alGenBuffers();
-        
-        //send the data to openAL
-        alBufferData(bufferPointer, format, rawAudioBuffer, sampleRate);
-        
-        //free the memory allocated by STB
-        free(rawAudioBuffer);
-        
-        return bufferPointer;
-        
     }
     
-    //VOLUME
-    //float newVolume = 0.4f;
-    //alSourcef(currentSourceID, AL_GAIN, newVolume);
+    private void loadSounds(){
+        int id = 0;
+        for(String filename : AudioConstants.FILENAMES){
+            LocalBuffer buffer = new LocalBuffer(filename, AudioConstants.MEDIUM_PRIORITY, false, id);
+            buffers.put(id, buffer);
+            id++;
+        }
+    }
     
-    //LOOPING
-    //alSourcei(source, AL_LOOPING, 1); 
-    //1 = enabled, 0 = disabled
+    public void playSound(int soundID){
+        playSound(soundID, 0);
+    }
     
-    //CHECK IF PLAYING
-    //alGetSourcei(source, AL_SOURCE_STATE, &state);
-    
-    //return (state == AL_PLAYING);
+    public void playSound(int soundID, int distance){
+        LocalBuffer buffer = buffers.get(soundID);
+        //first loop: look for sources that have the same soundID or are empty
+        boolean found = false;
+        for(int i = 0; i < SOURCE_NUMBER && !found; i++){
+            LocalSource source = sources[i];
+            try {
+                if (source.getBuffer().equals(buffer) && !source.isPlaying()){
+                    source.playSource(distance);
+                    found = true;
+                }
+            }
+            //found an available source
+            catch (NullPointerException ex){
+                if (source.setBuffer(buffer)){
+                    source.playSource(distance);
+                    found = true;
+                }
+            }
+        }
+        //second loop: replace a source's buffer with lower or equal priority
+        for(int i = 0; i < SOURCE_NUMBER && !found; i++){
+            LocalSource source = sources[i];
+            try {
+                if (source.setBuffer(buffer)){
+                    source.playSource(distance);
+                    found = true;
+                }
+            }
+            //found an available source
+            catch (NullPointerException ex){
+                if (source.setBuffer(buffer)){
+                    source.playSource(distance);
+                    found = true;
+                }
+            }
+        }
+        
+    }
     
     /**
      * Terminates all the openAL instances and releases the memory used by the openAL buffers
      */
     public void close(){
-        bufferPointers.forEach((bufferPointer) -> {
-            alDeleteBuffers(bufferPointer);
-        });
-        sourcePointers.forEach((sourcePointer) -> {
-            alDeleteSources(sourcePointer);
-        });
+        for(Map.Entry<Integer, LocalBuffer> entry : buffers.entrySet()){
+            LocalBuffer buffer = entry.getValue();
+            buffer.deleteBufferPointer();
+        }
+        
+        for(LocalSource source : sources){
+            source.deleteSourcePointer();
+        }
+        
         alcDestroyContext(context);
         alcCloseDevice(device);
     }

@@ -3,13 +3,9 @@ package pathfinding.actor.Creatures;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
-import pathfinding.Controller;
 import pathfinding.Table.Table;
 import pathfinding.actor.Actor;
 import pathfinding.actor.ActorList;
-import pathfinding.actor.Particles.Highlight;
-import pathfinding.actor.Particles.Melee;
-import pathfinding.actor.Particles.ShotSource;
 import pathfinding.actor.Skills.ShootSkill;
 import pathfinding.actor.Skills.Skill;
 import pathfinding.auxiliar.Memory;
@@ -33,7 +29,7 @@ public class Guard extends Creature {
     private final int SHOOT_SKILL_INDEX; 
     
     public Guard(Node pos, ActorList objList){
-        id = 2;
+        id = Constants.PLAYER_ID;
         hp = 100;
         maxHP = 100;
         this.pos = pos.getNodeCopy();
@@ -324,7 +320,6 @@ public class Guard extends Creature {
     
     private void attackTarget(Table tab){
         skillList.get(SHOOT_SKILL_INDEX).activate(pos.getNodeCopy(),target.getNode().getNodeCopy(),tab, objList);
-        //ShotSource shotSource = new ShotSource(pos.getNodeCopy(),target.getNode().getNodeCopy(),tab, objList, 10);
     }
     
     private void chaseTarget(Table tab){

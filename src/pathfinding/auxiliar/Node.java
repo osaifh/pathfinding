@@ -128,11 +128,15 @@ public class Node {
      * @return
      */
     public static double distance(Node one, Node two) {
-        return Math.sqrt(Math.pow(((double) one.x - (double) two.x), 2) + Math.pow(((double) one.y - (double) two.y), 2));
+        if (one.equals(two)) return 0.0f;
+        else 
+            return Math.sqrt(Math.pow(((double) one.x - (double) two.x), 2) + Math.pow(((double) one.y - (double) two.y), 2));
     }
     
     public static double ManhattanDistance(Node one, Node two){
-        return (Math.abs(one.x - two.x)+Math.abs(one.y - two.y));
+        if (one.equals(two)) return 0;
+        else 
+            return (Math.abs(one.x - two.x)+Math.abs(one.y - two.y));
     }
     
     /**
@@ -146,10 +150,7 @@ public class Node {
     
     public Boolean iMove(Table t, int dir){
         this.add(Constants.DIRECTIONS.get(dir));
-        if (t.checkPassable(this)){
-            return true;
-        }
-        return false;
+        return t.checkPassable(this);
     }
     
     public Boolean iMove(Table t, Node n){
@@ -195,14 +196,14 @@ public class Node {
      * @return the relative direction to target
      */
     public int relativeDirection(Node target){
-        if (target.x<x   && target.y<y)   return Constants.NW;
-        if (target.x<x   && target.y==y) return Constants.N;
-        if (target.x<x   && target.y>y)   return Constants.NE;
-        if (target.x==x && target.y<y)   return Constants.W;
-        if (target.x==x && target.y>y)   return Constants.E;
-        if (target.x>x   && target.y<y)   return Constants.SW;
-        if (target.x>x   && target.y==y) return Constants.S;
-        if (target.x>x   && target.y>y)   return Constants.SE;
+        if (target.x<x   && target.y<y )   return Constants.NW;
+        if (target.x<x   && target.y==y)   return Constants.N;
+        if (target.x<x   && target.y>y )   return Constants.NE;
+        if (target.x==x  && target.y<y )   return Constants.W;
+        if (target.x==x  && target.y>y )   return Constants.E;
+        if (target.x>x   && target.y<y )   return Constants.SW;
+        if (target.x>x   && target.y==y)   return Constants.S;
+        if (target.x>x   && target.y>y )   return Constants.SE;
         return -1;
     }
     

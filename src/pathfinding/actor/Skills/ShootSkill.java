@@ -1,6 +1,8 @@
 
 package pathfinding.actor.Skills;
 
+import pathfinding.Audio.AudioConstants;
+import pathfinding.Audio.AudioManager;
 import pathfinding.Table.Table;
 import pathfinding.actor.ActorList;
 import pathfinding.actor.Particles.ShotSource;
@@ -19,6 +21,8 @@ public class ShootSkill extends Skill {
     @Override
     public void activate(Node origin, Node target, Table table, ActorList actorList) {
         ShotSource shotSource = new ShotSource(origin,target,table,actorList, DAMAGE);
+        
+        AudioManager.getInstance().playSound(AudioConstants.SHOOT_SOUND);
     }
     
 }
