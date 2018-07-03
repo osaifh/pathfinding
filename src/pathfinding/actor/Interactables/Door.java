@@ -1,6 +1,6 @@
 package pathfinding.actor.Interactables;
 
-import pathfinding.actor.Interactables.Interactable;
+import java.io.Serializable;
 import pathfinding.Table.Table;
 import pathfinding.actor.Actor;
 import pathfinding.auxiliar.Node;
@@ -9,7 +9,7 @@ import pathfinding.auxiliar.Node;
  *
  * @author Alumne
  */
-public class Door extends Interactable {
+public class Door extends Interactable implements Serializable {
     boolean open;
     boolean alive;
     

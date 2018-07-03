@@ -1,10 +1,11 @@
 package pathfinding.actor.Environment;
 
+import java.io.Serializable;
 import pathfinding.Table.Table;
 import pathfinding.actor.Actor;
 import pathfinding.auxiliar.Node;
 
-public class Shrub implements Actor {
+public class Shrub implements Actor, Serializable{
     int id;
     Node pos;
     final int tick_max = 30;

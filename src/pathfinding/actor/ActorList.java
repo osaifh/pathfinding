@@ -1,4 +1,5 @@
 package pathfinding.actor;
+import java.io.Serializable;
 import pathfinding.Table.Table;
 import java.util.ArrayList;
 
@@ -6,7 +7,7 @@ import java.util.ArrayList;
  *
  * @author Alumne
  */
-public class ActorList {
+public class ActorList implements Serializable {
     private ArrayList<Actor> list;
     private ArrayList<Boolean> activeList;
     

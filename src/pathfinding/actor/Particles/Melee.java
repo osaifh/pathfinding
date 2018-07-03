@@ -1,12 +1,13 @@
 package pathfinding.actor.Particles;
 
+import java.io.Serializable;
 import pathfinding.actor.Creatures.Creature;
 import java.util.ArrayList;
 import pathfinding.Table.Table;
 import pathfinding.actor.Actor;
 import pathfinding.actor.ActorList;
 
-public class Melee extends Particle {
+public class Melee extends Particle implements Serializable {
     private int tick_counter = 0;
     private final int tick_max = 30;
     private int height, width;

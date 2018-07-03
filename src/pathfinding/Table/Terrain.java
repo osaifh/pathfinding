@@ -1,12 +1,13 @@
 package pathfinding.Table;
 
+import java.io.Serializable;
 import java.util.Random;
 
 /**
  * Class used to help generate the terrain in table
  * @author 
  */
-public class Terrain {
+public class Terrain implements Serializable {
     private String name;
     private boolean passable, opaque;
     private int id;

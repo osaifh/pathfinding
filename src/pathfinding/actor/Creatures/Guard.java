@@ -1,12 +1,13 @@
 package pathfinding.actor.Creatures;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import pathfinding.Table.Table;
 import pathfinding.actor.Actor;
 import pathfinding.actor.ActorList;
-import pathfinding.actor.Skills.ShootSkill;
+import pathfinding.actor.Skills.ShootBulletSkill;
 import pathfinding.actor.Skills.Skill;
 import pathfinding.auxiliar.Memory;
 import pathfinding.auxiliar.Node;
@@ -14,7 +15,7 @@ import pathfinding.auxiliar.NodePair;
 import pathfinding.auxiliar.PairList;
 import pathfinding.auxiliar.Constants;
 
-public class Guard extends Creature {
+public class Guard extends Creature implements Serializable {
     private boolean move, asleep;
     private Node[] runpath;
     private Memory mem, longTerm;
@@ -46,7 +47,7 @@ public class Guard extends Creature {
         aggroRange = AGGRO_RANGE;
         patrolPoints = new ArrayList();
         skillList = new ArrayList<Skill>();
-        skillList.add(new ShootSkill(10));
+        skillList.add(new ShootBulletSkill());
         SHOOT_SKILL_INDEX = 0;
     }
     
@@ -182,7 +183,7 @@ public class Guard extends Creature {
      * @param tab
      */
     private void BFS(int x, int y, Table tab){
-        Node[] path = tab.iBFS(pos, new Node(x,y), false,true);
+        Node[] path = tab.iBFS(pos, new Node(x,y), false, true);
         
         if (path!= null){
             runpath = path;
@@ -339,6 +340,7 @@ public class Guard extends Creature {
         runindex = 0;
         int length = 5 + randint.nextInt(6);
         Node[] newpath = new Node[length];
+        if (target == null) return null;
         for (int i = 0; i < length; ++i){
             Node npos;
             if (i == 0) npos = getNode().getNodeCopy();
@@ -398,8 +400,8 @@ public class Guard extends Creature {
             switch (current_action) {
                 case 0:
                     longTerm.add(pos);
-                    if (hp < 50 && Node.ManhattanDistance(pos, target.getNode())>5){
-                        current_action = 1;
+                    if (hp < 50 && target != null){
+                        current_action = 2;
                     }
                     else 
                     if (target==null){

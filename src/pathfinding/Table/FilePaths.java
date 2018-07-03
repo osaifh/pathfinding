@@ -31,6 +31,11 @@ public class FilePaths {
     public static ImageIcon rock = new ImageIcon(RESOURCE_PATH+"rock.png");
     public static ImageIcon groundTile = new ImageIcon(RESOURCE_PATH+"groundTile.png");
     
+    public static ImageIcon redMark = new ImageIcon(RESOURCE_PATH+"REDMARK.png");
+    public static ImageIcon whiteMark = new ImageIcon(RESOURCE_PATH+"WHITEMARK.png");
+    public static ImageIcon greenMark = new ImageIcon(RESOURCE_PATH+"GREENMARK.png");
+    public static ImageIcon blueMark = new ImageIcon(RESOURCE_PATH+"BLUEMARK.png");
+    
     //UI elements
     public static ImageIcon blank = new ImageIcon(RESOURCE_PATH+"UI\\Blank.png");
     public static ImageIcon night = new ImageIcon(RESOURCE_PATH+"UI\\Night.png");
@@ -40,7 +45,14 @@ public class FilePaths {
     public static ImageIcon selected = new ImageIcon(RESOURCE_PATH+"UI\\Selected.png");
     public static ImageIcon UIblack = new ImageIcon(RESOURCE_PATH+"UI\\Black.png");
     public static ImageIcon blue = new ImageIcon(RESOURCE_PATH+"UI\\Blue.png");
+    public static ImageIcon emptyIcon = new ImageIcon(RESOURCE_PATH+"UI\\skillbar_empty.png");
     public static ImageIcon explosionIcon = new ImageIcon(RESOURCE_PATH+"UI\\explosion_icon.png");
+    public static ImageIcon wallIcon = new ImageIcon(RESOURCE_PATH+"UI\\wall_icon.png");
+    public static ImageIcon shootIcon = new ImageIcon(RESOURCE_PATH+"UI\\shoot_icon.png");
+    public static ImageIcon guardIcon = new ImageIcon(RESOURCE_PATH+"UI\\createguard_icon.png");
+    public static ImageIcon mobIcon = new ImageIcon(RESOURCE_PATH+"UI\\createmob_icon.png");
+    public static ImageIcon debugIcon = new ImageIcon(RESOURCE_PATH+"UI\\debugskill_icon.png");
+    public static ImageIcon lightSkillIcon = new ImageIcon(RESOURCE_PATH+"UI\\createlight_icon.png");
     
     //player test
     public static ImageIcon playerS = new ImageIcon(RESOURCE_PATH+"player\\playerS.png");

@@ -1,6 +1,6 @@
 package pathfinding.actor.Particles;
 
-import pathfinding.Indicators.DamageIndicator;
+import java.io.Serializable;
 import pathfinding.Table.Table;
 import pathfinding.actor.Actor;
 import pathfinding.actor.ActorList;
@@ -12,7 +12,7 @@ import pathfinding.auxiliar.Node;
 /**
  * An individual tile of a shot
  */
-public class ShotTile extends Particle{
+public class ShotTile extends Particle implements Serializable {
     private LightSource l;
     private int tick_counter = 0;
     private final int tick_max = 10;

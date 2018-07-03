@@ -1,5 +1,7 @@
 package pathfinding.Listeners;
 
-public class SkillListener {
+import java.io.Serializable;
+
+public class SkillListener implements Serializable {
     
 }

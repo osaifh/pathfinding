@@ -2,7 +2,7 @@ package pathfinding.Audio;
 
 /**
  * Singleton wrapper of the audio engine.
- * The usage of the wrapper pattern is justified because we only ever need one instance of audioEngine
+ * The usage of the singleton pattern is justified because we only ever need one instance of audioEngine
  */
 public class AudioManager {
     private static AudioEngine audioEngine;

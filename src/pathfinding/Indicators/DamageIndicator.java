@@ -1,5 +1,6 @@
 package pathfinding.Indicators;
 
+import java.io.Serializable;
 import pathfinding.Table.Table;
 import pathfinding.auxiliar.Constants;
 import pathfinding.auxiliar.Node;
@@ -7,7 +8,7 @@ import pathfinding.auxiliar.Node;
 /**
  * Class used to display a determinate amount of damage being dealt to a creature
  */
-public class DamageIndicator extends Indicator {
+public class DamageIndicator extends Indicator implements Serializable {
     private final int damage;
     
     public DamageIndicator(int damage, Node pos){

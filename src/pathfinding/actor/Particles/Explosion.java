@@ -1,16 +1,13 @@
 package pathfinding.actor.Particles;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import pathfinding.Table.Table;
 import pathfinding.actor.Actor;
 import pathfinding.actor.ActorList;
 import pathfinding.auxiliar.Node;
 
-/**
- *
- * @author Alumne
- */
-public class Explosion extends Particle {
+public class Explosion extends Particle implements Serializable {
     private int tick_counter = 0;
     private final int tick_max = 30;
     private ArrayList<ExplosionTile> aoe_list;

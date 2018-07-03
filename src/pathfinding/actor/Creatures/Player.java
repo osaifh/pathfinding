@@ -1,5 +1,6 @@
 package pathfinding.actor.Creatures;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import pathfinding.Controller;
 import pathfinding.Table.Camera;
@@ -13,7 +14,7 @@ import pathfinding.auxiliar.Node;
  *
  * @author Alumne
  */
-public class Player extends Creature {
+public class Player extends Creature implements Serializable {
     private LightSource l;
     private boolean lightToggle;
     //testing
@@ -39,10 +40,15 @@ public class Player extends Creature {
         skillList.add(new ShootSkill(10));
         skillList.add(new CreateGuardSkill());
         skillList.add(new CreateWallSkill());
-        skillList.add(new CreateExplosionSkill());
+        skillList.add(new ForcePushSkill());
         skillList.add(new CreateLightSkill());
         skillList.add(new CreateMobSkill());
-        skillList.add(new CreateFoodSkill());
+        skillList.add(new ShootBulletSkill());
+        //skillList.add(new CreateFoodSkill());
+        skillList.add(new PathfindingSkill());
+        skillList.add(new DrawClearSkill());
+        //skillList.add(new CreateMonsterSkill());
+        skillList.add(new MeleeSkill(20,2));
     }
     
     public ArrayList<Skill> getSkillList(){

@@ -1,9 +1,10 @@
 package pathfinding.Controllers;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import pathfinding.actor.Creatures.Mob;
 
-public class PackController {
+public class PackController implements Serializable {
     private ArrayList<Mob> mobs;
     
     //plan for the AI:

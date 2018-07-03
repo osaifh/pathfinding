@@ -1,5 +1,6 @@
 package pathfinding.actor.Creatures;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Queue;
 import pathfinding.Controller;
@@ -16,7 +17,7 @@ import pathfinding.auxiliar.Constants;
  *
  * @author Alumne
  */
-public class Monster extends Creature {
+public class Monster extends Creature implements Serializable {
     private boolean move, asleep;
     private Node[] runpath;
     private Memory mem, longTerm;
@@ -27,7 +28,7 @@ public class Monster extends Creature {
     private Controller controller;
     
     public Monster(Node pos, ActorList objList, Controller controller){
-        id = 2;
+        id = Constants.RED_PLAYER_ID;
         hp = 100;
         maxHP = 100;
         this.pos = pos.getNodeCopy();
@@ -378,9 +379,9 @@ public class Monster extends Creature {
             tick_counter = 0;
             --hunger;
             //if (!asleep) --stamina;
-            lookAround(tab,8);
             if (current_action == 0){
                 longTerm.add(pos);
+                lookAround(tab,8);
                 if (target==null){
                     if (stamina<25){
                         current_action = 3;

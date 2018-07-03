@@ -1,5 +1,6 @@
 package pathfinding.actor;
 
+import java.io.Serializable;
 import pathfinding.auxiliar.Node;
 import pathfinding.Table.Table;
 
@@ -7,7 +8,7 @@ import pathfinding.Table.Table;
  *
  * @author Alumne
  */
-public class LightSource implements Actor {
+public class LightSource implements Actor, Serializable {
     int intensity;
     boolean alive;
     Node pos;

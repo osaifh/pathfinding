@@ -1,5 +1,6 @@
 package pathfinding.actor.Particles;
 
+import java.io.Serializable;
 import pathfinding.actor.Creatures.Creature;
 import java.util.ArrayList;
 import pathfinding.Table.Table;
@@ -8,7 +9,7 @@ import pathfinding.actor.ActorList;
 import pathfinding.actor.LightSource;
 import pathfinding.auxiliar.Node;
 
-public class ExplosionTile extends Particle {
+public class ExplosionTile extends Particle implements Serializable {
     private int tick_counter = 0;
     private final int tick_max = 5;
     private int remainingTime = 10;

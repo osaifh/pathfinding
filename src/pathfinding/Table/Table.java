@@ -1,5 +1,6 @@
 package pathfinding.Table;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
@@ -21,7 +22,7 @@ import pathfinding.auxiliar.Constants;
 /**
  * This class is used to make and work with a border made of tiles
  */
-public class Table {
+public class Table implements Serializable {
     private Tile[][] tab;
     private final int TABLE_SIZE = 1000;
     private final int MAX_ATTEMPTS = 20;
@@ -510,16 +511,19 @@ public class Table {
                     if (!(i==0 & j==0) &&
                         //is passable or is a door if doors are allowed
                         (
+                            (
                         checkPassable(current.getX() + i,current.getY() + j)
                         //TODO: check valid (can cause crashes, oops)
                         || (allowDoors && (
-                            (tab[current.getX()+i][current.getY()+j].getContent() != null)
+                            (!tab[current.getX()+i][current.getY()+j].isEmpty())
                             &&
                             (tab[current.getX()+i][current.getY()+j].getContent() instanceof Door)
                             )
                         )
+                            )
                         //isn't a diagonal if diagonals are not allowed
-                        && (!allowDiagonal | (i != 0 && j != 0)))
+                        && (!allowDiagonal | (i != 0 && j != 0))
+                            )
                         ){
                         
                         Node temp = new Node();
@@ -546,7 +550,9 @@ public class Table {
     
     //used only for testing, will be removed later
     public Node[] mark_iBFS (Node act_pos, Node target, Controller controller) {
+        
         if (!valid(target) || !getTile(target).isPassable()) return null; //early exit
+        
         PriorityQueue qpath = new PriorityQueue(11,node_comparator);
         PairList visitats = new PairList();
         Node source = act_pos;
@@ -557,26 +563,36 @@ public class Table {
         qpath.add(current_data);
         int limit = 10000;
         boolean first = true;
+        
         while (!qpath.isEmpty() & limit > 0){
-            tab[current.getX()][current.getY()].setID(Constants.SHALLOW_WATER_ID);
+            tab[current.getX()][current.getY()].setID(Constants.BLUEMARK);
             controller.gameStep();
+            
             try {
                 Thread.sleep(100);
             }
             catch (Exception ex){
                 
             }
-            tab[current.getX()][current.getY()].setID(2);
+            
+            tab[current.getX()][current.getY()].setID(Constants.REDMARK);
+            
             if(!first){
                 current_data = (NodeData)qpath.poll();
                 current_par = current_data.getNodePar();
                 current = current_data.getNode();
             } else first = false;
+            
             if (current.equals(target)) break;
+            
             else {
                 for (int i = -1; i < 2; ++i){
                 for (int j = -1; j < 2; ++j){
-                    if (!(i==0 & j==0) && checkPassable(current.getX() + i,current.getY() + j)){
+                    if (!(i==0 & j==0) 
+                            && 
+                            checkPassable(current.getX() + i,current.getY() + j)
+                            &&
+                            !(i != 0 && j != 0)){
                         Node temp = new Node();
                         temp.set(current.getX() + i, current.getY() + j);
                         if (!visitats.findNode(temp)){
@@ -596,8 +612,8 @@ public class Table {
         else{
             Node[] path = visitats.tracePath(current_par);
             for (int i = 0; i < path.length; i++){
-                tab[path[i].getX()][path[i].getY()].setID(Constants.BLACK_ID);
-            }  
+                tab[path[i].getX()][path[i].getY()].setID(Constants.GREENMARK);
+            }
             return path;
         }
     }
@@ -649,7 +665,7 @@ public class Table {
         auxNode = new Node(start);
         generateSquare(towerSize, auxNode.getX(), auxNode.getY(),1);
         auxNode.add(towerSize/2, towerSize/2);
-        campController.addExternalNode(auxNode);
+        campController.addExternalNode(auxNode.getNodeCopy());
         lightList.add(new LightSource(towerSize*3,auxNode.getX(),auxNode.getY()), true);
         
         //left to right lights upper part
@@ -663,7 +679,8 @@ public class Table {
         auxNode = new Node(start.getX()+(campSize - towerSize),start.getY());
         generateSquare(towerSize, auxNode.getX(), auxNode.getY(),2);
         auxNode.add(towerSize/2, towerSize/2);
-        campController.addExternalNode(auxNode);
+        campController.addExternalNode(auxNode.getNodeCopy());
+        
         lightList.add(new LightSource(towerSize*3,auxNode.getX(),auxNode.getY()), true);
         
         //up to down left
@@ -676,8 +693,10 @@ public class Table {
         //SE
         auxNode = new Node(start.getX()+(campSize - towerSize), start.getY()+(campSize - towerSize));
         generateSquare(towerSize,auxNode.getX(), auxNode.getY() ,4);
+        
         auxNode.add(towerSize/2, towerSize/2);
-        campController.addExternalNode(auxNode);
+        campController.addExternalNode(auxNode.getNodeCopy());
+        
         lightList.add(new LightSource(towerSize*3,auxNode.getX(),auxNode.getY()), true);
         
         //up to down right
@@ -690,8 +709,10 @@ public class Table {
         //SW
         auxNode = new Node(start.getX(), start.getY()+(campSize - towerSize));
         generateSquare(towerSize, auxNode.getX(), auxNode.getY() ,3);
+        
         auxNode.add(towerSize/2, towerSize/2);
-        campController.addExternalNode(auxNode);
+        campController.addExternalNode(auxNode.getNodeCopy());
+        
         lightList.add(new LightSource(towerSize*3,auxNode.getX(),auxNode.getY()), true);
         
         //WHAT!?

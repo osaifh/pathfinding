@@ -7,7 +7,7 @@ import pathfinding.auxiliar.Node;
  *
  * @author Alumne
  */
-public interface Actor {
+public interface Actor{
     
     public Actor getActor();
     

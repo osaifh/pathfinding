@@ -1,11 +1,12 @@
 package pathfinding.actor.Particles;
 
+import java.io.Serializable;
 import pathfinding.actor.Creatures.Creature;
 import pathfinding.Table.Table;
 import pathfinding.actor.Actor;
 import pathfinding.auxiliar.Node;
 
-public class MeleeTile extends Particle {
+public class MeleeTile extends Particle implements Serializable {
     private int tick_counter = 0;
     private final int tick_max = 10;
     private int life = 10;
@@ -19,7 +20,7 @@ public class MeleeTile extends Particle {
         for (int i = 0; i < t.getTile(pos).getContentSize(); ++i){
             Actor obj = t.getTile(pos).getContent(i);
             if (obj instanceof Creature && obj != source){
-                ((Creature)obj).setHP(((Creature)obj).getHP()-20);
+                ((Creature)obj).addHP(-20);
             }
         }
     }

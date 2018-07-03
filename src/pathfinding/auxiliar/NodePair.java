@@ -1,12 +1,13 @@
 package pathfinding.auxiliar;
 
+import java.io.Serializable;
+
 /**
  * This class is used internally for the pathfinding algorithms.
  * It stores a pair of nodes and a reference to the next node used by
  * the PairList class, and also the depth of the pair.
- * @author Me
  */
-public class NodePair {
+public class NodePair implements Serializable {
    
         private Node first;
         private NodePair source;

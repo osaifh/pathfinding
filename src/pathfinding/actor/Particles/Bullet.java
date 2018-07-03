@@ -6,10 +6,6 @@ import pathfinding.actor.Actor;
 import pathfinding.actor.LightSource;
 import pathfinding.auxiliar.Node;
 
-/**
- *
- * @author Alumne
- */
 public class Bullet extends Particle {
     private final int tick_max = 30;
     private int tick_counter = 0;
@@ -44,39 +40,34 @@ public class Bullet extends Particle {
         this.facing_direction = pos.relativeDirection(target);
         //calculate the angle
         double a = target.getY() - pos.getY();
-        double c = target.getX() - pos.getX();
-        double b = Math.sqrt(Math.abs(a*a + c*c));
+        double b = target.getX() - pos.getX();
         
-        double beta =  Math.acos(
-                (a*a+c*c-b*b)
-                    /
-                (2*a*c));
-        double alpha = Math.asin(
-                (c * Math.sin(beta))
-                        /
-                (b));
-        
-        angle = alpha;
-        d_x = pos.getX();
-        d_y = pos.getY();
-        if (c == 0) angle = 0;
-        if (a == 0){
-            if (c > 0)
-                angle = Math.toRadians(90);
-            else
-                angle = Math.toRadians(-90);
+        if (!(a == 0 && b == 0)){
+           
+            double alpha = Math.atan(
+                    -b / a 
+            );
+            angle = -alpha;
+            
+            d_x = origin.getX();
+            d_y = origin.getY();
+
+            if (a < 0) angle = Math.toRadians(180) + angle;
+            
+            l = new LightSource(3,pos.getX(),pos.getY());
         }
-        if (a < 0) angle = Math.toRadians(180) - angle;
-        l = new LightSource(3,pos.getX(),pos.getY());
+        else {
+            alive = false;
+        }
     }
     
     public boolean collision(Node n, Table t){
         if (t.valid(n) && !t.getTile(n).isEmpty()){
             Actor obj = t.getActor(n);
             if (obj instanceof Creature){
-                ((Creature)obj).setHP(((Creature)obj).getHP()-20);
-                return true;
+                ((Creature)obj).addHP(-20);
             }
+            return true;
         }
         return false;
     }

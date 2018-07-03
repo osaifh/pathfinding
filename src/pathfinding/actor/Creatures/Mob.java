@@ -1,5 +1,6 @@
 package pathfinding.actor.Creatures;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Queue;
 import pathfinding.Table.Table;
@@ -14,7 +15,7 @@ import pathfinding.auxiliar.PairList;
  *
  * @author Alumne
  */
-public class Mob extends Creature {
+public class Mob extends Creature implements Serializable {
     private boolean move, asleep;
     private Node[] runpath;
     private Memory mem, longTerm;
@@ -281,7 +282,8 @@ public class Mob extends Creature {
                         asleep = true;
                     }
                     else */
-                    if (hunger<100){
+                    //if (hunger<100){
+                    if (true){
                         findID(4,tab,6);
                         if (move & runpath != null){
                             currentAction = 1;

@@ -1,12 +1,13 @@
 package pathfinding.auxiliar;
 
+import java.io.Serializable;
 import pathfinding.Table.Table;
 
 /**
  *
  * @author 
  */
-public class Node {
+public class Node implements Serializable {
     
     private int x, y;
     

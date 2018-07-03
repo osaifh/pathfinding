@@ -1,10 +1,8 @@
 package pathfinding.auxiliar;
 
-/**
- *
- * @author
- */
-public class Memory {
+import java.io.Serializable;
+
+public class Memory implements Serializable {
     private Node[] content;
     private int index, size;
     private final static int MAX_SIZE = 10;

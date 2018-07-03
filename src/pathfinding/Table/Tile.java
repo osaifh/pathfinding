@@ -1,5 +1,6 @@
 package pathfinding.Table;
 
+import java.io.Serializable;
 import pathfinding.actor.Actor;
 import java.util.Random;
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ import pathfinding.auxiliar.Constants;
 /**
  * This class implements an object that contains information about an specific tile
  */
-public class Tile {
+public class Tile implements Serializable {
     private int terrain_id, light_level;
     private boolean passable, opaque;
     private ArrayList<Actor> icontent;

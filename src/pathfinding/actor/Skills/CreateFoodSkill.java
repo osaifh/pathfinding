@@ -1,15 +1,16 @@
 package pathfinding.actor.Skills;
 
+import java.io.Serializable;
 import pathfinding.Table.Table;
 import pathfinding.actor.ActorList;
 import pathfinding.actor.Interactables.genericObject;
 import pathfinding.auxiliar.Constants;
 import pathfinding.auxiliar.Node;
 
-public class CreateFoodSkill extends Skill {
+public class CreateFoodSkill extends Skill implements Serializable {
     
     public CreateFoodSkill(){
-        this.icon = Constants.RED_ID;
+        this.icon = Constants.DEBUG_SKILL_ID;
     }
 
     @Override

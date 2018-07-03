@@ -1,10 +1,12 @@
 package pathfinding.auxiliar;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Alumne
  */
-public class NodeData extends NodePair {
+public class NodeData extends NodePair implements Serializable {
     final double fromSource;
     final double toTarget;
     final double total;
@@ -26,8 +28,8 @@ public class NodeData extends NodePair {
      */
     public NodeData(Node n, Node source, Node target) {
         super(n);
-        fromSource = Node.distance(n,source);
-        toTarget = Node.distance(n, target);
+        fromSource = Node.ManhattanDistance(n,source);
+        toTarget = Node.ManhattanDistance(n, target);
         total = fromSource + toTarget;
     }
     

@@ -1,10 +1,11 @@
 package pathfinding.Controllers;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import pathfinding.actor.Creatures.Guard;
 import pathfinding.auxiliar.Node;
 
-public class CampController {
+public class CampController implements Serializable {
     private ArrayList<Node> externalNodes;
     private ArrayList<Node> internalNodes;
     private ArrayList<Guard> guards;

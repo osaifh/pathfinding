@@ -1,5 +1,6 @@
 package pathfinding.actor.Skills;
 
+import java.io.Serializable;
 import pathfinding.Listeners.IndicatorListener;
 import pathfinding.Table.Table;
 import pathfinding.actor.ActorList;
@@ -7,10 +8,10 @@ import pathfinding.actor.Creatures.Guard;
 import pathfinding.auxiliar.Node;
 import pathfinding.auxiliar.Constants;
 
-public class CreateGuardSkill extends Skill {
+public class CreateGuardSkill extends Skill implements Serializable {
     
     public CreateGuardSkill(){
-        this.icon = Constants.RED_PLAYER_ID;
+        this.icon = Constants.GUARD_SKILL_ID;
         this.toggle = false;
     }
 

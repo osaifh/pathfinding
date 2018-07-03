@@ -14,19 +14,29 @@ public class Constants {
      /*
         These are the directions and their respective int value
         0 1 2  NW N NE
-        3 X 4  W  X  E
-        5 6 7  SW S SE
+        7 X 3  W  X  E
+        6 5 4  SW S SE
     */
+    
+    public static final int NW = 0;
+    public static final int N = 1;
+    public static final int NE = 2;
+    public static final int E = 3;
+    public static final int SE = 4;
+    public static final int S = 5;
+    public static final int SW = 6;
+    public static final int W = 7;
+    
     static {
         DIRECTIONS = new HashMap<>();
         DIRECTIONS.put(0,new Node(-1,-1));
         DIRECTIONS.put(1,new Node(-1,0));
         DIRECTIONS.put(2,new Node(-1,1));
-        DIRECTIONS.put(3,new Node(0,-1));
-        DIRECTIONS.put(4,new Node(0,1));
-        DIRECTIONS.put(5,new Node(1,-1));
-        DIRECTIONS.put(6,new Node(1,0));
-        DIRECTIONS.put(7,new Node(1,1));
+        DIRECTIONS.put(3,new Node(0,1));
+        DIRECTIONS.put(4,new Node(1,1));
+        DIRECTIONS.put(5,new Node(1,0));
+        DIRECTIONS.put(6,new Node(1,-1));
+        DIRECTIONS.put(7,new Node(0,-1));
     }
     
     public static final HashMap<String,Node> DIRECTIONS_WORD;
@@ -41,15 +51,6 @@ public class Constants {
         DIRECTIONS_WORD.put("S",new Node(1,0));
         DIRECTIONS_WORD.put("SE",new Node(1,1));
     }
-    
-    public static final int NW = 0;
-    public static final int N = 1;
-    public static final int NE = 2;
-    public static final int W = 3;
-    public static final int E = 4;
-    public static final int SW = 5;
-    public static final int S = 6;
-    public static final int SE = 7;
     
     //LIGHT
     public static final int MAX_LIGHT = 100;
@@ -67,13 +68,22 @@ public class Constants {
     public static final int GHOST_N_ID = 11;
     public static final int GHOST_E_ID = 12;
     public static final int GHOST_W_ID = 13;
-    public static final int EXPLOSION_ID = 21;
     public static final int LIGHT_ICON_ID = 22;
     
     public static final int RED_PLAYER_ID = 30;
     public static final int BLUE_PLAYER_ID = 31;
     public static final int GREEN_PLAYER_ID = 32;
     public static final int HIGHLIGHT = 40;
+    
+    //UI
+    public static final int EMPTY_SKILL_ID = 50;
+    public static final int EXPLOSION_SKILL_ID = 51;
+    public static final int WALL_SKILL_ID = 52;
+    public static final int SHOOT_SKILL_ID = 53;
+    public static final int GUARD_SKILL_ID = 54;
+    public static final int MOB_SKILL_ID = 55;
+    public static final int DEBUG_SKILL_ID = 56;
+    public static final int LIGHT_SKILL_ID = 57;
     
     //terrain
     public static final int BLACK_ID = -1;
@@ -89,6 +99,11 @@ public class Constants {
     public static final int GRASS_ALT2_ID = 107;
     public static final int ROCK_ID = 108;
     public static final int GROUND_ID = 109;
+    
+    public static final int REDMARK = 110;
+    public static final int WHITEMARK = 111;
+    public static final int GREENMARK = 112;
+    public static final int BLUEMARK = 113;
     
     //indicators
     public static final int DAMAGE_INDICATOR = 1000;

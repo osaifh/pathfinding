@@ -1,5 +1,6 @@
 package pathfinding.actor.Creatures;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import pathfinding.auxiliar.Node;
 import pathfinding.Table.Table;
@@ -14,7 +15,7 @@ import pathfinding.actor.Skills.Skill;
  *
  * @author Me
  */
-public abstract class Creature implements Actor {
+public abstract class Creature implements Actor, Serializable {
     Node pos;
     Random randint = new Random();
     Boolean alive;
@@ -27,6 +28,11 @@ public abstract class Creature implements Actor {
     Camera camera;
     IndicatorListener indicatorListener;
     ArrayList<Skill> skillList;
+    
+    int curr_charge, charge_max;
+    Boolean charge_active;
+    Skill charging_skill;
+    Node skill_target;
     
     /**
      * Gets the sight range
@@ -163,4 +169,13 @@ public abstract class Creature implements Actor {
         this.indicatorListener = indicatorListener;
     }
     
+    public void Simulate(Table t){
+        /*
+        if (charge_active){
+            curr_charge++;
+            if (curr_charge >= charge_max){
+                charging_skill.activate(pos, skill_target, t, objList);
+            }
+        }*/ 
+    }
 }

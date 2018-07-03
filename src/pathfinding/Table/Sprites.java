@@ -39,8 +39,11 @@ public class Sprites {
         SPRITE_MAP.put(Constants.BLUE_PLAYER_ID,FilePaths.oldPlayer_blue);
         SPRITE_MAP.put(Constants.GREEN_PLAYER_ID,FilePaths.oldPlayer_green);
         SPRITE_MAP.put(Constants.HIGHLIGHT,FilePaths.highlight);
-        SPRITE_MAP.put(Constants.EXPLOSION_ID, FilePaths.explosionIcon);
         SPRITE_MAP.put(Constants.LIGHT_ICON_ID, FilePaths.lightsOn);
+        SPRITE_MAP.put(Constants.REDMARK, FilePaths.redMark);
+        SPRITE_MAP.put(Constants.WHITEMARK, FilePaths.whiteMark);
+        SPRITE_MAP.put(Constants.GREENMARK, FilePaths.greenMark);
+        SPRITE_MAP.put(Constants.BLUEMARK, FilePaths.blueMark);
         
         COLOR_MAP = new HashMap<>();
         COLOR_MAP.put(Constants.BLACK_ID, Color.BLACK);
@@ -81,5 +84,13 @@ public class Sprites {
         UI_MAP.put(5,FilePaths.selected);
         UI_MAP.put(6,FilePaths.UIblack);
         UI_MAP.put(7,FilePaths.blue);
+        UI_MAP.put(Constants.EMPTY_SKILL_ID, FilePaths.emptyIcon);
+        UI_MAP.put(Constants.EXPLOSION_SKILL_ID, FilePaths.explosionIcon);
+        UI_MAP.put(Constants.WALL_SKILL_ID, FilePaths.wallIcon);
+        UI_MAP.put(Constants.SHOOT_SKILL_ID, FilePaths.shootIcon);
+        UI_MAP.put(Constants.GUARD_SKILL_ID, FilePaths.guardIcon);
+        UI_MAP.put(Constants.MOB_SKILL_ID, FilePaths.mobIcon);
+        UI_MAP.put(Constants.DEBUG_SKILL_ID, FilePaths.debugIcon);
+        UI_MAP.put(Constants.LIGHT_SKILL_ID, FilePaths.lightSkillIcon);
     }
 }

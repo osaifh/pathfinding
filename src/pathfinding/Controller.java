@@ -4,20 +4,23 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.NotSerializableException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import javax.swing.Timer;
 import pathfinding.actor.*;
 import pathfinding.actor.Creatures.*;
 import pathfinding.actor.Interactables.*;
-import pathfinding.actor.Particles.*;
 import pathfinding.actor.Skills.*;
 import pathfinding.Table.*;
 import pathfinding.auxiliar.Node;
 import java.util.Random;
 import pathfinding.Audio.AudioEngine;
-import pathfinding.Audio.AudioConstants;
+import pathfinding.Audio.AudioManager;
 import pathfinding.Controllers.CampController;
-import pathfinding.Indicators.DamageIndicator;
 import pathfinding.Listeners.IndicatorListener;
 import pathfinding.auxiliar.Constants;
 
@@ -32,20 +35,17 @@ public class Controller {
     private Table tab;
     private Camera cam;
     private Player activePlayer;
-    private ActorList objList, lightList;
+    private ActorList objList;
     private int time, UIselected;
+    private AudioEngine audioEngine;
     ActionListener taskPerformer = (ActionEvent e) -> {
         gameStep();
     };
     Timer timer = new Timer(10,taskPerformer);
     private Random rng = new Random();
-    protected Controller controller = this;
     // delete this too btw
     boolean timeStop = true;
-    private Mob trackingMob;
-    
-    private AudioEngine audioEngine;
-    
+
     public ArrayList<Skill> getSkillList(){
        return activePlayer.getSkillList();
     }
@@ -62,9 +62,8 @@ public class Controller {
         time = 0;
         UIselected = 1;
         objList = new ActorList();
-        lightList = new ActorList();
         lights = lightsOn = false;
-        audioEngine = new AudioEngine();
+        audioEngine = AudioManager.getInstance();
     }
     
     /**
@@ -76,27 +75,31 @@ public class Controller {
         do {
             playerPos.generate(tab.getSize());
         } while ((!tab.valid(playerPos) || !tab.checkPassable(playerPos)));
-        
         activePlayer = new Player(playerPos.getX(),playerPos.getY());
-        generateActor(activePlayer);
-        activePlayer.addIndicatorListener(new IndicatorListener(objList, tab));
-        cam.setActivePlayer(activePlayer);
-        cam.setPos(activePlayer.getNode());
         
         generateCamp();
-        //some temporary code, just meant to test some things
-        //will be removed later
-        //for (int i = 0; i < 10; ++i) tab.generateSquareHouse(10, 1, lightList);
-        //tab.generateTown(new Node(playerPos.getX()-1,playerPos.getY()-1), lightList);
-        //tab.generateSquareHouse(, 10, 2, lightList);
-        //Site s = new Site(new Node(activePlayer.getNode().getX()+1,activePlayer.getNode().getY()+1),tab,objList,lightList);
     }
     
     /**
      * Starts the execution of the game
      */
     public void run() {
+        /*
+        try {
+            load();
+        }
+        catch(Exception ex){
+            System.out.println("Failed to load something");
+            tab = new Table();
+            objList = new ActorList();
+            startup();
+        }*/
         startup();
+        generateActor(activePlayer);
+        activePlayer.addIndicatorListener(new IndicatorListener(objList, tab));
+        cam.setActivePlayer(activePlayer);
+        cam.setPos(activePlayer.getNode());
+        cam.setTable(tab);
         cam.fillVisibilityTable(true);
         timer.start();
         cam.update();
@@ -114,7 +117,7 @@ public class Controller {
     
     public void generateCamp(){
         CampController campController = new CampController();
-        Node n = tab.generateCamp(campController,lightList);
+        Node n = tab.generateCamp(campController, objList);
         campController.getExternalNodes().forEach((node)->{
             Node ext = node.getNodeCopy();
             ext.add(1, 1);
@@ -180,7 +183,6 @@ public class Controller {
         }
         
         //simulates all the objects and updates the camera
-        lightList.simulate(tab);
         if (!paused) objList.simulate(tab);
         cam.update();
         //updates the time value
@@ -222,7 +224,13 @@ public class Controller {
         Node pos = new Node(x,y);
         if (UIselected - 1 < activePlayer.getSkillList().size()){
             Skill skill = activePlayer.getSkillList().get(UIselected-1);
-            if (skill.getCurrentCooldown() == 0){
+            if (skill instanceof PathfindingSkill){
+                ((PathfindingSkill)skill).activate(activePlayer.getNode(), pos.getNodeCopy(), tab, objList, this);
+            }
+            else if (skill instanceof CreateMonsterSkill){
+                ((CreateMonsterSkill)skill).activate(activePlayer.getNode(), pos.getNodeCopy(), tab, objList, this);
+            }
+            else if (skill.getCurrentCooldown() == 0){
                 if (skill.isToggle()){
                     activatedSkill = skill;
                     skillToggle = true;
@@ -230,81 +238,7 @@ public class Controller {
                 skill.activate(activePlayer.getNode(), pos.getNodeCopy(), tab, objList);
             }
         }
-        /*
-            case 1:
-                ShotSource shotSource = new ShotSource(activePlayer.getNode().getNodeCopy(),pos,tab,objList);
-                //System.out.println(tab.getTile(pos).getTerrainID());
-                //generateActor(new DamageIndicator(100,pos));
-                //primeRunes(pos);
-                //testing left click to move
-               // activePlayer.BFS(pos.getX(), pos.getY(), tab, this);
-                
-                
-                //Bullet b = new Bullet(activePlayer.getNode().getNodeCopy(),20,pos);
-                //generateActor(b);
-                
-                break;
-            case 2:
-                tab.getTile(pos).setWall();
-                break;
-            case 3:
-                
-                //Rune rune = new Rune(pos);
-                //runeList.add(rune);
-                //generateActor(rune);
-                
-                //Bullet b = new Bullet(activePlayer.getNode().getNodeCopy(),20,pos);
-                break;
-            case 4:
-            {
-                Door door = new Door(pos.getX(),pos.getY(),tab);
-                generateActor(door);
-                
-                //LightSource ln = new LightSource(5,pos.getX(),pos.getY());
-                //lightList.add(ln,true);
-                
-                break;
-            }
-            case 5:
-            {
-                LightSource ln = new LightSource(10,pos.getX(),pos.getY());
-                lightList.add(ln,true);
-                break;
-            }
-            case 6:
-            {
-                LightSource ln = new LightSource(20,pos.getX(),pos.getY());
-                lightList.add(ln,true);
-                break;
-            }
-            case 7:
-            {
-                Guard guard = new Guard(pos,objList);
-                generateActor(guard);
-                break;
-            }
-            case 8:
-            {
-                Mob mob = new Mob(pos.getX(),pos.getY());
-                if (trackingMob == null) trackingMob = mob;
-                else {
-                    mob.setTracking(trackingMob);
-                    trackingMob = mob;
-                }
-                generateActor(mob);
-                break;
-            }
-            case 9:
-            {
-                Explosion ex = new Explosion(activePlayer,pos,tab,objList,8);
-                generateActor(ex);
-                break;
-            }
-            
-        }
-        */
     }
-    
     
     /**
      * Handles the keyboard input
@@ -354,6 +288,9 @@ public class Controller {
                     //TODO: check before casting
                     cam.toggleLocked((Creature)tab.getTile(cam.getPos()).getContent());
                     break;
+                case KeyEvent.VK_K:
+                    save();
+                    break;
                 case KeyEvent.VK_L:
                     lights = !lights;
                     break;
@@ -372,6 +309,10 @@ public class Controller {
                     break;
                 case KeyEvent.VK_P:
                     paused = !paused;
+                    break;
+                case KeyEvent.VK_B:
+                    tab = new Table();
+                    cam.setTable(tab);
                     break;
                 case KeyEvent.VK_M:
                     cam.toggleShowMap();
@@ -450,4 +391,76 @@ public class Controller {
 
     };
     
+    
+    public void save(){
+        String filenameTable = "table.ser";
+        String filenameList = "list.ser";
+        String filenamePlayer = "player.ser";
+        FileOutputStream fileOutputStream;
+        ObjectOutputStream objectOutputStream;
+        try {
+            System.out.println("Starting saving process");
+            
+            fileOutputStream = new FileOutputStream(filenameTable);
+            objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(tab);
+            objectOutputStream.close();
+            fileOutputStream.close();
+            
+            fileOutputStream = new FileOutputStream(filenameList);
+            objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(objList);
+            objectOutputStream.close();
+            fileOutputStream.close();
+            
+            fileOutputStream = new FileOutputStream(filenamePlayer);
+            objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(activePlayer);
+            objectOutputStream.close();
+            fileOutputStream.close();
+            
+            System.out.println("Game saved");
+        }
+        catch (NotSerializableException ex){
+            System.out.println(ex.toString());
+        }
+        catch(Exception ex){
+            System.out.println(ex.getMessage());
+        }
+    }
+    
+    public void load() throws Exception{
+        String filenameTable = "table.ser";
+        String filenameList = "list.ser";
+        String filenamePlayer = "player.ser";
+        FileInputStream fileInputStream;
+        ObjectInputStream objectInputStream;
+        try {
+            System.out.println("Starting load process");
+            
+            fileInputStream = new FileInputStream(filenameTable);
+            objectInputStream = new ObjectInputStream(fileInputStream);
+            tab = (Table)objectInputStream.readObject();
+            objectInputStream.close();
+            fileInputStream.close();
+            
+            fileInputStream = new FileInputStream(filenameList);
+            objectInputStream = new ObjectInputStream(fileInputStream);
+            objList = (ActorList) objectInputStream.readObject();
+            objectInputStream.close();
+            fileInputStream.close();
+            
+            fileInputStream = new FileInputStream(filenamePlayer);
+            objectInputStream = new ObjectInputStream(fileInputStream);
+            activePlayer = (Player) objectInputStream.readObject();
+            objectInputStream.close();
+            fileInputStream.close();
+            
+            System.out.println("Game loaded");
+        }
+        catch (Exception ex){
+            System.out.println("File not found, making a new controller");
+            throw(ex);
+        }
+    }
 }

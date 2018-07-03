@@ -9,12 +9,12 @@ import static org.lwjgl.openal.ALC10.*;
 public class AudioEngine {
     private long device;
     private long context;
-    private static final int SOURCE_NUMBER = 32;
+    private final int SOURCE_NUMBER = 32;
     
     private HashMap<Integer, LocalBuffer> buffers = new HashMap<>();
     private final LocalSource[] sources = new LocalSource[SOURCE_NUMBER];
     
-    public AudioEngine(){
+    protected AudioEngine(){
         init();
         initSources();
         loadSounds();

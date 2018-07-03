@@ -9,9 +9,11 @@ public class AudioConstants {
     public static final int MAX_DISTANCE = 64;
     
     public static final int SHOOT_SOUND = 0;
+    public static final int EXPLOSION_SOUND = 1;
     
     private static final String BASEPATH = "audioResources/";
     public static final String[] FILENAMES = {
-        BASEPATH+"shoot_sound.ogg"
+        BASEPATH+"shoot_sound.ogg",
+        BASEPATH+"explosion_sound.ogg"
     };
 }

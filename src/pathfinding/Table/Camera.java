@@ -1,7 +1,6 @@
 package pathfinding.Table;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferStrategy;
@@ -128,6 +127,10 @@ public class Camera extends JFrame {
         skillMenu = new SkillMenu(cameraHeight, cameraWidth, TILE_SIZE);
     }
 
+    public void setTable(Table table){
+        this.table = table;
+    }
+    
     /**
      * Gets the size of the camera
      *
@@ -402,7 +405,7 @@ public class Camera extends JFrame {
         int leftX = leftMargin;
         int drawY = TILE_SIZE - TOP_MARGIN;
         for (int i = 0; i < cameraHeight; ++i) {
-            g.drawImage(Sprites.UI_MAP.get(0).getImage(), leftX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
+            g.drawImage(Sprites.UI_MAP.get(Constants.EMPTY_SKILL_ID).getImage(), leftX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
             if (i > 4){
                 g.drawImage(Sprites.UI_MAP.get(0).getImage(), rightX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
             }
@@ -419,7 +422,12 @@ public class Camera extends JFrame {
         int aux;
         for (int i = 0; i < parentController.getSkillList().size(); i++){
             Skill skill = parentController.getSkillList().get(i);
-            g.drawImage(Sprites.SPRITE_MAP.get(skill.getIcon()).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
+            try {
+                g.drawImage(Sprites.UI_MAP.get(skill.getIcon()).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
+            }
+            catch (Exception ex){
+                g.drawImage(Sprites.UI_MAP.get(Constants.EMPTY_SKILL_ID).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
+            }
             if (skill.getMaxCooldown() != 0 && skill.getCurrentCooldown() != 0){
                 float alpha = 0.5f;
                 g.setColor(new Color(0, 0, 0, alpha));

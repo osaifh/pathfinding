@@ -1,10 +1,11 @@
 package pathfinding.actor.Skills;
 
+import java.io.Serializable;
 import pathfinding.Table.Table;
 import pathfinding.actor.ActorList;
 import pathfinding.auxiliar.Node;
 
-public abstract class Skill {
+public abstract class Skill implements Serializable {
     int currentCooldown, maxCooldown;
     int icon;
     boolean toggle;

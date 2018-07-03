@@ -1,5 +1,6 @@
 package pathfinding.actor.Interactables;
 
+import java.io.Serializable;
 import pathfinding.actor.Interactables.Interactable;
 import pathfinding.Table.Table;
 
@@ -7,7 +8,7 @@ import pathfinding.Table.Table;
  *
  * @author Alumne
  */
-public class Destructible extends Interactable {
+public class Destructible extends Interactable implements Serializable{
     int hp;
     
     public Destructible(int id, int hp){

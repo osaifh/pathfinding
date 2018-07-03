@@ -1,18 +1,17 @@
 package pathfinding.actor.Skills;
 
-import pathfinding.Listeners.IndicatorListener;
+import java.io.Serializable;
 import pathfinding.Table.Table;
 import pathfinding.actor.ActorList;
-import pathfinding.actor.Creatures.Guard;
 import pathfinding.actor.Creatures.Mob;
 import pathfinding.auxiliar.Node;
 import pathfinding.auxiliar.Constants;
 
-public class CreateMobSkill extends Skill {
+public class CreateMobSkill extends Skill implements Serializable {
     private Mob trackingMob;
     
     public CreateMobSkill(){
-        this.icon = Constants.BLUE_PLAYER_ID;
+        this.icon = Constants.MOB_SKILL_ID;
         this.toggle = false;
     }
 
