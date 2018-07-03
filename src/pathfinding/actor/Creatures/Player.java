@@ -9,6 +9,7 @@ import pathfinding.actor.Actor;
 import pathfinding.actor.LightSource;
 import pathfinding.actor.Skills.*;
 import pathfinding.auxiliar.Node;
+import pathfinding.auxiliar.Constants;
 
 /**
  *
@@ -26,12 +27,12 @@ public class Player extends Creature implements Serializable {
     
     
     public Player(int x, int y){
-        id = 2;
+        id = Constants.PLAYER_ID;
         pos = new Node(x,y);
         alive = true;
         facing_direction = 4;
-        maxHP = 100;
-        hp = 100;
+        maxHP = 500;
+        hp = 500;
         l = new LightSource(6,pos.getX(),pos.getY());
         lightToggle = true;
         sight_range = 30;
@@ -41,7 +42,8 @@ public class Player extends Creature implements Serializable {
         skillList.add(new CreateGuardSkill());
         skillList.add(new CreateWallSkill());
         skillList.add(new ForcePushSkill());
-        skillList.add(new CreateLightSkill());
+        skillList.add(new GrenadeSkill(30));
+        skillList.add(new IceWallSkill());
         skillList.add(new CreateMobSkill());
         skillList.add(new ShootBulletSkill());
         //skillList.add(new CreateFoodSkill());
@@ -62,16 +64,16 @@ public class Player extends Creature implements Serializable {
      * @param cam the camera used to determinate visibility
      */
     public void lookAround(Table tab, int range, Camera cam){
-            cam.setVisibilityTable(0,0, true);            
-            for (int i = -1; i < 2; ++i){
-                for (int j = -1; j < 2; ++j){
-                    if (i!=0 && j !=0){
-                        lookDirection(tab,1,1.0f,0.0f, 0,i,j,0,range,cam);
-                        lookDirection(tab,1,1.0f,0.0f, i,0,0,j,range,cam);
-                    }
+        cam.setVisibilityTable(0,0, true);
+        cam.setFOWtable(this.getNode().getX(), this.getNode().getY());            
+        for (int i = -1; i < 2; ++i){
+            for (int j = -1; j < 2; ++j){
+                if (i!=0 && j !=0){
+                    lookDirection(tab,1,1.0f,0.0f, 0,i,j,0,range,cam);
+                    lookDirection(tab,1,1.0f,0.0f, i,0,0,j,range,cam);
                 }
             }
-            
+        }
     }
     
     private void lookDirection(Table tab, int row, float start, float end, int xx, int xy, int yx, int yy, int range, Camera cam){
@@ -97,6 +99,7 @@ public class Player extends Creature implements Serializable {
                 Node delta = new Node(currentX,currentY);
                 if (Node.distance(pos,delta) <= range){
                     cam.setVisibilityTable((delta.getX() - pos.getX()),(delta.getY() - pos.getY()), true);
+                    cam.setFOWtable(delta.getX(), delta.getY());
                 }
                 
                 if (blocked){

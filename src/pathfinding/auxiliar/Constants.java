@@ -60,10 +60,16 @@ public class Constants {
     
     //IDs
     //objects
+    public static final int BLACK_ID = -1;
+    public static final int WALL_ID = 1;
     public static final int PLAYER_ID = 2;
+    public static final int RED_ID = 3;
     public static final int FOOD_ID = 4;
+    public static final int BOMB_ID = 5;
+    public static final int ICEWALL_ID = 6;
     public static final int DOOR_OPEN_ID = 7;
     public static final int DOOR_CLOSED_ID = 8;
+    public static final int YELLOW_ID = 9;
     public static final int GHOST_S_ID = 10;
     public static final int GHOST_N_ID = 11;
     public static final int GHOST_E_ID = 12;
@@ -84,11 +90,10 @@ public class Constants {
     public static final int MOB_SKILL_ID = 55;
     public static final int DEBUG_SKILL_ID = 56;
     public static final int LIGHT_SKILL_ID = 57;
+    public static final int ICEWALL_SKILL_ID = 58;
+    public static final int FORCEPUSH_SKILL_ID = 59;
     
     //terrain
-    public static final int BLACK_ID = -1;
-    public static final int WALL_ID = 1;
-    public static final int RED_ID = 3;
     public static final int DEEP_WATER_ID = 100;
     public static final int WATER_ID = 101;
     public static final int SHALLOW_WATER_ID = 102;

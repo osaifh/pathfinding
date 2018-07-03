@@ -8,7 +8,7 @@ package pathfinding;
 public class Pathfinding {
     
     public static void main(String[] args) throws InterruptedException {
-        Controller game = new Controller();
+        Controller game = ControllerManager.getController();
         game.run();
     }
     

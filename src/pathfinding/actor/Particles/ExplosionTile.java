@@ -7,11 +7,12 @@ import pathfinding.Table.Table;
 import pathfinding.actor.Actor;
 import pathfinding.actor.ActorList;
 import pathfinding.actor.LightSource;
+import pathfinding.auxiliar.Constants;
 import pathfinding.auxiliar.Node;
 
 public class ExplosionTile extends Particle implements Serializable {
     private int tick_counter = 0;
-    private final int tick_max = 5;
+    private int tick_max = 5;
     private int remainingTime = 10;
     private ArrayList<Node> t_list;
     private Explosion source;
@@ -20,7 +21,7 @@ public class ExplosionTile extends Particle implements Serializable {
     private boolean done;
     private ActorList objlist;
     private LightSource l;
-    private final int DAMAGE = 50;
+    private int damage = 50;
     private final int LIGHT_INTENSITY = 3;
     
     public ExplosionTile(Explosion source, Table t, ActorList objlist, Node pos, int count){
@@ -31,14 +32,20 @@ public class ExplosionTile extends Particle implements Serializable {
         this.count = count;
         done = false;
         this.objlist = objlist;
-        id = 3;
+        id = Constants.RED_ID;
         for (int i = 0; i < t.getTile(pos).getContentSize(); ++i){
             Actor obj = t.getTile(pos).getContent(i);
             if (obj instanceof Creature){
-                ((Creature)obj).addHP(-DAMAGE);
+                ((Creature)obj).addHP(-damage);
             }
         }
         l = new LightSource(LIGHT_INTENSITY,pos.getX(),pos.getY());
+    }
+    
+    public ExplosionTile(Explosion source, Table t, ActorList objlist, Node pos, int count, int damage, int tick_max){
+        this(source, t, objlist, pos, count);
+        this.tick_max = tick_max;
+        this.damage = damage;
     }
 
     @Override

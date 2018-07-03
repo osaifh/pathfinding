@@ -1,10 +1,10 @@
 package pathfinding.actor.Creatures;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import pathfinding.Table.Table;
+import pathfinding.Table.Tile;
 import pathfinding.actor.Actor;
 import pathfinding.actor.ActorList;
 import pathfinding.actor.Skills.ShootBulletSkill;
@@ -15,7 +15,7 @@ import pathfinding.auxiliar.NodePair;
 import pathfinding.auxiliar.PairList;
 import pathfinding.auxiliar.Constants;
 
-public class Guard extends Creature implements Serializable {
+public class Guard extends Creature {
     private boolean move, asleep;
     private Node[] runpath;
     private Memory mem, longTerm;
@@ -86,8 +86,11 @@ public class Guard extends Creature implements Serializable {
      */
     public void run(Table tab){
         if (move && runpath.length > 0 && runindex < runpath.length){
-            //tab.getTile(runpath[runindex]).isPassable() && a
-            if (tab.getTile(runpath[runindex]).getLight()>=20){
+            Tile tile = tab.getTile(runpath[runindex]);
+            //TODO: remove hardcoded values
+            //!tile.ContainsCreature()
+            //tile.isPassable()
+            if (tile.getLight()>=20){
                 iMove(tab,runpath[runindex]);
                 
                 if (runindex == runpath.length-1) move = false;

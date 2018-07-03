@@ -21,7 +21,7 @@ public class ForcePush extends Particle {
     double d_x, d_y;
     
     public ForcePush(Node pos,  Node target, int speed){
-        id = Constants.BLUEMARK;
+        id = Constants.YELLOW_ID;
         this.pos = pos;
         this.speed = speed;
         alive = true;
@@ -56,24 +56,36 @@ public class ForcePush extends Particle {
             Actor obj = t.getActor(n);
             if (obj != null){
                 int dir = pos.relativeDirection(obj.getNode());
-                Node next = obj.getNode().getNodeCopy();
-                next.add(Constants.DIRECTIONS.get(dir));
-                
-                if (t.valid(next)){
-                    if (obj instanceof Creature){
-                        //BUG: may push things out of the map and break things
-                        if (t.checkPassable(next)){
-                            ((Creature) obj).iMove(t, dir);
-                            return true;
+                if (dir != -1){
+                    Node next = obj.getNode().getNodeCopy();
+                    next.add(Constants.DIRECTIONS.get(dir));
+
+                    if (t.valid(next)){
+                        if (obj instanceof Creature){
+                            //BUG: may push things out of the map and break things
+                            if (t.checkPassable(next)){
+                                if (t.getTile(next).ContainsCreature()){
+                                    ((Creature) obj).addHP(-30);
+                                    
+                                    Actor collided = t.getActor(next);
+                                    if (collided != null && collided instanceof Creature){
+                                        ((Creature)collided).addHP(-30);
+                                    }
+                                }
+                                else {
+                                    ((Creature) obj).iMove(t, dir);
+                                    return true;
+                                }
+                            }
+                            //collides with a wall
+                            else {
+                                //TODO: change this to DAMAGE later
+                                ((Creature) obj).addHP(-30);
+                            }
                         }
-                        //collides with a wall
-                        else {
-                            //TODO: change this to DAMAGE later
-                            ((Creature) obj).addHP(-30);
+                        else if (obj instanceof Particle){
+                            ((Particle)obj).alive = false;
                         }
-                    }
-                    else if (obj instanceof Particle){
-                        ((Particle)obj).alive = false;
                     }
                 }
             }
@@ -98,9 +110,11 @@ public class ForcePush extends Particle {
                 int y = (int) Math.round(d_y);
                 Node next = new Node(x,y);
                 t.getTile(pos).clearMatchingContent(this);
+                t.getTile(pos).setPassable(true);
                 collision(next, t);
                 if (pos.iMove(t, next)){
                     t.getTile(pos).addContent(this);
+                    t.getTile(pos).setPassable(false);
                     facing_direction = pos.relativeDirection(next);
                 }
                 else {
@@ -110,18 +124,9 @@ public class ForcePush extends Particle {
                 ++stepCounter;
                 if (stepCounter >= LIMIT){
                     alive = false;
+                    t.getTile(pos).setPassable(true);
                 }
             }
         }
-    }
-
-    @Override
-    public boolean equalNode(Actor x){
-        return pos.equals(x.getNode());
-    }
-
-    @Override
-    public boolean isAlive(){
-        return alive;
     }
 }

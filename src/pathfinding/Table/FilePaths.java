@@ -14,6 +14,7 @@ public class FilePaths {
     
     public static ImageIcon black = new ImageIcon(RESOURCE_PATH+"Black.png");
     public static ImageIcon red = new ImageIcon(RESOURCE_PATH+"Red.png");
+    public static ImageIcon yellow = new ImageIcon(RESOURCE_PATH+"yellow.png");
     public static ImageIcon grassBase = new ImageIcon(RESOURCE_PATH+"Grass.png");
     public static ImageIcon grass2 = new ImageIcon(RESOURCE_PATH+"Grass2.png");
     public static ImageIcon grass3 = new ImageIcon(RESOURCE_PATH+"Grass3.png");
@@ -24,6 +25,9 @@ public class FilePaths {
     public static ImageIcon food = new ImageIcon(RESOURCE_PATH+"Food.png");
     public static ImageIcon door_open = new ImageIcon(RESOURCE_PATH+"Door_Open.png");
     public static ImageIcon door_closed = new ImageIcon(RESOURCE_PATH+"Door_Closed.png");
+    public static ImageIcon bomb = new ImageIcon(RESOURCE_PATH+"bomb.png");
+    public static ImageIcon icewall = new ImageIcon(RESOURCE_PATH+"icewall.png");
+    
     public static ImageIcon sand = new ImageIcon(RESOURCE_PATH+"sand.png");
     public static ImageIcon deepWater = new ImageIcon(RESOURCE_PATH+"deepWater.png");
     public static ImageIcon shallowWater = new ImageIcon(RESOURCE_PATH+"shallowWater.png");
@@ -53,6 +57,8 @@ public class FilePaths {
     public static ImageIcon mobIcon = new ImageIcon(RESOURCE_PATH+"UI\\createmob_icon.png");
     public static ImageIcon debugIcon = new ImageIcon(RESOURCE_PATH+"UI\\debugskill_icon.png");
     public static ImageIcon lightSkillIcon = new ImageIcon(RESOURCE_PATH+"UI\\createlight_icon.png");
+    public static ImageIcon icewallSkillIcon = new ImageIcon(RESOURCE_PATH+"UI\\icewall_icon.png");
+    public static ImageIcon forcepushSkillIcon = new ImageIcon(RESOURCE_PATH+"UI\\forcepush_icon.png");
     
     //player test
     public static ImageIcon playerS = new ImageIcon(RESOURCE_PATH+"player\\playerS.png");

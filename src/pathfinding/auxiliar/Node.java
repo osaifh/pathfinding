@@ -150,12 +150,17 @@ public class Node implements Serializable {
     }
     
     public Boolean iMove(Table t, int dir){
-        this.add(Constants.DIRECTIONS.get(dir));
-        return t.checkPassable(this);
+        Node node = new Node(x,y);
+        node.add(Constants.DIRECTIONS.get(dir));
+        if (t.checkPassable(node) && !t.getTile(node).ContainsCreature()){
+            this.setToNode(node);
+            return true;
+        }
+        return false;
     }
     
     public Boolean iMove(Table t, Node n){
-        if (t.checkPassable(n)){
+        if (t.checkPassable(n) && !t.getTile(n).ContainsCreature()){
             this.setToNode(n);
             return true;
         }

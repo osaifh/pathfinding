@@ -44,6 +44,9 @@ public class Sprites {
         SPRITE_MAP.put(Constants.WHITEMARK, FilePaths.whiteMark);
         SPRITE_MAP.put(Constants.GREENMARK, FilePaths.greenMark);
         SPRITE_MAP.put(Constants.BLUEMARK, FilePaths.blueMark);
+        SPRITE_MAP.put(Constants.BOMB_ID, FilePaths.bomb);
+        SPRITE_MAP.put(Constants.ICEWALL_ID, FilePaths.icewall);
+        SPRITE_MAP.put(Constants.YELLOW_ID, FilePaths.yellow);
         
         COLOR_MAP = new HashMap<>();
         COLOR_MAP.put(Constants.BLACK_ID, Color.BLACK);
@@ -92,5 +95,7 @@ public class Sprites {
         UI_MAP.put(Constants.MOB_SKILL_ID, FilePaths.mobIcon);
         UI_MAP.put(Constants.DEBUG_SKILL_ID, FilePaths.debugIcon);
         UI_MAP.put(Constants.LIGHT_SKILL_ID, FilePaths.lightSkillIcon);
+        UI_MAP.put(Constants.ICEWALL_SKILL_ID, FilePaths.icewallSkillIcon);
+        UI_MAP.put(Constants.FORCEPUSH_SKILL_ID, FilePaths.forcepushSkillIcon);
     }
 }

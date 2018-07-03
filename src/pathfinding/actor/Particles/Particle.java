@@ -39,5 +39,4 @@ public abstract class Particle implements Actor {
     public boolean isAlive(){
         return alive;
     }
-    
 }

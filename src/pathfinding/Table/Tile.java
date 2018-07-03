@@ -4,6 +4,7 @@ import java.io.Serializable;
 import pathfinding.actor.Actor;
 import java.util.Random;
 import java.util.ArrayList;
+import pathfinding.actor.Creatures.Creature;
 import pathfinding.auxiliar.Constants;
 
 /**
@@ -108,6 +109,10 @@ public class Tile implements Serializable {
         return null;
     }
     
+    public ArrayList<Actor> getContentList(){
+        return icontent;
+    }
+    
     public Actor getMatchingContent(Actor x){
         for (int i = 0; i < icontent.size(); ++i){
             if (icontent.get(i)==x){
@@ -115,6 +120,13 @@ public class Tile implements Serializable {
             }
         }
         return null;
+    }
+    
+    public Boolean ContainsCreature(){
+        for(Object obj : icontent){
+            if (obj instanceof Creature) return true;
+        }
+        return false;
     }
     
     public void updateMatchingContent(Actor x){

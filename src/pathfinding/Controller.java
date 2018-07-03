@@ -32,7 +32,7 @@ import pathfinding.auxiliar.Constants;
 public class Controller {
     private boolean running, lights, lightsOn, paused;
     private final int DAY_TIME = 2400;
-    private Table tab;
+    private Table table;
     private Camera cam;
     private Player activePlayer;
     private ActorList objList;
@@ -55,8 +55,8 @@ public class Controller {
      */
     public Controller() {
         running = true;
-        tab = new Table();
-        cam = new Camera(tab,this);
+        table = new Table();
+        cam = new Camera(table,this);
         cam.addKeyListener(kListener);
         cam.setFocusable(true);
         time = 0;
@@ -73,8 +73,8 @@ public class Controller {
     public void startup() {
         Node playerPos = new Node();
         do {
-            playerPos.generate(tab.getSize());
-        } while ((!tab.valid(playerPos) || !tab.checkPassable(playerPos)));
+            playerPos.generate(table.getSize());
+        } while ((!table.valid(playerPos) || !table.checkPassable(playerPos)));
         activePlayer = new Player(playerPos.getX(),playerPos.getY());
         
         generateCamp();
@@ -96,10 +96,10 @@ public class Controller {
         }*/
         startup();
         generateActor(activePlayer);
-        activePlayer.addIndicatorListener(new IndicatorListener(objList, tab));
+        activePlayer.addIndicatorListener(new IndicatorListener(objList, table));
         cam.setActivePlayer(activePlayer);
         cam.setPos(activePlayer.getNode());
-        cam.setTable(tab);
+        cam.setTable(table);
         cam.fillVisibilityTable(true);
         timer.start();
         cam.update();
@@ -111,24 +111,24 @@ public class Controller {
      * @param actor the new actor we have generated
      */
     public void generateActor(Actor actor){
-        tab.add(actor);
+        table.add(actor);
         objList.add(actor, true);
     }
     
     public void generateCamp(){
         CampController campController = new CampController();
-        Node n = tab.generateCamp(campController, objList);
+        Node n = table.generateCamp(campController, objList);
         campController.getExternalNodes().forEach((node)->{
             Node ext = node.getNodeCopy();
             ext.add(1, 1);
             Guard guard = new Guard(ext,objList);
-            guard.addIndicatorListener(new IndicatorListener(objList,tab));
+            guard.addIndicatorListener(new IndicatorListener(objList,table));
             generateActor(guard);
             campController.addGuard(guard);
         });
         //for testing purposes only
         n.add(-1,-1);
-        activePlayer.iMove(tab, n);
+        activePlayer.iMove(table, n);
         cam.updatePosition();
     }
     
@@ -164,26 +164,34 @@ public class Controller {
         return activePlayer;
     }
     
+    public ActorList getActorList(){
+        return objList;
+    }
+    
+    public Table getTable(){
+        return table;
+    }
+    
     /**
      * Main game loop, called by timer
      */
     public void gameStep(){
         //updates lights and visibility
         if (!lights){
-            tab.dark(time);
+            table.dark(time);
             cam.fillVisibilityTable(false);
-            activePlayer.lookAround(tab,activePlayer.getSightRange(),cam);
+            activePlayer.lookAround(table,activePlayer.getSightRange(),cam);
             if (lightsOn) lightsOn = false;
         } else {
             if (!lightsOn){
                 cam.fillVisibilityTable(true);
-                tab.light();
+                table.light();
                 lightsOn = true;
             } 
         }
         
         //simulates all the objects and updates the camera
-        if (!paused) objList.simulate(tab);
+        if (!paused) objList.simulate(table);
         cam.update();
         //updates the time value
         if(!timeStop) ++time;
@@ -210,7 +218,7 @@ public class Controller {
             activePlayer.updateID();
         }
         if (skillToggle){
-            activatedSkill.activate(activePlayer.getNode(), pos, tab, objList);
+            activatedSkill.activate(activePlayer.getNode(), pos, table, objList);
         }
     }
      
@@ -225,17 +233,17 @@ public class Controller {
         if (UIselected - 1 < activePlayer.getSkillList().size()){
             Skill skill = activePlayer.getSkillList().get(UIselected-1);
             if (skill instanceof PathfindingSkill){
-                ((PathfindingSkill)skill).activate(activePlayer.getNode(), pos.getNodeCopy(), tab, objList, this);
+                ((PathfindingSkill)skill).activate(activePlayer.getNode(), pos.getNodeCopy(), table, objList, this);
             }
             else if (skill instanceof CreateMonsterSkill){
-                ((CreateMonsterSkill)skill).activate(activePlayer.getNode(), pos.getNodeCopy(), tab, objList, this);
+                ((CreateMonsterSkill)skill).activate(activePlayer.getNode(), pos.getNodeCopy(), table, objList, this);
             }
             else if (skill.getCurrentCooldown() == 0){
                 if (skill.isToggle()){
                     activatedSkill = skill;
                     skillToggle = true;
                 }
-                skill.activate(activePlayer.getNode(), pos.getNodeCopy(), tab, objList);
+                skill.activate(activePlayer.getNode(), pos.getNodeCopy(), table, objList);
             }
         }
     }
@@ -269,24 +277,24 @@ public class Controller {
                 case KeyEvent.VK_SPACE:
                     break;
                 case KeyEvent.VK_A:
-                    activePlayer.iMove(tab,Constants.W);
+                    activePlayer.iMove(table,Constants.W);
                     if (cam.isLocked()) cam.updatePosition();
                     break;
                 case KeyEvent.VK_W:
-                    activePlayer.iMove(tab,Constants.N);
+                    activePlayer.iMove(table,Constants.N);
                     if (cam.isLocked()) cam.updatePosition();
                     break;
                 case KeyEvent.VK_S:
-                    activePlayer.iMove(tab,Constants.S);
+                    activePlayer.iMove(table,Constants.S);
                     if (cam.isLocked()) cam.updatePosition();
                     break;
                 case KeyEvent.VK_D:
-                    activePlayer.iMove(tab,Constants.E);
+                    activePlayer.iMove(table,Constants.E);
                     if (cam.isLocked()) cam.updatePosition();
                     break;
                 case KeyEvent.VK_C:
                     //TODO: check before casting
-                    cam.toggleLocked((Creature)tab.getTile(cam.getPos()).getContent());
+                    cam.toggleLocked((Creature)table.getTile(cam.getPos()).getContent());
                     break;
                 case KeyEvent.VK_K:
                     save();
@@ -295,12 +303,12 @@ public class Controller {
                     lights = !lights;
                     break;
                  case KeyEvent.VK_R:
-                    tab.getTile(cam.getPos()).clearContent();
+                    table.getTile(cam.getPos()).clearContent();
                     break;
                 case KeyEvent.VK_Q:
-                    for (int i = 0; i < tab.getTile(cam.getPos()).getContentSize(); ++i){
-                        if (tab.getTile(cam.getPos()).getContent(i) instanceof Interactable){
-                            ((Interactable)tab.getTile(cam.getPos()).getContent(i)).interact(tab);
+                    for (int i = 0; i < table.getTile(cam.getPos()).getContentSize(); ++i){
+                        if (table.getTile(cam.getPos()).getContent(i) instanceof Interactable){
+                            ((Interactable)table.getTile(cam.getPos()).getContent(i)).interact(table);
                         }
                     }
                     break;
@@ -311,8 +319,8 @@ public class Controller {
                     paused = !paused;
                     break;
                 case KeyEvent.VK_B:
-                    tab = new Table();
-                    cam.setTable(tab);
+                    table = new Table();
+                    cam.setTable(table);
                     break;
                 case KeyEvent.VK_M:
                     cam.toggleShowMap();
@@ -403,7 +411,7 @@ public class Controller {
             
             fileOutputStream = new FileOutputStream(filenameTable);
             objectOutputStream = new ObjectOutputStream(fileOutputStream);
-            objectOutputStream.writeObject(tab);
+            objectOutputStream.writeObject(table);
             objectOutputStream.close();
             fileOutputStream.close();
             
@@ -440,7 +448,7 @@ public class Controller {
             
             fileInputStream = new FileInputStream(filenameTable);
             objectInputStream = new ObjectInputStream(fileInputStream);
-            tab = (Table)objectInputStream.readObject();
+            table = (Table)objectInputStream.readObject();
             objectInputStream.close();
             fileInputStream.close();
             

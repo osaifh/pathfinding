@@ -37,6 +37,7 @@ public class Camera extends JFrame {
     private Creature activePlayer;
     private JLabel[][] inputTable;
     private boolean[][] visibilityTable;
+    private boolean[][] FOWtable;
 
     private boolean showMap = false;
     
@@ -75,6 +76,7 @@ public class Camera extends JFrame {
         cameraWidth = (panelWidth - UI_MARGIN * 2) / TILE_SIZE - 1;
         leftMargin = ((panelWidth - UI_MARGIN * 2) % TILE_SIZE)/2 + TILE_SIZE/2;
         visibilityTable = new boolean[cameraHeight][cameraWidth];
+        FOWtable = new boolean[table.getSize()][table.getSize()];
         //leftMargin = (panelWidth - cameraSize * TILE_SIZE) / 2;
         inputTable = new JLabel[cameraHeight][cameraWidth];
         int x, y;
@@ -255,6 +257,10 @@ public class Camera extends JFrame {
             visibilityTable[x][y] = b;
         }
     }
+    
+    public void setFOWtable(int x, int y){
+        FOWtable[x][y] = true;
+    }
 
     /**
      * Sets a tile of the visibility table to b
@@ -316,9 +322,9 @@ public class Camera extends JFrame {
                 drawY = i * TILE_SIZE;
                 if (table.valid(x, y)) {
                     tile = table.getTile(x, y);
-                    if (visibilityTable[i][j]) {
+                    if (FOWtable[x][y]) {
                         g.drawImage(Sprites.SPRITE_MAP.get(tile.getTerrainID()).getImage(), drawX, drawY, TILE_SIZE, TILE_SIZE, rootPane);
-                        if (table.getActor(x, y) != null) {
+                        if (visibilityTable[i][j] && table.getActor(x, y) != null) {
                             //draws every object in a tile
                             for (int k = 0; k < tile.getContentSize(); ++k) {
                                 if (tile.getContent(k) != null && Sprites.SPRITE_MAP.get(tile.getContent(k).getID()) != null) {
@@ -346,14 +352,20 @@ public class Camera extends JFrame {
                                 }
                             }
                         }
+                        if (tile.getLight() > 50 && !visibilityTable[i][j]){
+                            float alpha = 0.5f;
+                            g.setColor(new Color(0, 0, 0, alpha));
+                            g.fillRect(drawX, drawY, TILE_SIZE, TILE_SIZE);
+                        }
                         //only draw a rectangle if the light value isn'table max
                         //this shouldn'table be needed I'm just trying to optimize I guess
-                        if (tile.getLight() < 100) {
+                        else {
                             float alpha = 100 - tile.getLight();
                             alpha /= 100;
                             g.setColor(new Color(0, 0, 0, alpha));
                             g.fillRect(drawX, drawY, TILE_SIZE, TILE_SIZE);
                         }
+                        
                     }
                     //the coordinate is not visible to the controllable actor
                     else {
@@ -538,7 +550,12 @@ public class Camera extends JFrame {
                 drawX = (j / drawSize) + leftMargin + mapLeftMargin;
                 drawY = (i / drawSize) + mapTopMargin;
                 Tile tile = table.getTile(i, j);
-                g.setColor(COLOR_MAP.get(tile.getTerrainID()));
+                if (FOWtable[i][j]){
+                    g.setColor(COLOR_MAP.get(tile.getTerrainID()));
+                }
+                else {
+                    g.setColor(Color.black);
+                }
                 g.fillRect(drawX, drawY, drawSize, drawSize);
             }
         }
